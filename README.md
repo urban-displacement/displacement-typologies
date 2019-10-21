@@ -2,4 +2,4 @@
 UDP SPARCC Code
 
 ## tasks
-*investigate HUD-CHS data
+- [ ] investigate HUD-CHS data
