@@ -2,4 +2,4 @@
 /code/.ipynb_checkpoints/*
 
 /data/*
-!/data/crosswalk*
+!/data/README.md
