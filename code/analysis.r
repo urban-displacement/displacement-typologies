@@ -2,11 +2,128 @@
 # SPARCC Analysis
 # ==========================================================================
 
-pacman::p_load(tidyverse, tidycensus, stringr, ggplot2, RColorBrewer, gridExtra, lcmm)
-options(java.parameters = "-Xmx30g")
+if(!require(pacman)) install.packages("pacman")
+pacman::p_load(tidyverse, tidycensus, stringr, RColorBrewer, gridExtra)
+options(java.parameters = "-Xmx8g") # set the ram to 8gb
 library(bartMachine)
 set_bart_machine_num_cores(8)
 set.seed(100)
+
+# ==========================================================================
+# Installation assistance: 2020.02.04
+# by: Tim Thomas
+    #  In the case that rJava won't install or bartMachine won't work in macOS 
+    #   10.15 Catalina
+    #       1. go to https://www.oracle.com/technetwork/java/javase/downloads/java-archive-javase11-5116896.html and download and install 11.0.1
+    #       2. in terminal do `nano ~/.zshrc`
+    #       3. add `export JAVA_HOME=`/usr/libexec/java_home -v 11.0.1`
+    #       4. then `source ~/.zshrc` this changes the java_home path
+    #       5. Go into R and library(bartMachine)
+# ==========================================================================
+
+# ==========================================================================
+# Pull in data
+# ==========================================================================
+
+data <- 
+    bind_rows(
+            read_csv("~/git/sparcc/data/Atlanta_typology_output.csv") %>% 
+            select(!X1) %>% 
+            mutate(city = "Atlanta"),
+            read_csv("~/git/sparcc/data/Denver_typology_output.csv") %>% 
+            select(!X1) %>% 
+            mutate(city = "Denver"),
+            read_csv("~/git/sparcc/data/Chicago_typology_output.csv") %>% 
+            select(!X1) %>% 
+            mutate(city = "Chicago"),
+            read_csv("~/git/sparcc/data/Memphis_typology_output.csv") %>% 
+            select(!X1) %>% 
+            mutate(city = "Memphis")
+    )
+
+# ==========================================================================
+# EDA
+# Data dictionary: https://docs.google.com/spreadsheets/d/1A_Tk0EjN-ORTGmt41Fzykbh-4JRB38jwWwtn-pMO8C4/edit#gid=664440995
+# ==========================================================================
+
+#
+# Gentrification 
+# --------------------------------------------------------------------------
+
+data %>% 
+    group_by(city) %>% 
+    summarise(
+        count = n(), 
+        p_gent_17 = sum(gent_00_17)/count, 
+        p_gent_00 = sum(gent_90_00)/count, 
+        dif = p_gent_17 - p_gent_00
+    ) %>% 
+    ggplot(.) +
+    geom_point(aes(x = reorder(city, p_gent_17), y = p_gent_17), pch = 21, color = 'grey10', alpha = 1, size = 5) +
+    geom_point(aes(x = city, y = p_gent_00), pch = 21, color = 'grey70', alpha = 1, size = 5) +
+    theme_minimal() +
+    ylab('proportion of tracts that gentrified\n1990 to 2000 & 2000 to 2017') +
+    xlab('') +
+    coord_flip()
+
+    ####
+    # Note: 
+    # Chicago had the smalles increase in gentrified tracts, followed by Atlanta. 
+    # Atlanta has the smallest proportion of gentrified neighborhoods
+    #   * could this be consolidated concentration in the Atlanta area?  
+    # Denver and Memphis had the biggest gains (13% and 12%) while 
+    #   Atlanta and Chicago had the smallest gains (5% and 6%)
+    ####
+
+#
+# LI
+# --------------------------------------------------------------------------
+
+data %>%
+    ggplot(., aes(x = city, y = ch_all_li_count_00_17*-1)) +
+    geom_jitter(alpha = .3) +
+    geom_violin(draw_quantiles = c(0.5), alpha = .6) +
+    theme_minimal() +
+    ylab('Tract LI absolute losses (-) and gains (+)\n2000 to 2017') +
+    xlab('') + 
+    geom_hline(yintercept = 0, color = "red", linetype = "dotted") +
+    coord_flip()
+
+    ### 
+    # Atlanta had the most tracts with the highest absolute losses as 
+    # well as the biggest variation. 
+    ###
+
+# ==========================================================================
+# Model setup 
+# ==========================================================================
+eda1 <- 
+    data %>% 
+    filter(!is.na(gent_00_17)) 
+
+mod_y = eda1$gent_00_17
+mod_x = 
+    eda1 %>% 
+    select(
+
+        # left off
+        real_hinc_00,
+        hinc_00,
+        per_nhblk_00,
+        per_hisp_00,
+        per_asian_00,
+        per_rent_00,
+        per_units_pre_50_00,
+        per_built_00_17,
+        i.lihtc_fl_00,
+        i.downtown,
+        i.rail_00,
+        vac_00,
+        i.ph_fl,
+        i.hosp_fl,
+        i.uni_fl,
+        per_carcommute_00
+)    
 
 hhinc <- 
     c('HHIncTen_Total' = 'B25118_001', # Total
