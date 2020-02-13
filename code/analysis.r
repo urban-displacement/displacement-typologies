@@ -3,7 +3,7 @@
 # ==========================================================================
 
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(tidyverse, tidycensus, stringr, RColorBrewer, gridExtra)
+pacman::p_load(tidyverse, tidycensus, stringr, RColorBrewer, gridExtra, lcmm)
 options(java.parameters = "-Xmx8g") # set the ram to 8gb
 library(bartMachine)
 set_bart_machine_num_cores(8)
@@ -42,6 +42,124 @@ data <-
     )
 
 # ==========================================================================
+# Data creation
+# ==========================================================================
+
+#
+# Mixed income
+# --------------------------------------------------------------------------
+
+hhinc <- 
+    c('HHIncTen_Total' = 'B25118_001', # Total
+    'HHIncTenOwn' = 'B25118_002', # Owner occupied
+    'HHIncTenOwn_5' = 'B25118_003', # Owner occupied!!Less than $5,000
+    'HHIncTenOwn_10' = 'B25118_004', # Owner occupied!!$5,000 to $9,999
+    'HHIncTenOwn_15' = 'B25118_005', # Owner occupied!!$10,000 to $14,999
+    'HHIncTenOwn_20' = 'B25118_006', # Owner occupied!!$15,000 to $19,999
+    'HHIncTenOwn_25' = 'B25118_007', # Owner occupied!!$20,000 to $24,999
+    'HHIncTenOwn_35' = 'B25118_008', # Owner occupied!!$25,000 to $34,999
+    'HHIncTenOwn_50' = 'B25118_009', # Owner occupied!!$35,000 to $49,999
+    'HHIncTenOwn_75' = 'B25118_010', # Owner occupied!!$50,000 to $74,999
+    'HHIncTenOwn_100' = 'B25118_011', # Owner occupied!!$75,000 to $99,999
+    'HHIncTenOwn_150' = 'B25118_012', # Owner occupied!!$100,000 to $149,999
+    'HHIncTenOwn_151' = 'B25118_013', # Owner occupied!!$150,000 or more
+    'HHIncTenRent' = 'B25118_014', # Renter occupied
+    'HHIncTenRent_5' = 'B25118_015', # Renter occupied!!Less than $5,000
+    'HHIncTenRent_10' = 'B25118_016', # Renter occupied!!$5,000 to $9,999
+    'HHIncTenRent_15' = 'B25118_017', # Renter occupied!!$10,000 to $14,999
+    'HHIncTenRent_20' = 'B25118_018', # Renter occupied!!$15,000 to $19,999
+    'HHIncTenRent_25' = 'B25118_019', # Renter occupied!!$20,000 to $24,999
+    'HHIncTenRent_35' = 'B25118_020', # Renter occupied!!$25,000 to $34,999
+    'HHIncTenRent_50' = 'B25118_021', # Renter occupied!!$35,000 to $49,999
+    'HHIncTenRent_75' = 'B25118_022', # Renter occupied!!$50,000 to $74,999
+    'HHIncTenRent_100' = 'B25118_023', # Renter occupied!!$75,000 to $99,999
+    'HHIncTenRent_150' = 'B25118_024', # Renter occupied!!$100,000 to $149,999
+    'HHIncTenRent_151' = 'B25118_025' # Renter occupied!!$150,000 or more
+    )
+
+df <- 
+    data.frame(
+        county = c('031', '043', '089', '093', '097', '111', '197', '057', '063', '067', '089', '097', '113', '121', '135', '151', '247', '001', '005', '013', '014', '019', '031', '035', '047', '059', '033', '093', '047', '157'), 
+        state = c('17', '17', '17', '17', '17', '17', '17', '13', '13', '13', '13', '13', '13', '13', '13', '13', '13', '08', '08', '08', '08', '08', '08', '08', '08', '08', '28', '28', '47', '47'), 
+        city = c('chicago', 'chicago', 'chicago', 'chicago', 'chicago', 'chicago', 'chicago', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'denver', 'denver', 'denver', 'denver', 'denver', 'denver', 'denver', 'denver', 'denver', 'memphis', 'memphis', 'memphis', 'memphis'), stringsAsFactors=FALSE)
+
+counties <- c('17031', '17043', '17089', '17093', '17097', '17111', '17197', '13057', '13063', '13067', '13089', '13097', '13113', '13121', '13135', '13151', '13247', '08001', '08005', '08013', '08014', '08019', '08031', '08035', '08047', '08059', '28033', '28093', '47047', '47157')
+
+states <- unique(str_sub(counties, 1,2))
+
+df2 <- 
+    map_dfr(counties, function(x){
+    county <- str_sub(x, 3,5)
+    state <- str_sub(x, 1,2)
+    get_acs(
+        geography = "tract", 
+        state = state, 
+        county = county, 
+        variables = hhinc, 
+        year = 2017,
+        geomotry = TRUE, 
+        cache = TRUE
+    ) %>%
+    select(-moe) %>% 
+    spread(variable, estimate) %>% 
+    mutate(
+        GEOID = factor(GEOID), 
+        p_HHIncTenRent_5 = HHIncTenRent_5/HHIncTenRent,         
+        p_HHIncTenRent_10 = HHIncTenRent_10/HHIncTenRent, 
+        p_HHIncTenRent_15 = HHIncTenRent_15/HHIncTenRent, 
+        p_HHIncTenRent_20 = HHIncTenRent_20/HHIncTenRent,   
+        p_HHIncTenRent_25 = HHIncTenRent_25/HHIncTenRent,   
+        p_HHIncTenRent_35 = HHIncTenRent_35/HHIncTenRent, 
+        p_HHIncTenRent_50 = HHIncTenRent_50/HHIncTenRent,   
+        p_HHIncTenRent_75 = HHIncTenRent_75/HHIncTenRent,
+        p_HHIncTenRent_100 = HHIncTenRent_100/HHIncTenRent, 
+        p_HHIncTenRent_150 = HHIncTenRent_150/HHIncTenRent, 
+        p_HHIncTenRent_151 = HHIncTenRent_151/HHIncTenRent, 
+        county = str_sub(GEOID, 3,5), 
+        state = str_sub(GEOID, 1,2)
+    ) %>% 
+    left_join(., df)
+})
+
+df3 <- 
+    df2 %>% 
+    group_by(GEOID) %>% 
+    mutate(
+        p_0 = 0, 
+        p_5 = p_HHIncTenRent_5,         
+        p_10 = p_HHIncTenRent_10 + p_5,
+        p_15 = p_HHIncTenRent_15 + p_10,
+        p_20 = p_HHIncTenRent_20 + p_15,
+        p_25 = p_HHIncTenRent_25 + p_20,
+        p_35 = p_HHIncTenRent_35 + p_25,
+        p_50 = p_HHIncTenRent_50 + p_35,
+        p_75 = p_HHIncTenRent_75 + p_50,
+        p_100 = p_HHIncTenRent_100 + p_75,
+        p_150 = p_HHIncTenRent_150 + p_100,
+        p_151 = p_HHIncTenRent_151 + p_150
+    ) %>% 
+gather(var, p, p_0:p_151) %>% 
+mutate(var = factor(var, levels = c("p_0", "p_5","p_10","p_15","p_20","p_25","p_35","p_50","p_75","p_100","p_150","p_151")), 
+       p_num = as.numeric())
+
+df3 %>% 
+filter(city == "chicago") %>% 
+ggplot(aes(x = var, y = p, group = GEOID)) + 
+    geom_line(alpha = .1, size = .2) + 
+    geom_abline(aes(intercept=-.09, slope=1/11), color = "red")
+
+### Left off, see if this seperates the data appropriatly. 
+
+s2 <- lcmm(var~1+p,random=~1+p,subject="GEOID",link="linear",ng=2,mixture=~1+p,data=df3)
+s3 <- lcmm(var~1+p,random=~1+p,subject="GEOID",link="linear",ng=3,mixture=~1+p,data=df3)
+s4 <- lcmm(var~1+p,random=~1+p,subject="GEOID",link="linear",ng=4,mixture=~1+p,data=df3)
+s5 <- lcmm(var~1+p,random=~1+p,subject="GEOID",link="linear",ng=5,mixture=~1+p,data=df3)
+s6 <- lcmm(var~1+p,random=~1+p,subject="GEOID",link="linear",ng=6,mixture=~1+p,data=df3)
+# s2 <- lcmm(var~1+p,random=~1+p,subject="GEOID",link="linear",ng=2,mixture=~1+p,data=df3)
+# s2 <- lcmm(var~1+p,random=~1+p,subject="GEOID",link="linear",ng=2,mixture=~1+p,data=df3)
+
+
+# ==========================================================================
 # EDA
 # Data dictionary: https://docs.google.com/spreadsheets/d/1A_Tk0EjN-ORTGmt41Fzykbh-4JRB38jwWwtn-pMO8C4/edit#gid=664440995
 # ==========================================================================
@@ -68,7 +186,7 @@ data %>%
 
     ####
     # Note: 
-    # Chicago had the smalles increase in gentrified tracts, followed by Atlanta. 
+    # Chicago had small increase in gentrified tracts, followed by Atlanta. 
     # Atlanta has the smallest proportion of gentrified neighborhoods
     #   * could this be consolidated concentration in the Atlanta area?  
     # Denver and Memphis had the biggest gains (13% and 12%) while 
@@ -97,33 +215,141 @@ data %>%
 # ==========================================================================
 # Model setup 
 # ==========================================================================
-eda1 <- 
+eda1 <-  
     data %>% 
     filter(!is.na(gent_00_17)) 
 
-mod_y = eda1$gent_00_17
-mod_x = 
+mod_y1 = eda1$gent_00_17
+mod_x1 = 
     eda1 %>% 
+    select(
+        real_hinc_00,
+        hinc_00,
+        per_nonwhite_00,
+        per_rent_00,
+        per_units_pre50_17,
+        city,
+        # per_built_00_17,
+        # i.lihtc_fl_00,
+        # i.downtown,
+        # i.rail_00,
+        # vac_00,
+        # i.ph_fl,
+        # i.hosp_fl,
+        # i.uni_fl,
+        # per_carcommute_00
+) %>% 
+    data.frame()
+
+m1 =
+    bartMachine(
+        X = mod_x2, y = mod_y2, 
+        num_trees = 200, 
+        k = 1, 
+        num_iterations_after_burn_in = 2000,
+        use_missing_data = TRUE
+        )
+
+# ... Look at the variable of importance
+investigate_var_importance(m1)
+
+#
+# Predict
+# --------------------------------------------------------------------------
+
+funR = function(sim.model, 
+                sim.real_hinc, 
+                sim.hinc, 
+                sim.nonwhite, 
+                sim.rent, 
+                sim.units, 
+                sim.city){
+    sim_A = data.frame(real_hinc_00  = sim.real_hinc,
+                       hinc_00 = sim.hinc,  
+                       per_nonwhite_00  = rev(seq(0, 1, .01)),
+                       per_rent_00 = sim.rent,
+                       per_units_pre50_17  = sim.units,
+                       city = sim.city[1])
+
+    sim_B = sim_A %>% mutate(city = sim.city[2])
+    sim_C = sim_A %>% mutate(city = sim.city[3])
+    sim_D = sim_A %>% mutate(city = sim.city[4])
+
+    sims = bind_rows(sim_A, sim_B, sim_C, sim_D)
+
+    preds = predict(sim.model, sims) %>% data.frame(pred = .)
+    ints  = calc_credible_intervals(sim.model, sims) %>% data.frame()
+
+    sim.dat = bind_cols(preds, ints) %>%
+              rename(lwr = ci_lower_bd, upr = ci_upper_bd) %>%
+              bind_cols(sims) %>%
+              tbl_df()
+
+    return(sim.dat)
+}
+
+cities <- c("Atlanta", "Chicago", "Denver", "Memphis")
+# .... run and store
+eda_sims = funR(m1, 0, 0, seq(0, 1, .01), 0, 0, cities)
+
+data %>% ggplot(., aes(x = per_nonwhite_00)) + geom_freqpoly() + theme_minimal()
+
+eda2 <- 
+    data %>% 
+    filter(!is.na(ch_all_li_count_00_17)) 
+
+mod_y2 = eda2$ch_all_li_count_00_17
+mod_x2 = 
+    eda2 %>% 
     select(
 
         # left off
         real_hinc_00,
         hinc_00,
-        per_nhblk_00,
-        per_hisp_00,
-        per_asian_00,
+        per_nonwhite_00,
         per_rent_00,
-        per_units_pre_50_00,
-        per_built_00_17,
-        i.lihtc_fl_00,
-        i.downtown,
-        i.rail_00,
-        vac_00,
-        i.ph_fl,
-        i.hosp_fl,
-        i.uni_fl,
-        per_carcommute_00
-)    
+        per_units_pre50_17#,
+        # per_built_00_17,
+        # i.lihtc_fl_00,
+        # i.downtown,
+        # i.rail_00,
+        # vac_00,
+        # i.ph_fl,
+        # i.hosp_fl,
+        # i.uni_fl,
+        # per_carcommute_00
+) %>% 
+    data.frame()
+
+m2 =
+    bartMachine(
+        X = mod_x2, 
+        y = mod_y2, 
+        num_trees = 200, 
+        k = 1, 
+        num_iterations_after_burn_in = 2000,
+        use_missing_data = TRUE
+        )
+
+investigate_var_importance(m2)
+
+#
+# rankseg example
+# --------------------------------------------------------------------------
+
+x1 <- matrix(nrow = 4, ncol = 7)
+x1[1,] <- c( 10, 10, 10, 20, 30, 40, 50) 
+x1[2,] <- c( 0, 20, 10, 10, 10, 20, 20) 
+x1[3,] <- c(10, 20, 10, 10, 10, 0, 0 ) 
+x1[4,] <- c(30, 30, 20, 10, 10, 0, 0 ) 
+
+x2 <- x1
+x2[,c(3,4,6,7)] <- x1[,c(6,7,3,4)]
+rankorderseg(x1)
+rankorderseg(x2, pred = seq(0, 1, 0.1))
+
+
+
 
 hhinc <- 
     c('HHIncTen_Total' = 'B25118_001', # Total
