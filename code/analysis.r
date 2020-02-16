@@ -4,9 +4,10 @@
 
 if(!require(pacman)) install.packages("pacman")
 pacman::p_load(tidyverse, tidycensus, stringr, RColorBrewer, gridExtra, lcmm)
-options(java.parameters = "-Xmx8g") # set the ram to 8gb
+options(java.parameters = "-Xmx100g")
+# options(width = Sys.getenv('COLUMNS')) # set the ram to 8gb
 library(bartMachine)
-set_bart_machine_num_cores(8)
+set_bart_machine_num_cores(20)
 set.seed(100)
 
 # ==========================================================================
@@ -47,47 +48,49 @@ data <-
 
 #
 # Mixed income
+# Modified version of The Proportions of Families in Poor and affluent Neighborhoods from 
+# Bischoff, Kendra, and Sean F Reardon. “Residential Segregation by Income, 1970–2009,” 28, n.d.
 # --------------------------------------------------------------------------
 
-hhinc <- 
+hh_inc_vars <- 
     c('HHIncTen_Total' = 'B25118_001', # Total
     'HHIncTenOwn' = 'B25118_002', # Owner occupied
-    'HHIncTenOwn_5' = 'B25118_003', # Owner occupied!!Less than $5,000
-    'HHIncTenOwn_10' = 'B25118_004', # Owner occupied!!$5,000 to $9,999
-    'HHIncTenOwn_15' = 'B25118_005', # Owner occupied!!$10,000 to $14,999
-    'HHIncTenOwn_20' = 'B25118_006', # Owner occupied!!$15,000 to $19,999
-    'HHIncTenOwn_25' = 'B25118_007', # Owner occupied!!$20,000 to $24,999
-    'HHIncTenOwn_35' = 'B25118_008', # Owner occupied!!$25,000 to $34,999
-    'HHIncTenOwn_50' = 'B25118_009', # Owner occupied!!$35,000 to $49,999
-    'HHIncTenOwn_75' = 'B25118_010', # Owner occupied!!$50,000 to $74,999
-    'HHIncTenOwn_100' = 'B25118_011', # Owner occupied!!$75,000 to $99,999
-    'HHIncTenOwn_150' = 'B25118_012', # Owner occupied!!$100,000 to $149,999
-    'HHIncTenOwn_151' = 'B25118_013', # Owner occupied!!$150,000 or more
+    'HHIncTenOwn_4999' = 'B25118_003', # Owner occupied!!Less than $5,000
+    'HHIncTenOwn_9999' = 'B25118_004', # Owner occupied!!$5,000 to $9,999
+    'HHIncTenOwn_14999' = 'B25118_005', # Owner occupied!!$10,000 to $14,999
+    'HHIncTenOwn_19999' = 'B25118_006', # Owner occupied!!$15,000 to $19,999
+    'HHIncTenOwn_24999' = 'B25118_007', # Owner occupied!!$20,000 to $24,999
+    'HHIncTenOwn_34999' = 'B25118_008', # Owner occupied!!$25,000 to $34,999
+    'HHIncTenOwn_49999' = 'B25118_009', # Owner occupied!!$35,000 to $49,999
+    'HHIncTenOwn_74999' = 'B25118_010', # Owner occupied!!$50,000 to $74,999
+    'HHIncTenOwn_99999' = 'B25118_011', # Owner occupied!!$75,000 to $99,999
+    'HHIncTenOwn_149999' = 'B25118_012', # Owner occupied!!$100,000 to $149,999
+    'HHIncTenOwn_150000' = 'B25118_013', # Owner occupied!!$150,000 or more
     'HHIncTenRent' = 'B25118_014', # Renter occupied
-    'HHIncTenRent_5' = 'B25118_015', # Renter occupied!!Less than $5,000
-    'HHIncTenRent_10' = 'B25118_016', # Renter occupied!!$5,000 to $9,999
-    'HHIncTenRent_15' = 'B25118_017', # Renter occupied!!$10,000 to $14,999
-    'HHIncTenRent_20' = 'B25118_018', # Renter occupied!!$15,000 to $19,999
-    'HHIncTenRent_25' = 'B25118_019', # Renter occupied!!$20,000 to $24,999
-    'HHIncTenRent_35' = 'B25118_020', # Renter occupied!!$25,000 to $34,999
-    'HHIncTenRent_50' = 'B25118_021', # Renter occupied!!$35,000 to $49,999
-    'HHIncTenRent_75' = 'B25118_022', # Renter occupied!!$50,000 to $74,999
-    'HHIncTenRent_100' = 'B25118_023', # Renter occupied!!$75,000 to $99,999
-    'HHIncTenRent_150' = 'B25118_024', # Renter occupied!!$100,000 to $149,999
-    'HHIncTenRent_151' = 'B25118_025' # Renter occupied!!$150,000 or more
+    'HHIncTenRent_4999' = 'B25118_015', # Renter occupied!!Less than $5,000
+    'HHIncTenRent_9999' = 'B25118_016', # Renter occupied!!$5,000 to $9,999
+    'HHIncTenRent_14999' = 'B25118_017', # Renter occupied!!$10,000 to $14,999
+    'HHIncTenRent_19999' = 'B25118_018', # Renter occupied!!$15,000 to $19,999
+    'HHIncTenRent_24999' = 'B25118_019', # Renter occupied!!$20,000 to $24,999
+    'HHIncTenRent_34999' = 'B25118_020', # Renter occupied!!$25,000 to $34,999
+    'HHIncTenRent_49999' = 'B25118_021', # Renter occupied!!$35,000 to $49,999
+    'HHIncTenRent_74999' = 'B25118_022', # Renter occupied!!$50,000 to $74,999
+    'HHIncTenRent_99999' = 'B25118_023', # Renter occupied!!$75,000 to $99,999
+    'HHIncTenRent_149999' = 'B25118_024', # Renter occupied!!$100,000 to $149,999
+    'HHIncTenRent_150000' = 'B25118_025', # Renter occupied!!$150,000 or more
+    'mhhinc' = 'B19013_001'
     )
 
 df <- 
     data.frame(
+        state = c(rep('17', 7), rep('13', 10), rep('08',9), rep('28',2), rep('47', 2)), 
         county = c('031', '043', '089', '093', '097', '111', '197', '057', '063', '067', '089', '097', '113', '121', '135', '151', '247', '001', '005', '013', '014', '019', '031', '035', '047', '059', '033', '093', '047', '157'), 
-        state = c('17', '17', '17', '17', '17', '17', '17', '13', '13', '13', '13', '13', '13', '13', '13', '13', '13', '08', '08', '08', '08', '08', '08', '08', '08', '08', '28', '28', '47', '47'), 
-        city = c('chicago', 'chicago', 'chicago', 'chicago', 'chicago', 'chicago', 'chicago', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'atlanta', 'denver', 'denver', 'denver', 'denver', 'denver', 'denver', 'denver', 'denver', 'denver', 'memphis', 'memphis', 'memphis', 'memphis'), stringsAsFactors=FALSE)
+        city = c(rep('chicago',7), rep('atlanta', 10), rep('denver', 9), rep('memphis', 4)),
+        stringsAsFactors=FALSE)
 
 counties <- c('17031', '17043', '17089', '17093', '17097', '17111', '17197', '13057', '13063', '13067', '13089', '13097', '13113', '13121', '13135', '13151', '13247', '08001', '08005', '08013', '08014', '08019', '08031', '08035', '08047', '08059', '28033', '28093', '47047', '47157')
 
-states <- unique(str_sub(counties, 1,2))
-
-df2 <- 
+hh_inc_df <- 
     map_dfr(counties, function(x){
     county <- str_sub(x, 3,5)
     state <- str_sub(x, 1,2)
@@ -95,13 +98,118 @@ df2 <-
         geography = "tract", 
         state = state, 
         county = county, 
-        variables = hhinc, 
+        variables = hh_inc_vars,  
         year = 2017,
         geomotry = TRUE, 
         cache = TRUE
     ) %>%
     select(-moe) %>% 
     spread(variable, estimate) %>% 
+    mutate(
+        county = str_sub(GEOID, 3,5), 
+        state = str_sub(GEOID, 1,2)) %>% 
+    left_join(., df)  
+})
+
+# ==========================================================================
+# DEV 
+
+hh_inc_own <-     
+    hh_inc_df %>% 
+    ungroup() %>% 
+    gather(inc_cat, inc_own_count, HHIncTenOwn_10000:HHIncTenOwn_75000) %>% 
+    mutate(inc_cat = 
+        as.numeric(
+            case_when(
+                inc_cat == 'HHIncTenOwn_5000' ~ 4999, 
+                inc_cat == 'HHIncTenOwn_10000' ~ 9999,
+                inc_cat == 'HHIncTenOwn_15000' ~ 14999, 
+                inc_cat == 'HHIncTenOwn_20000' ~ 19999,
+                inc_cat == 'HHIncTenOwn_25000' ~ 24999,
+                inc_cat == 'HHIncTenOwn_35000' ~ 34999,
+                inc_cat == 'HHIncTenOwn_50000' ~ 49999, 
+                inc_cat == 'HHIncTenOwn_75000' ~ 74999,
+                inc_cat == 'HHIncTenOwn_100000' ~ 99999, 
+                inc_cat == 'HHIncTenOwn_150000' ~ 149999,
+                inc_cat == 'HHIncTenOwn_151000' ~ 150000)
+        )
+        ) %>% 
+    select(GEOID, tr_mhhinc = mhhinc, tr_inc_cat = inc_cat, tr_inc_own_count = inc_own_count, tr_tot_own = HHIncTenOwn)
+
+hh_inc_rent <- 
+    hh_inc_df %>% 
+    ungroup() %>% 
+    gather(inc_cat, inc_rent_count, HHIncTenRent_10000:HHIncTenRent_75000) %>% 
+    mutate(inc_cat = 
+        as.numeric(
+            case_when(
+                inc_cat == 'HHIncTenRent_5000' ~ 4999, 
+                inc_cat == 'HHIncTenRent_10000' ~ 9999,
+                inc_cat == 'HHIncTenRent_15000' ~ 14999, 
+                inc_cat == 'HHIncTenRent_20000' ~ 19999,
+                inc_cat == 'HHIncTenRent_25000' ~ 24999,
+                inc_cat == 'HHIncTenRent_35000' ~ 34999,
+                inc_cat == 'HHIncTenRent_50000' ~ 49999, 
+                inc_cat == 'HHIncTenRent_75000' ~ 74999,
+                inc_cat == 'HHIncTenRent_100000' ~ 99999, 
+                inc_cat == 'HHIncTenRent_150000' ~ 149999,
+                inc_cat == 'HHIncTenRent_151000' ~ 150000)
+        )
+        ) %>% 
+    select(GEOID, tr_mhhinc = mhhinc, tr_inc_cat = inc_cat, tr_inc_rent_count = inc_rent_count, tr_tot_rent = HHIncTenRent)
+
+hh_inc_df2 <-
+    left_join(hh_inc_own, hh_inc_rent) %>%
+    arrange(GEOID, tr_inc_cat) %>% 
+    mutate(
+        city_mhhinc = median(tr_mhhinc, na.rm = TRUE), 
+        city_50_ami = city_mhhinc*.5, 
+        city_80_ami = city_mhhinc*.8, 
+        city_120_ami = city_mhhinc*1.2, 
+        city_150_ami = city_mhhinc*1.5, 
+        # tr_p_50_own = case_when(tr_inc_cat <= city_50_ami ~ tr_inc_own_count/tr_tot_own), 
+        # tr_p_80_own = case_when(tr_inc_cat > city_50_ami & tr_inc_cat <= city_80_ami ~ tr_inc_own_count/tr_tot_own), 
+        # tr_p_100_own = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_mhhinc ~ tr_inc_own_count/tr_tot_own), 
+        # tr_p_120_own = case_when(tr_inc_cat > city_mhhinc & tr_inc_cat <= city_120_ami ~ tr_inc_own_count/tr_tot_own), 
+        # tr_p_150_own = case_when(tr_inc_cat > city_120_ami & tr_inc_cat <= city_150_ami ~ tr_inc_own_count/tr_tot_own), 
+        # tr_p_150p_own = case_when(tr_inc_cat > city_150_ami ~ tr_inc_own_count/tr_tot_own), 
+        # tr_p_50_rent = case_when(tr_inc_cat <= city_50_ami ~ tr_inc_rent_count/tr_tot_rent), 
+        # tr_p_80_rent = case_when(tr_inc_cat > city_50_ami & tr_inc_cat <= city_80_ami ~ tr_inc_rent_count/tr_tot_rent), 
+        # tr_p_100_rent = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_mhhinc ~ tr_inc_rent_count/tr_tot_rent), 
+        # tr_p_120_rent = case_when(tr_inc_cat > city_mhhinc & tr_inc_cat <= city_120_ami ~ tr_inc_rent_count/tr_tot_rent), 
+        # tr_p_150_rent = case_when(tr_inc_cat > city_120_ami & tr_inc_cat <= city_150_ami ~ tr_inc_rent_count/tr_tot_rent), 
+        # tr_p_150p_rent = case_when(tr_inc_cat > city_150_ami ~ tr_inc_rent_count/tr_tot_rent), 
+        tr_p_80_own = case_when(tr_inc_cat <= city_80_ami ~ tr_inc_own_count/tr_tot_own), 
+        tr_p_80_120_own = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_inc_own_count/tr_tot_own), 
+        tr_p_120_own = case_when(tr_inc_cat > city_120_ami ~ tr_inc_own_count/tr_tot_own), 
+        tr_p_80_rent = case_when(tr_inc_cat <= city_80_ami ~ tr_inc_rent_count/tr_tot_rent), 
+        tr_p_80_120_rent = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_inc_rent_count/tr_tot_rent), 
+        tr_p_120_rent = case_when(tr_inc_cat > city_120_ami ~ tr_inc_rent_count/tr_tot_rent)) %>%
+    replace(is.na(.), 0)
+
+ggplot(hh_inc_df2 %>% gather(est, val, tr_p_80_rent:tr_p_120_rent), aes(x = est, y = val)) + 
+geom_boxplot()
+
+# Neighborhood income type graph
+hh_inc_df2 %>% 
+group_by(GEOID) %>% 
+summarise_at(vars(tr_p_80_own:tr_p_120_rent), sum) %>% 
+ggplot() + 
+geom_point(aes(x = reorder(GEOID, tr_p_120_rent), y = tr_p_120_rent), color = "red") +
+geom_point(aes(x = GEOID, y = tr_p_80_120_rent), color = "blue") + 
+geom_point(aes(x = GEOID, y = tr_p_80_rent), color = "green") + 
+coord_flip()
+
+
+hh_inc_df2 %>% filter(GEOID == "08001008402") %>% data.frame()
+
+library(mclust)
+fit <- Mclust(hh_inc_df2 %>% select(GEOID, tr_p_50_rent:tr_p_150p_rent) %>% replace(is.na(.), 0))
+# ==========================================================================
+
+## Example ## 
+
+    %>% 
     mutate(
         GEOID = factor(GEOID), 
         p_HHIncTenRent_5 = HHIncTenRent_5/HHIncTenRent,         
@@ -115,30 +223,30 @@ df2 <-
         p_HHIncTenRent_100 = HHIncTenRent_100/HHIncTenRent, 
         p_HHIncTenRent_150 = HHIncTenRent_150/HHIncTenRent, 
         p_HHIncTenRent_151 = HHIncTenRent_151/HHIncTenRent, 
-        county = str_sub(GEOID, 3,5), 
-        state = str_sub(GEOID, 1,2)
-    ) %>% 
-    left_join(., df)
-})
+
+
+
 
 df3 <- 
     df2 %>% 
     group_by(GEOID) %>% 
     mutate(
-        p_0 = 0, 
-        p_5 = p_HHIncTenRent_5,         
-        p_10 = p_HHIncTenRent_10 + p_5,
-        p_15 = p_HHIncTenRent_15 + p_10,
-        p_20 = p_HHIncTenRent_20 + p_15,
-        p_25 = p_HHIncTenRent_25 + p_20,
-        p_35 = p_HHIncTenRent_35 + p_25,
-        p_50 = p_HHIncTenRent_50 + p_35,
-        p_75 = p_HHIncTenRent_75 + p_50,
-        p_100 = p_HHIncTenRent_100 + p_75,
-        p_150 = p_HHIncTenRent_150 + p_100,
-        p_151 = p_HHIncTenRent_151 + p_150
+        `5` = p_HHIncTenRent_5,         
+        `10` = p_HHIncTenRent_10 + `5`,
+        `15` = p_HHIncTenRent_15 + `10`,
+        `20` = p_HHIncTenRent_20 + `15`,
+        `25` = p_HHIncTenRent_25 + `20`,
+        `35` = p_HHIncTenRent_35 + `25`,
+        `50` = p_HHIncTenRent_50 + `35`,
+        `75` = p_HHIncTenRent_75 + `50`,
+        `100` = p_HHIncTenRent_100 + `75`,
+        `150` = p_HHIncTenRent_150 + `100`,
+        `151` = p_HHIncTenRent_151 + `150`
     ) %>% 
-gather(var, p, p_0:p_151) %>% 
+gather(var, p, `5`:`151`) %>% 
+arrange(GEOID) %>% 
+data.frame()
+
 mutate(var = factor(var, levels = c("p_0", "p_5","p_10","p_15","p_20","p_25","p_35","p_50","p_75","p_100","p_150","p_151")), 
        p_num = as.numeric())
 
@@ -150,8 +258,10 @@ ggplot(aes(x = var, y = p, group = GEOID)) +
 
 ### Left off, see if this seperates the data appropriatly. 
 
-s2 <- lcmm(var~1+p,random=~1+p,subject="GEOID",link="linear",ng=2,mixture=~1+p,data=df3)
-s3 <- lcmm(var~1+p,random=~1+p,subject="GEOID",link="linear",ng=3,mixture=~1+p,data=df3)
+s2 <- lcmm(var~1+p,random=p,subject="GEOID",link="linear",ng=2,mixture=p,data=df3 %>% mutate(var = as.numeric(var)) %>% select(GEOID, var, p))
+
+
+s3 <- lcmm(var~1+p,random=p,subject="GEOID",link="linear",ng=3,mixture=p,data=df3)
 s4 <- lcmm(var~1+p,random=~1+p,subject="GEOID",link="linear",ng=4,mixture=~1+p,data=df3)
 s5 <- lcmm(var~1+p,random=~1+p,subject="GEOID",link="linear",ng=5,mixture=~1+p,data=df3)
 s6 <- lcmm(var~1+p,random=~1+p,subject="GEOID",link="linear",ng=6,mixture=~1+p,data=df3)
