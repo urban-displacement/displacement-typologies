@@ -4,10 +4,9 @@
 
 if(!require(pacman)) install.packages("pacman")
 pacman::p_load(tidyverse, tidycensus, stringr, RColorBrewer, gridExtra, lcmm)
-options(java.parameters = "-Xmx100g")
-# options(width = Sys.getenv('COLUMNS')) # set the ram to 8gb
+options(java.parameters = "-Xmx8g", width = Sys.getenv('COLUMNS')) # set the ram to 8gb
 library(bartMachine)
-set_bart_machine_num_cores(20)
+set_bart_machine_num_cores(8)
 set.seed(100)
 
 # ==========================================================================
@@ -17,7 +16,7 @@ set.seed(100)
     #   10.15 Catalina
     #       1. go to https://www.oracle.com/technetwork/java/javase/downloads/java-archive-javase11-5116896.html and download and install 11.0.1
     #       2. in terminal do `nano ~/.zshrc`
-    #       3. add `export JAVA_HOME=`/usr/libexec/java_home -v 11.0.1`
+    #       3. add `export JAVA_HOME=`/usr/libexec/java_home -v 11.0.1``
     #       4. then `source ~/.zshrc` this changes the java_home path
     #       5. Go into R and library(bartMachine)
 # ==========================================================================
@@ -90,7 +89,7 @@ df <-
 
 counties <- c('17031', '17043', '17089', '17093', '17097', '17111', '17197', '13057', '13063', '13067', '13089', '13097', '13113', '13121', '13135', '13151', '13247', '08001', '08005', '08013', '08014', '08019', '08031', '08035', '08047', '08059', '28033', '28093', '47047', '47157')
 
-hh_inc_df <- 
+hh_inc_df_17 <- 
     map_dfr(counties, function(x){
     county <- str_sub(x, 3,5)
     state <- str_sub(x, 1,2)
@@ -111,49 +110,70 @@ hh_inc_df <-
     left_join(., df)  
 })
 
+hh_inc_df_09 <- 
+    map_dfr(counties, function(x){
+    county <- str_sub(x, 3,5)
+    state <- str_sub(x, 1,2)
+    get_acs(
+        geography = "tract", 
+        state = state, 
+        county = county, 
+        variables = hh_inc_vars,  
+        year = 2009,
+        geomotry = TRUE, 
+        cache = TRUE
+    ) %>%
+    select(-moe) %>% 
+    spread(variable, estimate) %>% 
+    mutate(
+        county = str_sub(GEOID, 3,5), 
+        state = str_sub(GEOID, 1,2)) %>% 
+    left_join(., df)  
+})
+
 # ==========================================================================
 # DEV 
 
 hh_inc_own <-     
-    hh_inc_df %>% 
+    hh_inc_df_17 %>% 
     ungroup() %>% 
-    gather(inc_cat, inc_own_count, HHIncTenOwn_10000:HHIncTenOwn_75000) %>% 
+    gather(inc_cat, inc_own_count, HHIncTenOwn_14999:HHIncTenOwn_99999) %>% 
     mutate(inc_cat = 
         as.numeric(
             case_when(
-                inc_cat == 'HHIncTenOwn_5000' ~ 4999, 
-                inc_cat == 'HHIncTenOwn_10000' ~ 9999,
-                inc_cat == 'HHIncTenOwn_15000' ~ 14999, 
-                inc_cat == 'HHIncTenOwn_20000' ~ 19999,
-                inc_cat == 'HHIncTenOwn_25000' ~ 24999,
-                inc_cat == 'HHIncTenOwn_35000' ~ 34999,
-                inc_cat == 'HHIncTenOwn_50000' ~ 49999, 
-                inc_cat == 'HHIncTenOwn_75000' ~ 74999,
-                inc_cat == 'HHIncTenOwn_100000' ~ 99999, 
-                inc_cat == 'HHIncTenOwn_150000' ~ 149999,
-                inc_cat == 'HHIncTenOwn_151000' ~ 150000)
+                inc_cat == 'HHIncTenOwn_4999' ~ 4999, 
+                inc_cat == 'HHIncTenOwn_9999' ~ 9999,
+                inc_cat == 'HHIncTenOwn_14999' ~ 14999, 
+                inc_cat == 'HHIncTenOwn_19999' ~ 19999,
+                inc_cat == 'HHIncTenOwn_24999' ~ 24999,
+                inc_cat == 'HHIncTenOwn_34999' ~ 34999,
+                inc_cat == 'HHIncTenOwn_49999' ~ 49999, 
+                inc_cat == 'HHIncTenOwn_74999' ~ 74999,
+                inc_cat == 'HHIncTenOwn_99999' ~ 99999, 
+                inc_cat == 'HHIncTenOwn_149999' ~ 149999,
+                inc_cat == 'HHIncTenOwn_150000' ~ 150000)
         )
         ) %>% 
     select(GEOID, tr_mhhinc = mhhinc, tr_inc_cat = inc_cat, tr_inc_own_count = inc_own_count, tr_tot_own = HHIncTenOwn)
 
 hh_inc_rent <- 
-    hh_inc_df %>% 
+    hh_inc_df_17 %>% 
     ungroup() %>% 
-    gather(inc_cat, inc_rent_count, HHIncTenRent_10000:HHIncTenRent_75000) %>% 
+    gather(inc_cat, inc_rent_count, HHIncTenRent_14999:HHIncTenRent_99999) %>% 
     mutate(inc_cat = 
         as.numeric(
             case_when(
-                inc_cat == 'HHIncTenRent_5000' ~ 4999, 
-                inc_cat == 'HHIncTenRent_10000' ~ 9999,
-                inc_cat == 'HHIncTenRent_15000' ~ 14999, 
-                inc_cat == 'HHIncTenRent_20000' ~ 19999,
-                inc_cat == 'HHIncTenRent_25000' ~ 24999,
-                inc_cat == 'HHIncTenRent_35000' ~ 34999,
-                inc_cat == 'HHIncTenRent_50000' ~ 49999, 
-                inc_cat == 'HHIncTenRent_75000' ~ 74999,
-                inc_cat == 'HHIncTenRent_100000' ~ 99999, 
-                inc_cat == 'HHIncTenRent_150000' ~ 149999,
-                inc_cat == 'HHIncTenRent_151000' ~ 150000)
+                inc_cat == 'HHIncTenRent_4999' ~ 4999, 
+                inc_cat == 'HHIncTenRent_9999' ~ 9999,
+                inc_cat == 'HHIncTenRent_14999' ~ 14999, 
+                inc_cat == 'HHIncTenRent_19999' ~ 19999,
+                inc_cat == 'HHIncTenRent_24999' ~ 24999,
+                inc_cat == 'HHIncTenRent_34999' ~ 34999,
+                inc_cat == 'HHIncTenRent_49999' ~ 49999, 
+                inc_cat == 'HHIncTenRent_74999' ~ 74999,
+                inc_cat == 'HHIncTenRent_99999' ~ 99999, 
+                inc_cat == 'HHIncTenRent_149999' ~ 149999,
+                inc_cat == 'HHIncTenRent_150000' ~ 150000)
         )
         ) %>% 
     select(GEOID, tr_mhhinc = mhhinc, tr_inc_cat = inc_cat, tr_inc_rent_count = inc_rent_count, tr_tot_rent = HHIncTenRent)
