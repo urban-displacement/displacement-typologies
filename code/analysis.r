@@ -6,7 +6,7 @@ if(!require(pacman)) install.packages("pacman")
 pacman::p_load(tidyverse, tidycensus, stringr, RColorBrewer, gridExtra, lcmm)
 options(java.parameters = "-Xmx8g", width = Sys.getenv('COLUMNS')) # set the ram to 8gb
 library(bartMachine)
-set_bart_machine_num_cores(8)
+set_bart_machine_num_cores(12)
 set.seed(100)
 
 # ==========================================================================
@@ -131,10 +131,11 @@ hh_inc_df_09 <-
     left_join(., df)  
 })
 
-# ==========================================================================
-# DEV 
+#
+# Merge data
+# --------------------------------------------------------------------------
 
-hh_inc_own <-     
+hh_inc_own17 <-     
     hh_inc_df_17 %>% 
     ungroup() %>% 
     gather(inc_cat, inc_own_count, HHIncTenOwn_14999:HHIncTenOwn_99999) %>% 
@@ -154,9 +155,9 @@ hh_inc_own <-
                 inc_cat == 'HHIncTenOwn_150000' ~ 150000)
         )
         ) %>% 
-    select(GEOID, tr_mhhinc = mhhinc, tr_inc_cat = inc_cat, tr_inc_own_count = inc_own_count, tr_tot_own = HHIncTenOwn)
+    select(GEOID, tr_mhhinc = mhhinc, tr_inc_cat = inc_cat, tr_inc_own_count = inc_own_count, tr_tot_own = HHIncTenOwn, tr_tot_hh = HHIncTen_Total)
 
-hh_inc_rent <- 
+hh_inc_rent17 <- 
     hh_inc_df_17 %>% 
     ungroup() %>% 
     gather(inc_cat, inc_rent_count, HHIncTenRent_14999:HHIncTenRent_99999) %>% 
@@ -176,10 +177,10 @@ hh_inc_rent <-
                 inc_cat == 'HHIncTenRent_150000' ~ 150000)
         )
         ) %>% 
-    select(GEOID, tr_mhhinc = mhhinc, tr_inc_cat = inc_cat, tr_inc_rent_count = inc_rent_count, tr_tot_rent = HHIncTenRent)
+    select(GEOID, tr_mhhinc = mhhinc, tr_inc_cat = inc_cat, tr_inc_rent_count = inc_rent_count, tr_tot_rent = HHIncTenRent, tr_tot_hh = HHIncTen_Total)
 
-hh_inc_df2 <-
-    left_join(hh_inc_own, hh_inc_rent) %>%
+hh_inc_df_17_2 <-
+    left_join(hh_inc_own17, hh_inc_rent17) %>%
     arrange(GEOID, tr_inc_cat) %>% 
     mutate(
         city_mhhinc = median(tr_mhhinc, na.rm = TRUE), 
@@ -199,19 +200,132 @@ hh_inc_df2 <-
         # tr_p_120_rent = case_when(tr_inc_cat > city_mhhinc & tr_inc_cat <= city_120_ami ~ tr_inc_rent_count/tr_tot_rent), 
         # tr_p_150_rent = case_when(tr_inc_cat > city_120_ami & tr_inc_cat <= city_150_ami ~ tr_inc_rent_count/tr_tot_rent), 
         # tr_p_150p_rent = case_when(tr_inc_cat > city_150_ami ~ tr_inc_rent_count/tr_tot_rent), 
-        tr_p_80_own = case_when(tr_inc_cat <= city_80_ami ~ tr_inc_own_count/tr_tot_own), 
-        tr_p_80_120_own = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_inc_own_count/tr_tot_own), 
-        tr_p_120_own = case_when(tr_inc_cat > city_120_ami ~ tr_inc_own_count/tr_tot_own), 
-        tr_p_80_rent = case_when(tr_inc_cat <= city_80_ami ~ tr_inc_rent_count/tr_tot_rent), 
-        tr_p_80_120_rent = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_inc_rent_count/tr_tot_rent), 
-        tr_p_120_rent = case_when(tr_inc_cat > city_120_ami ~ tr_inc_rent_count/tr_tot_rent)) %>%
-    replace(is.na(.), 0)
+        tr_p_80_own = case_when(tr_inc_cat <= city_80_ami ~ tr_tot_hh/tr_tot_own), 
+        tr_p_80_120_own = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_tot_hh/tr_tot_own), 
+        tr_p_120_own = case_when(tr_inc_cat > city_120_ami ~ tr_tot_hh/tr_tot_own), 
+        tr_p_80_rent = case_when(tr_inc_cat <= city_80_ami ~ tr_tot_hh/tr_tot_rent), 
+        tr_p_80_120_rent = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_tot_hh/tr_tot_rent), 
+        tr_p_120_rent = case_when(tr_inc_cat > city_120_ami ~ tr_tot_hh/tr_tot_rent), 
+        year = 2017) %>%
+    replace(is.na(.), 0) %>%
+    group_by(GEOID, year) %>% 
+    summarise_at(vars(tr_p_80_own:tr_p_120_rent), sum)
 
-ggplot(hh_inc_df2 %>% gather(est, val, tr_p_80_rent:tr_p_120_rent), aes(x = est, y = val)) + 
+hh_inc_own09 <-     
+    hh_inc_df_09 %>% 
+    ungroup() %>% 
+    gather(inc_cat, inc_own_count, HHIncTenOwn_14999:HHIncTenOwn_99999) %>% 
+    mutate(inc_cat = 
+        as.numeric(
+            case_when(
+                inc_cat == 'HHIncTenOwn_4999' ~ 4999, 
+                inc_cat == 'HHIncTenOwn_9999' ~ 9999,
+                inc_cat == 'HHIncTenOwn_14999' ~ 14999, 
+                inc_cat == 'HHIncTenOwn_19999' ~ 19999,
+                inc_cat == 'HHIncTenOwn_24999' ~ 24999,
+                inc_cat == 'HHIncTenOwn_34999' ~ 34999,
+                inc_cat == 'HHIncTenOwn_49999' ~ 49999, 
+                inc_cat == 'HHIncTenOwn_74999' ~ 74999,
+                inc_cat == 'HHIncTenOwn_99999' ~ 99999, 
+                inc_cat == 'HHIncTenOwn_149999' ~ 149999,
+                inc_cat == 'HHIncTenOwn_150000' ~ 150000)
+        )
+        ) %>% 
+    select(GEOID, tr_mhhinc = mhhinc, tr_inc_cat = inc_cat, tr_inc_own_count = inc_own_count, tr_tot_own = HHIncTenOwn, tr_tot_hh = HHIncTen_Total)
+
+hh_inc_rent09 <- 
+    hh_inc_df_09 %>% 
+    ungroup() %>% 
+    gather(inc_cat, inc_rent_count, HHIncTenRent_14999:HHIncTenRent_99999) %>% 
+    mutate(inc_cat = 
+        as.numeric(
+            case_when(
+                inc_cat == 'HHIncTenRent_4999' ~ 4999, 
+                inc_cat == 'HHIncTenRent_9999' ~ 9999,
+                inc_cat == 'HHIncTenRent_14999' ~ 14999, 
+                inc_cat == 'HHIncTenRent_19999' ~ 19999,
+                inc_cat == 'HHIncTenRent_24999' ~ 24999,
+                inc_cat == 'HHIncTenRent_34999' ~ 34999,
+                inc_cat == 'HHIncTenRent_49999' ~ 49999, 
+                inc_cat == 'HHIncTenRent_74999' ~ 74999,
+                inc_cat == 'HHIncTenRent_99999' ~ 99999, 
+                inc_cat == 'HHIncTenRent_149999' ~ 149999,
+                inc_cat == 'HHIncTenRent_150000' ~ 150000)
+        )
+        ) %>% 
+    select(GEOID, tr_mhhinc = mhhinc, tr_inc_cat = inc_cat, tr_inc_rent_count = inc_rent_count, tr_tot_rent = HHIncTenRent, tr_tot_hh = HHIncTen_Total)
+
+hh_inc_df_09_2 <-
+    left_join(hh_inc_own09, hh_inc_rent09) %>%
+    arrange(GEOID, tr_inc_cat) %>% 
+    mutate(
+        city_mhhinc = median(tr_mhhinc, na.rm = TRUE), 
+        city_50_ami = city_mhhinc*.5, 
+        city_80_ami = city_mhhinc*.8, 
+        city_120_ami = city_mhhinc*1.2, 
+        city_150_ami = city_mhhinc*1.5, 
+        # tr_p_50_own = case_when(tr_inc_cat <= city_50_ami ~ tr_inc_own_count/tr_tot_own), 
+        # tr_p_80_own = case_when(tr_inc_cat > city_50_ami & tr_inc_cat <= city_80_ami ~ tr_inc_own_count/tr_tot_own), 
+        # tr_p_100_own = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_mhhinc ~ tr_inc_own_count/tr_tot_own), 
+        # tr_p_120_own = case_when(tr_inc_cat > city_mhhinc & tr_inc_cat <= city_120_ami ~ tr_inc_own_count/tr_tot_own), 
+        # tr_p_150_own = case_when(tr_inc_cat > city_120_ami & tr_inc_cat <= city_150_ami ~ tr_inc_own_count/tr_tot_own), 
+        # tr_p_150p_own = case_when(tr_inc_cat > city_150_ami ~ tr_inc_own_count/tr_tot_own), 
+        # tr_p_50_rent = case_when(tr_inc_cat <= city_50_ami ~ tr_inc_rent_count/tr_tot_rent), 
+        # tr_p_80_rent = case_when(tr_inc_cat > city_50_ami & tr_inc_cat <= city_80_ami ~ tr_inc_rent_count/tr_tot_rent), 
+        # tr_p_100_rent = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_mhhinc ~ tr_inc_rent_count/tr_tot_rent), 
+        # tr_p_120_rent = case_when(tr_inc_cat > city_mhhinc & tr_inc_cat <= city_120_ami ~ tr_inc_rent_count/tr_tot_rent), 
+        # tr_p_150_rent = case_when(tr_inc_cat > city_120_ami & tr_inc_cat <= city_150_ami ~ tr_inc_rent_count/tr_tot_rent), 
+        # tr_p_150p_rent = case_when(tr_inc_cat > city_150_ami ~ tr_inc_rent_count/tr_tot_rent), 
+        tr_p_80_own = case_when(tr_inc_cat <= city_80_ami ~ tr_tot_hh/tr_tot_own), 
+        tr_p_80_120_own = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_tot_hh/tr_tot_own), 
+        tr_p_120_own = case_when(tr_inc_cat > city_120_ami ~ tr_tot_hh/tr_tot_own), 
+        tr_p_80_rent = case_when(tr_inc_cat <= city_80_ami ~ tr_tot_hh/tr_tot_rent), 
+        tr_p_80_120_rent = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_tot_hh/tr_tot_rent), 
+        tr_p_120_rent = case_when(tr_inc_cat > city_120_ami ~ tr_tot_hh/tr_tot_rent), 
+        year = 2009) %>%
+    replace(is.na(.), 0) %>% 
+    group_by(GEOID, year) %>% 
+    summarise_at(vars(tr_p_80_own:tr_p_120_rent), sum)
+
+
+
+hh_inc_df_fin <- 
+    bind_rows(hh_inc_df_17_2, 
+              hh_inc_df_09_2) %>% 
+    distinct() %>% 
+    left_join(., bind_rows(
+                    hh_inc_df_17 %>% mutate(year = 2017), 
+                    hh_inc_df_09 %>% mutate(year = 2009)
+                ) %>% 
+                select(GEOID, HHIncTen_Total, HHIncTenOwn, HHIncTenRent, tr_mhhinc= mhhinc, county:city, year) %>% 
+                ungroup() %>% 
+                mutate(tr_p_rent = HHIncTenRent/HHIncTen_Total) %>% 
+                distinct()
+    ) %>% 
+    ungroup()
+
+# ==========================================================================
+# Affordability
+# ==========================================================================
+
+#
+# Review what we have
+# --------------------------------------------------------------------------
+
+
+# ==========================================================================
+# ==========================================================================
+# ==========================================================================
+# EXCESS CODE
+# ==========================================================================
+# ==========================================================================
+# ==========================================================================
+
+ggplot(hh_inc_df_09_2 %>% gather(est, val, tr_p_80_rent:tr_p_120_rent), aes(x = est, y = val)) + 
 geom_boxplot()
 
 # Neighborhood income type graph
-hh_inc_df2 %>% 
+hh_inc_df_17_2 %>% 
 group_by(GEOID) %>% 
 summarise_at(vars(tr_p_80_own:tr_p_120_rent), sum) %>% 
 ggplot() + 
@@ -225,7 +339,7 @@ hh_inc_df2 %>% filter(GEOID == "08001008402") %>% data.frame()
 
 library(mclust)
 fit <- Mclust(hh_inc_df2 %>% select(GEOID, tr_p_50_rent:tr_p_150p_rent) %>% replace(is.na(.), 0))
-# ==========================================================================
+
 
 ## Example ## 
 
