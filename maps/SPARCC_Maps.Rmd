@@ -3,13 +3,15 @@ title: "SPARCC Maps Draft"
 output: html_document
 ---
 
-```{r setup, include=FALSE, cache = TRUE}
+```{r setup, include=FALSE}
 # ==========================================================================
 # Develop data for displacement and vulnerability measures
 # Author: Tim Thomas - timthomas@berkeley.edu
 # Created: 2019.10.13
 # 1.0 code: 2019.12.1
 # ==========================================================================
+
+# Encrypt with: https://robinmoisson.github.io/staticrypt/
 
 # Clear the session
 rm(list = ls())
@@ -29,7 +31,9 @@ pacman::p_load(tidyverse, tigris, tidycensus, leaflet)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
+```
 
+```{r include=FALSE, cache = TRUE}
 # ==========================================================================
 # Data
 # ==========================================================================
@@ -102,7 +106,7 @@ data_sf <-
 
 ```
 
-```{r echo = FALSE, message = FALSE, cache = TRUE, warning = FALSE}
+```{r echo = FALSE, message = FALSE, warning = FALSE}
 # ==========================================================================
 # Maps
 # ==========================================================================
@@ -194,22 +198,26 @@ map <- function(data){
 ```
 
 # Atlanta, GA
-```{r echo = FALSE, message = FALSE, cache = TRUE, warning = FALSE}
+[Orginal Atlanta Maps](https://chartmann.carto.com/builder/78629402-5b92-4c6d-a83f-5ee5688ceee9/embed)
+```{r echo = FALSE, message = FALSE, warning = FALSE}
 map(atl_data)
 ```
 
 # Chicago, IL
-```{r echo = FALSE, message = FALSE, cache = TRUE, warning = FALSE}
+[Original Chicago Maps](https://chartmann.carto.com/builder/faa29556-1032-4ca5-aad2-095506519032/embed)
+```{r echo = FALSE, message = FALSE, warning = FALSE}
 map(chi_data)
 ```
 
 # Denver, CO
-```{r echo = FALSE, message = FALSE, cache = TRUE, warning = FALSE}
+[Original Denver Maps](https://chartmann.carto.com/builder/1cf30dff-e70c-4ad4-ae8d-bd1a62c994e4/embed)
+```{r echo = FALSE, message = FALSE, warning = FALSE}
 map(den_data)
 ```
 
 # Memphis, TN
-```{r echo = FALSE, message = FALSE, cache = TRUE, warning = FALSE}
+[Original Memphis Links](https://chartmann.carto.com/builder/ce3071a5-53f2-4c07-ae60-e15234f23886/embed)
+```{r echo = FALSE, message = FALSE, warning = FALSE}
 map(mem_data)
 ```
 
