@@ -1,0 +1,14 @@
+base
+pacman
+tidyverse
+ggplot2
+tibble
+tidyr
+readr
+purrr
+dplyr
+stringr
+forcats
+tigris
+tidycensus
+leaflet
