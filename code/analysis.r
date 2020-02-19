@@ -4,10 +4,10 @@
 
 if(!require(pacman)) install.packages("pacman")
 pacman::p_load(tidyverse, tidycensus, stringr, RColorBrewer, gridExtra, lcmm)
-options(java.parameters = "-Xmx8g", width = Sys.getenv('COLUMNS')) # set the ram to 8gb
-library(bartMachine)
-set_bart_machine_num_cores(12)
-set.seed(100)
+# options(java.parameters = "-Xmx8g", width = Sys.getenv('COLUMNS')) # set the ram to 8gb
+# library(bartMachine)
+# set_bart_machine_num_cores(12)
+# set.seed(100)
 
 # ==========================================================================
 # Installation assistance: 2020.02.04
@@ -50,6 +50,206 @@ data <-
 # Modified version of The Proportions of Families in Poor and affluent Neighborhoods from 
 # Bischoff, Kendra, and Sean F Reardon. “Residential Segregation by Income, 1970–2009,” 28, n.d.
 # --------------------------------------------------------------------------
+
+inc_vars <- 
+    c(
+        'HHInc_Total' = 'B19001_001', # Total HOUSEHOLD INCOME
+        'HHInc_10000' = 'B19001_002', # Less than $10,000 HOUSEHOLD INCOME
+        'HHInc_14999' = 'B19001_003', # $10,000 to $14,999 HOUSEHOLD INCOME
+        'HHInc_19999' = 'B19001_004', # $15,000 to $19,999 HOUSEHOLD INCOME
+        'HHInc_24999' = 'B19001_005', # $20,000 to $24,999 HOUSEHOLD INCOME
+        'HHInc_29999' = 'B19001_006', # $25,000 to $29,999 HOUSEHOLD INCOME
+        'HHInc_34999' = 'B19001_007', # $30,000 to $34,999 HOUSEHOLD INCOME
+        'HHInc_39999' = 'B19001_008', # $35,000 to $39,999 HOUSEHOLD INCOME
+        'HHInc_44999' = 'B19001_009', # $40,000 to $44,999 HOUSEHOLD INCOME
+        'HHInc_49999' = 'B19001_010', # $45,000 to $49,999 HOUSEHOLD INCOME
+        'HHInc_59999' = 'B19001_011', # $50,000 to $59,999 HOUSEHOLD INCOME
+        'HHInc_74999' = 'B19001_012', # $60,000 to $74,999 HOUSEHOLD INCOME
+        'HHInc_99999' = 'B19001_013', # $75,000 to $99,999 HOUSEHOLD INCOME
+        'HHInc_124999' = 'B19001_014', # $100,000 to $124,999 HOUSEHOLD INCOME
+        'HHInc_149999' = 'B19001_015', # $125,000 to $149,999 HOUSEHOLD INCOME
+        'HHInc_199999' = 'B19001_016', # $150,000 to $199,999 HOUSEHOLD INCOME
+        'HHInc_200000' = 'B19001_017', # $200,000 or more HOUSEHOLD INCOME
+        'mhhinc' = 'B19013_001'
+    )
+
+df <- 
+    data.frame(
+        state = c(rep('17', 7), rep('13', 10), rep('08',9), rep('28',2), rep('47', 2)), 
+        county = c('031', '043', '089', '093', '097', '111', '197', '057', '063', '067', '089', '097', '113', '121', '135', '151', '247', '001', '005', '013', '014', '019', '031', '035', '047', '059', '033', '093', '047', '157'), 
+        city = c(rep('chicago',7), rep('atlanta', 10), rep('denver', 9), rep('memphis', 4)),
+        stringsAsFactors=FALSE)
+
+counties <- c('17031', '17043', '17089', '17093', '17097', '17111', '17197', '13057', '13063', '13067', '13089', '13097', '13113', '13121', '13135', '13151', '13247', '08001', '08005', '08013', '08014', '08019', '08031', '08035', '08047', '08059', '28033', '28093', '47047', '47157')
+
+#
+# Download data
+# --------------------------------------------------------------------------
+
+hh_inc_df_17 <- 
+    map_dfr(counties, function(x){
+    county <- str_sub(x, 3,5)
+    state <- str_sub(x, 1,2)
+    get_acs(
+        geography = "tract", 
+        state = state, 
+        county = county, 
+        variables = inc_vars,  
+        year = 2017,
+        geometry = FALSE, 
+        cache = TRUE
+    ) %>%
+    select(-moe) %>% 
+    spread(variable, estimate) %>% 
+    mutate(
+        county = str_sub(GEOID, 3,5), 
+        state = str_sub(GEOID, 1,2)) %>% 
+    left_join(., df)  
+})
+
+hh_inc_df_09 <- 
+    map_dfr(counties, function(x){
+    county <- str_sub(x, 3,5)
+    state <- str_sub(x, 1,2)
+    get_acs(
+        geography = "tract", 
+        state = state, 
+        county = county, 
+        variables = inc_vars,  
+        year = 2009,
+        geometry = FALSE, 
+        cache = TRUE
+    ) %>%
+    select(-moe) %>% 
+    spread(variable, estimate) %>% 
+    mutate(
+        county = str_sub(GEOID, 3,5), 
+        state = str_sub(GEOID, 1,2)) %>% 
+    left_join(., df)  
+})
+
+#
+# Merge data
+# --------------------------------------------------------------------------
+
+hh_inc <- 
+    bind_rows(
+        hh_inc_df_17 %>% mutate(year = 2017),
+        hh_inc_df_09 %>% mutate(year = 2009)
+    ) %>% 
+    mutate(
+        city_ami = median(mhhinc, na.rm = TRUE), 
+        city_50_ami = city_ami*.5, 
+        city_80_ami = city_ami*.8, 
+        city_120_ami = city_ami*1.2, 
+        city_150_ami = city_ami*1.5, 
+    ) %>% 
+    gather(var, tr_inc_count, HHInc_10000:HHInc_99999) %>% 
+    separate(var, c("type", "tr_hh_inc")) %>% 
+    mutate(
+        tr_hh_inc = as.numeric(tr_hh_inc), 
+        tr_hh_count = HHInc_Total, 
+        tr_p_50 = case_when(tr_hh_inc <= city_50_ami ~ tr_inc_count/tr_hh_count), 
+        tr_p_50_80 = case_when(tr_hh_inc > city_50_ami & tr_hh_inc <= city_80_ami ~ tr_inc_count/tr_hh_count), 
+        tr_p_80_120 = case_when(tr_hh_inc > city_80_ami & tr_hh_inc <= city_120_ami ~ tr_inc_count/tr_hh_count), 
+        tr_p_120_150 = case_when(tr_hh_inc > city_120_ami & tr_hh_inc <= city_150_ami ~ tr_inc_count/tr_hh_count), 
+        tr_p_150 = case_when(tr_hh_inc > city_150_ami ~ tr_inc_count/tr_hh_count), 
+    ) %>% 
+    replace(is.na(.), 0) %>% 
+    arrange(year, GEOID, tr_hh_inc) %>% 
+    group_by(GEOID, year) %>% 
+    mutate_at(vars(tr_p_50:tr_p_150), sum) %>% 
+    select(GEOID, year, county:city, city_ami:city_150_ami, tr_mhhinc = mhhinc, tr_hh_count:tr_p_150) %>% 
+    distinct() %>% 
+    ungroup() 
+
+#
+# summary graphs
+# --------------------------------------------------------------------------
+
+summary(hh_inc)
+
+hh_inc %>% 
+    gather(var, p, tr_p_50:tr_p_150) %>% 
+    filter(year == 2009) %>%
+    ggplot(aes(x = var, y = p)) + 
+    geom_boxplot()
+
+hh_inc %>% 
+filter(year == 2017) %>%
+ggplot() + 
+geom_point(aes(x = reorder(GEOID, tr_p_150), y = tr_p_150), color = "red", alpha = .2) +
+geom_point(aes(x = GEOID, y = tr_p_50), color = "blue", alpha = .2) + 
+geom_point(aes(x = GEOID, y = tr_p_50_80), color = "green", alpha = .2) + 
+geom_point(aes(x = GEOID, y = tr_p_80_120), color = "orange", alpha = .2) + 
+geom_point(aes(x = GEOID, y = tr_p_120_150), alpha = .2)
+
+ggplot(hh_inc)  + 
+    geom_histogram(aes(x = (tr_p_50_120)), color = "blue", alpha = .5, binwidth = 0.0005) + 
+    geom_histogram(aes(x = (tr_p_120)), color = "red", alpha = .5, binwidth = 0.0005) + 
+    geom_histogram(aes(x = (tr_p_50)), binwidth = 0.0005)
+
+#
+# Latent class mixture model look over time to identify trajectories
+# --------------------------------------------------------------------------
+
+s2 <- multlcmm(tr_p_80+tr_p_120~1+year,random=~1+year,subject="GEOID",link="linear",ng=2,mixture=~1+year,data=hh_inc %>% select(tr_p_80, tr_p_120, year, GEOID) %>% mutate(GEOID = as.numeric(GEOID)) %>% data.frame())
+s3 <- multlcmm(tr_p_80+tr_p_120~1+year,random=~1+year,subject="GEOID",link="linear",ng=3,mixture=~1+year,data=hh_inc %>% select(tr_p_80, tr_p_120, year, GEOID) %>% mutate(GEOID = as.numeric(GEOID)) %>% data.frame())
+s4 <- multlcmm(tr_p_80+tr_p_120~1+year,random=~1+year,subject="GEOID",link="linear",ng=4,mixture=~1+year,data=hh_inc %>% select(tr_p_80, tr_p_120, year, GEOID) %>% mutate(GEOID = as.numeric(GEOID)) %>% data.frame())
+s5 <- multlcmm(tr_p_80+tr_p_120~1+year,random=~1+year,subject="GEOID",link="linear",ng=5,mixture=~1+year,data=hh_inc %>% select(tr_p_80, tr_p_120, year, GEOID) %>% mutate(GEOID = as.numeric(GEOID)) %>% data.frame())
+s6 <- multlcmm(tr_p_80+tr_p_120~1+year,random=~1+year,subject="GEOID",link="linear",ng=6,mixture=~1+year,data=hh_inc %>% select(tr_p_80, tr_p_120, year, GEOID) %>% mutate(GEOID = as.numeric(GEOID)) %>% data.frame())
+s7 <- multlcmm(tr_p_80+tr_p_120~1+year,random=~1+year,subject="GEOID",link="linear",ng=7,mixture=~1+year,data=hh_inc %>% select(tr_p_80, tr_p_120, year, GEOID) %>% mutate(GEOID = as.numeric(GEOID)) %>% data.frame())
+
+s2$BIC # -26127.57
+s3$BIC # -26381.95 ###
+s4$BIC # -26323.41 ##
+s5$BIC # -26045.76
+s6$BIC # -26319.01 #
+s7$BIC # -26178.86
+
+summary(s2)
+postprob(s2)
+plot(s2,which="linkfunction")
+
+summary(s3)
+postprob(s3)
+plot(s3,which="linkfunction")
+
+summary(s4)
+postprob(s4)
+plot(s4,which="linkfunction")
+
+summary(s5)
+postprob(s5)
+plot(s5,which="linkfunction")
+
+summary(s6)
+postprob(s6)
+plot(s6,which="linkfunction")
+
+summary(s7)
+postprob(s7)
+plot(s7,which="linkfunction")
+
+# ==========================================================================
+# Affordability 
+# ==========================================================================
+
+
+
+# ==========================================================================
+# ==========================================================================
+# ==========================================================================
+# EXCESS CODE
+# ==========================================================================
+# ==========================================================================
+# ==========================================================================
+
+
+# ==========================================================================
+# Income by tenure
+# ==========================================================================
+
 
 hh_inc_vars <- 
     c('HHIncTen_Total' = 'B25118_001', # Total
@@ -200,12 +400,12 @@ hh_inc_df_17_2 <-
         # tr_p_120_rent = case_when(tr_inc_cat > city_mhhinc & tr_inc_cat <= city_120_ami ~ tr_inc_rent_count/tr_tot_rent), 
         # tr_p_150_rent = case_when(tr_inc_cat > city_120_ami & tr_inc_cat <= city_150_ami ~ tr_inc_rent_count/tr_tot_rent), 
         # tr_p_150p_rent = case_when(tr_inc_cat > city_150_ami ~ tr_inc_rent_count/tr_tot_rent), 
-        tr_p_80_own = case_when(tr_inc_cat <= city_80_ami ~ tr_tot_hh/tr_tot_own), 
-        tr_p_80_120_own = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_tot_hh/tr_tot_own), 
-        tr_p_120_own = case_when(tr_inc_cat > city_120_ami ~ tr_tot_hh/tr_tot_own), 
-        tr_p_80_rent = case_when(tr_inc_cat <= city_80_ami ~ tr_tot_hh/tr_tot_rent), 
-        tr_p_80_120_rent = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_tot_hh/tr_tot_rent), 
-        tr_p_120_rent = case_when(tr_inc_cat > city_120_ami ~ tr_tot_hh/tr_tot_rent), 
+        tr_p_80_own = case_when(tr_inc_cat <= city_80_ami ~ tr_inc_own_count/tr_tot_hh), 
+        tr_p_80_120_own = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_inc_own_count/tr_tot_hh), 
+        tr_p_120_own = case_when(tr_inc_cat > city_120_ami ~ tr_inc_own_count/tr_tot_hh), 
+        tr_p_80_rent = case_when(tr_inc_cat <= city_80_ami ~ tr_inc_rent_count/tr_tot_hh), 
+        tr_p_80_120_rent = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_inc_rent_count/tr_tot_hh), 
+        tr_p_120_rent = case_when(tr_inc_cat > city_120_ami ~ tr_inc_rent_count/tr_tot_hh), 
         year = 2017) %>%
     replace(is.na(.), 0) %>%
     group_by(GEOID, year) %>% 
@@ -276,12 +476,12 @@ hh_inc_df_09_2 <-
         # tr_p_120_rent = case_when(tr_inc_cat > city_mhhinc & tr_inc_cat <= city_120_ami ~ tr_inc_rent_count/tr_tot_rent), 
         # tr_p_150_rent = case_when(tr_inc_cat > city_120_ami & tr_inc_cat <= city_150_ami ~ tr_inc_rent_count/tr_tot_rent), 
         # tr_p_150p_rent = case_when(tr_inc_cat > city_150_ami ~ tr_inc_rent_count/tr_tot_rent), 
-        tr_p_80_own = case_when(tr_inc_cat <= city_80_ami ~ tr_tot_hh/tr_tot_own), 
-        tr_p_80_120_own = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_tot_hh/tr_tot_own), 
-        tr_p_120_own = case_when(tr_inc_cat > city_120_ami ~ tr_tot_hh/tr_tot_own), 
-        tr_p_80_rent = case_when(tr_inc_cat <= city_80_ami ~ tr_tot_hh/tr_tot_rent), 
-        tr_p_80_120_rent = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_tot_hh/tr_tot_rent), 
-        tr_p_120_rent = case_when(tr_inc_cat > city_120_ami ~ tr_tot_hh/tr_tot_rent), 
+        tr_p_80_own = case_when(tr_inc_cat <= city_80_ami ~ tr_inc_own_count/tr_tot_hh), 
+        tr_p_80_120_own = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_inc_own_count/tr_tot_hh), 
+        tr_p_120_own = case_when(tr_inc_cat > city_120_ami ~ tr_inc_own_count/tr_tot_hh), 
+        tr_p_80_rent = case_when(tr_inc_cat <= city_80_ami ~ tr_inc_rent_count/tr_tot_hh), 
+        tr_p_80_120_rent = case_when(tr_inc_cat > city_80_ami & tr_inc_cat <= city_120_ami ~ tr_inc_rent_count/tr_tot_hh), 
+        tr_p_120_rent = case_when(tr_inc_cat > city_120_ami ~ tr_inc_rent_count/tr_tot_hh), 
         year = 2009) %>%
     replace(is.na(.), 0) %>% 
     group_by(GEOID, year) %>% 
@@ -312,15 +512,6 @@ hh_inc_df_fin <-
 # Review what we have
 # --------------------------------------------------------------------------
 
-
-# ==========================================================================
-# ==========================================================================
-# ==========================================================================
-# EXCESS CODE
-# ==========================================================================
-# ==========================================================================
-# ==========================================================================
-
 ggplot(hh_inc_df_09_2 %>% gather(est, val, tr_p_80_rent:tr_p_120_rent), aes(x = est, y = val)) + 
 geom_boxplot()
 
@@ -329,17 +520,29 @@ hh_inc_df_17_2 %>%
 group_by(GEOID) %>% 
 summarise_at(vars(tr_p_80_own:tr_p_120_rent), sum) %>% 
 ggplot() + 
-geom_point(aes(x = reorder(GEOID, tr_p_120_rent), y = tr_p_120_rent), color = "red") +
-geom_point(aes(x = GEOID, y = tr_p_80_120_rent), color = "blue") + 
-geom_point(aes(x = GEOID, y = tr_p_80_rent), color = "green") + 
-coord_flip()
+geom_point(aes(x = reorder(GEOID, tr_p_80_120_rent), y = tr_p_80_120_rent), color = "red") +
+geom_point(aes(x = GEOID, y = tr_p_80_rent), color = "blue") + 
+geom_point(aes(x = GEOID, y = tr_p_120_rent), color = "green")
+
+ggplot(hh_inc_df_17_2)  + 
+    geom_histogram(aes(x = (tr_p_80_120_rent)), color = "blue", alpha = .5, binwidth = 0.0005) + 
+    geom_histogram(aes(x = (tr_p_120_rent)), color = "red", alpha = .5, binwidth = 0.0005) + 
+    geom_histogram(aes(x = (tr_p_80_rent)), binwidth = 0.0005)
+
+check <- 
+hh_inc_df_17_2 %>% 
+mutate(
+    sc_tr_p_80_120_rent = scale(tr_p_80_120_rent, na.omit = TRUE),
+    sc_tr_p_80_120_rent = scale(tr_p_80_120_rent, na.omit = TRUE),
+    sc_tr_p_120_rent = scale(tr_p_120_rent, na.omit = TRUE), 
+    index = sum(sc_tr_p_80_120_rent, sc_tr_p_80_120_rent, sc_tr_p_120_rent)
+) %>% glimpse()
 
 
 hh_inc_df2 %>% filter(GEOID == "08001008402") %>% data.frame()
 
 library(mclust)
 fit <- Mclust(hh_inc_df2 %>% select(GEOID, tr_p_50_rent:tr_p_150p_rent) %>% replace(is.na(.), 0))
-
 
 ## Example ## 
 
