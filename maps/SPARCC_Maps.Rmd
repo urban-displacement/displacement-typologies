@@ -39,32 +39,43 @@ options(tigris_use_cache = TRUE)
 # ==========================================================================
 
 data <- 
-    bind_rows(
-            read_csv("~/git/sparcc/data/Atlanta_typology_output.csv") %>% 
-            select(!X1) %>% 
-            mutate(city = "Atlanta"),
-            read_csv("~/git/sparcc/data/Denver_typology_output.csv") %>% 
-            select(!X1) %>% 
-            mutate(city = "Denver"),
-            read_csv("~/git/sparcc/data/Chicago_typology_output.csv") %>% 
-            select(!X1) %>% 
-            mutate(city = "Chicago"),
-            read_csv("~/git/sparcc/data/Memphis_typology_output.csv") %>% 
-            select(!X1) %>% 
-            mutate(city = "Memphis")
-    ) %>% 
-	mutate(typology = 
+    readRDS("~/git/sparcc/data/df2.rds") %>% 
+    # bind_rows(
+    #         read_csv("~/git/sparcc/data/Atlanta_typology_output.csv") %>% 
+    #         select(!X1) %>% 
+    #         mutate(city = "Atlanta"),
+    #         read_csv("~/git/sparcc/data/Denver_typology_output.csv") %>% 
+    #         select(!X1) %>% 
+    #         mutate(city = "Denver"),
+    #         read_csv("~/git/sparcc/data/Chicago_typology_output.csv") %>% 
+    #         select(!X1) %>% 
+    #         mutate(city = "Chicago"),
+    #         read_csv("~/git/sparcc/data/Memphis_typology_output.csv") %>% 
+    #         select(!X1) %>% 
+    #         mutate(city = "Memphis")
+    # ) %>% 
+	mutate(
+        typology = 
 		factor(
 			case_when(
-				typ_cat == "['AdvG']" ~ 'Advanced Gentrification', #
-				typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive', #
-				typ_cat == "['ARG']" ~ 'At Risk of Gentrification', #
-				typ_cat == "['BE']" ~ 'Becoming Exclusive', # 
-				typ_cat == "['EOG']" ~ 'Early/Ongoing Gentrification', #
-				typ_cat == "['OD']" ~ 'Ongoing Displacement', #
-				typ_cat == "['SAE']" ~ 'Stable/Advanced Exclusive', # 
-				typ_cat == "['SLI']" ~ 'Stable/Low-Income',
-				typ_cat == "['SMMI']" ~ 'Stable Moderate/Mixed Income', #
+                typ_cat2 == 'AdvG' ~ 'Advanced Gentrification', 
+                typ_cat2 == 'ARE' ~ 'At Risk of Becoming Exclusive', 
+                typ_cat2 == 'ARG' ~ 'At Risk of Gentrification', 
+                typ_cat2 == 'BE' ~ 'Becoming Exclusive', #
+                typ_cat2 == 'EOG' ~ 'Early/Ongoing Gentrification', 
+                typ_cat2 == 'OD' ~ 'Ongoing Displacement', 
+                typ_cat2 == 'SAE' ~ 'Stable/Advanced Exclusive', #
+                typ_cat2 == 'SLI' ~ 'Stable/Low-Income',
+                typ_cat2 == 'SMMI' ~ 'Stable Moderate/Mixed Income', 
+				# typ_cat == "['AdvG']" ~ 'Advanced Gentrification', #
+				# typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive', #
+				# typ_cat == "['ARG']" ~ 'At Risk of Gentrification', #
+				# typ_cat == "['BE']" ~ 'Becoming Exclusive', # 
+				# typ_cat == "['EOG']" ~ 'Early/Ongoing Gentrification', #
+				# typ_cat == "['OD']" ~ 'Ongoing Displacement', #
+				# typ_cat == "['SAE']" ~ 'Stable/Advanced Exclusive', # 
+				# typ_cat == "['SLI']" ~ 'Stable/Low-Income',
+				# typ_cat == "['SMMI']" ~ 'Stable Moderate/Mixed Income', #
 				TRUE ~ "No Data"
 			), 
 			levels = 
@@ -80,7 +91,11 @@ data <-
 					'Stable/Advanced Exclusive', 
                     'No Data' #D5722D
 				)
-		)
+		), 
+        popup = 
+          str_c(
+              "<h3>Tract: ", GEOID, "</h3>",
+              typology)
 	) %>% 
 	data.frame()
 
@@ -187,7 +202,7 @@ map <- function(data){
 							weight = 5,
       						bringToFront = TRUE
       						), 
-		popup = ~typology
+		popup = ~popup
 	) %>% 	
 	addLegend(
 		pal = pal3, 
