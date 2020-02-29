@@ -37,7 +37,7 @@ df <-
 ### Tract data extraction function
 st <- c("IL","GA","AR","TN","CO","MS","AL","KY","MO","IN")
 
-tr_rent <- function(year, state)
+tr_rent <- function(year, state){
     get_acs(
         geography = "tract",
         variables = c('medrent' = 'B25064_001'),
@@ -56,6 +56,7 @@ tr_rent <- function(year, state)
         state = str_sub(GEOID, 1,2),
         year = str_sub(year, 3,4) 
     )
+}
 
 tr_rents17 <- 
     map_dfr(st, function(state){
@@ -76,20 +77,28 @@ tr_rents <-
     bind_rows(tr_rents17, tr_rents12) %>% 
     unite("variable", c(variable,year), sep = "") %>% 
     group_by(variable) %>% 
-    spread(variable, medrent) %>%
+    spread(variable, medrent) %>% 
     group_by(COUNTY) %>%
-    mutate(tr_medrent17 = case_when(is.na(medrent17) ~ median(medrent17, na.rm = TRUE),
-                               TRUE ~ medrent17),
-           tr_medrent12 = case_when(is.na(medrent12) ~ median(medrent12, na.rm = TRUE),
-                               TRUE ~ medrent12),
-           tr_chrent = tr_medrent17 - tr_medrent12,
-           tr_pchrent = (tr_medrent17 - tr_medrent12)/tr_medrent12, 
-           rm_medrent17 = median(tr_medrent17, na.rm = TRUE), 
-           rm_medrent12 = median(tr_medrent12, na.rm = TRUE)) %>% 
+    mutate(
+        tr_medrent17 = 
+            case_when(
+                is.na(medrent17) ~ median(medrent17, na.rm = TRUE),
+                TRUE ~ medrent17
+            ),
+        tr_medrent12 = 
+            case_when(
+                is.na(medrent12) ~ median(medrent12, na.rm = TRUE),
+                TRUE ~ medrent12),
+        tr_chrent = tr_medrent17 - tr_medrent12,
+        tr_pchrent = (tr_medrent17 - tr_medrent12)/tr_medrent12, 
+### CHANGE THIS TO INCLUDE RM of region rather than county
+        rm_medrent17 = median(tr_medrent17, na.rm = TRUE), 
+        rm_medrent12 = median(tr_medrent12, na.rm = TRUE)) %>% 
     select(-medrent12, -medrent17) %>% 
     distinct() %>% 
     group_by(GEOID) %>% 
-    filter(row_number()==1)
+    filter(row_number()==1) %>% 
+    ungroup()
 
 # Pull in state tracts shapefile and merge them - this is a rough way to do it. 
 states <- 
@@ -175,8 +184,8 @@ df2 <-
         rm_chrent.lag = median(tr_chrent.lag, na.rm = TRUE),
         rm_medrent17.lag = median(tr_medrent17.lag, na.rm = TRUE), 
         dp_PChRent = case_when(tr_pchrent > 0 & 
-                               tr_pchrent > rm_pchrent ~ 1,
-                               tr_pchrent.lag > rm_pchrent ~ 1,
+                               tr_pchrent > rm_pchrent ~ 1, # ∆ within tract
+                               tr_pchrent.lag > rm_pchrent ~ 1, # ∆ nearby tracts
                                TRUE ~ 0),
         dp_RentGap = case_when(tr_rent_gapprop > 0 & tr_rent_gapprop > rm_rent_gapprop ~ 1,
                                TRUE ~ 0),
@@ -196,8 +205,8 @@ df2 <-
                 (lmh_flag_encoded == 1 | lmh_flag_encoded == 4) & 
                 (change_flag_encoded == 1 | change_flag_encoded == 2) &
                 gent_90_00 == 0 &
-                (dp_PChRent == 1 | dp_RentGap == 1) &
-                vul_gent_00 == 1 &
+                (dp_PChRent == 1 | dp_RentGap == 1) & # new
+                vul_gent_00 == 1 & # new
                 gent_00_17 == 0 ~ 1, 
                 TRUE ~ 0), 
         # trueARG = case_when(ARG == ARG2 ~ TRUE, TRUE ~ FALSE)
@@ -219,6 +228,17 @@ df2 <-
 saveRDS(df2, "~/git/sparcc/data/df2.rds")
 
 df2 %>% filter(GEOID == 13121006000) %>% glimpse()
+
+
+# ==========================================================================
+# ==========================================================================
+# ==========================================================================
+# ==========================================================================
+# EXCESS CODE
+# ==========================================================================
+# ==========================================================================
+# ==========================================================================
+# ==========================================================================
 
     #  %>% 
     # select(GEOID, ARG, ARG2, trueARG) %>% 
