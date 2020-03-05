@@ -94,12 +94,43 @@ df <-
 					'Stable/Advanced Exclusive', 
                     'Insufficient Data' #D5722D
 				)
-		), 
+		)) %>% 
+    group_by(GEOID) %>% 
+    mutate( 
+        per_ch_li = (all_li_count_17-all_li_count_00)/all_li_count_00,
         popup = # What to include in the popup 
           str_c(
-              "Tract: ", GEOID,
+              "<b>Tract: ", GEOID, "</b>",
               "<br>", 
-              Typology
+              Typology, 
+            # Market
+              "<br><br>",
+              "<b>Market Dynamics<b><br>",
+              Tract median home value: real_mhval_17<br>
+              Change from 2000 to 2017: pctch_real_mhval_00_17,<br>
+              Regional median home value: rm_real_mhval_17<br>
+              <br>
+              Tract median rent: real_mrent_17<br>
+              Change from 2000 to 2017: pctch_real_mrent_00_17<br>
+              Regional median rent: rm_real_mrent_17<br>
+              <br>
+            # demographics
+             "<b>Demographics<b/><br>", 
+             Tract population: pop_17
+             Tract household count: hh_17
+             Tract median income: real_hinc_17
+             Percent low income hh: per_all_li_17
+             Percent change in LI: per_ch_li
+
+             Percent non-White: per_nonwhite_17
+             Regional median non-White: rm_per_nonwhite_17
+
+             Percent college educated: per_col_17
+             Regainal median educated: rm_per_col_17
+            
+            # risk factors
+            
+            
           )
 	) %>% 
 	data.frame()
@@ -165,6 +196,11 @@ red <-
     ) 
 
 industrial <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/industrial.shp') %>% 
+    mutate(site = 
+        case_when(
+            site_type == 0 ~ "Superfund", 
+            site_type == 1 ~ "TRI", 
+        )) %>%
     st_as_sf() 
 
 hud <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/HUDhousing.shp') %>% 
@@ -192,24 +228,24 @@ mem_df <-
 
 redpal <- 
 	colorFactor(
-		c("#abdda4", "#2b83ba", "#fdae61", "#d7191c"), 
+		c("#4ac938", "#2b83ba", "#ff8c1c", "#ff1c1c"), 
 		domain = red$Grade, 
 		na.color = "transparent"
 	)
 
-pal1 <- 
-    colorFactor(
-        c("#E4E0EB","#AAC2F0","#CAC2D7","#8B7EBE","#5C4B77","#FAEBDC","#F5D6B9","#ECB476","#D5722D"), 
-        domain = df$Typology, 
-        na.color = "transparent"
-    )
+# pal1 <- 
+#     colorFactor(
+#         c("#E4E0EB","#AAC2F0","#CAC2D7","#8B7EBE","#5C4B77","#FAEBDC","#F5D6B9","#ECB476","#D5722D"), 
+#         domain = df$Typology, 
+#         na.color = "transparent"
+#     )
 
-pal2 <- 
-	colorFactor(
-		c("#CCCCCC","#99CCff","#CCCCFF","#6666CC","#663399","#FFFFCC","#FFCC99","#FF9933","#FF6600"), 
-		domain = df$Typology, 
-		na.color = "transparent"
-	)
+# pal2 <- 
+# 	colorFactor(
+# 		c("#CCCCCC","#99CCff","#CCCCFF","#6666CC","#663399","#FFFFCC","#FFCC99","#FF9933","#FF6600"), 
+# 		domain = df$Typology, 
+# 		na.color = "transparent"
+# 	)
 
 pal3 <- 
 	colorFactor(
@@ -236,10 +272,36 @@ pal3 <-
 # 		domain = df_tiers$tier2, 
 # 		na.color = "transparent"
 # 	)
+# houseicon <- awesomeIcons(
+#   icon = 'home',
+#   iconColor = 'white',
+#   library = 'fa',
+#   markerColor = 'blue'
+# )
 
+# getColor <- function(industrial) {
+#   sapply(industrial$site, function(site) {
+#     if(site == "Superfund") {
+#         "orange"
+#     } else if(site == "TRI") {
+#             "red"
+#         }
+#     })
+# }
+
+# indcons <- 
+#     awesomeIcons(
+#         icon = 'industry', 
+#         iconColor = 'black', 
+#         library = 'fa', 
+#         markerColor = getColor(industrial)
+#     )
+
+indpal <- 
+    colorFactor(c("navy", "red"), domain = c("Superfund", "TRI"))
 # make map
 
-map_it <- function(data, city_name){
+map_it <- function(data, city_name, st){
 	leaflet(data = data) %>% 
 	addProviderTiles(providers$CartoDB.Positron) %>% 
 	# addMiniMap(tiles = providers$CartoDB.Positron, 
@@ -267,15 +329,15 @@ map_it <- function(data, city_name){
 	addLegend(
 		pal = pal3, 
 		values = ~Typology, 
-		group = "Typology"
+		group = "SPARCC Typology"
 	) %>% 
     addPolygons(
         data = red %>% filter(city == city_name), 
         group = "Redlined Areas", 
-        fillOpacity = .05, 
+        fillOpacity = .3, 
         color = ~redpal(Grade), 
         stroke = TRUE, 
-        weight = 3, 
+        weight = 1, 
         opacity = .8, 
         highlightOptions = highlightOptions(
                             color = "#ff4a4a", 
@@ -288,34 +350,99 @@ map_it <- function(data, city_name){
         data = red, 
         pal = redpal, 
         values = ~Grade, 
-        group = "Redline Grade",
-        title = "Redline Grades"
+        group = "Redlined Areas",
+        title = "Redline Zones"
     ) %>%     
+# Public Housing
+    # addAwesomeMarkers(
+    #     data = hud %>% filter(state == st), 
+    #     lng = ~longitude, 
+    #     lat = ~latitude, 
+    #     icon = houseicon, 
+    #     clusterOptions = markerClusterOptions(), 
+    #     group = 'Public Housing'
+    # ) %>%     
+    addCircleMarkers(
+        data = hud %>% filter(state == st), 
+        radius = 5, 
+        lng = ~longitude, 
+        lat = ~latitude, 
+        color = ~"green",
+        # clusterOptions = markerClusterOptions(), 
+        group = 'Public Housing', 
+        # popup = ~site,
+        fillOpacity = .5, 
+        stroke = FALSE
+    ) %>%     
+    # addLegend(
+    #     data = hud, 
+    #     color = ~colorFactor("green"), 
+    #     values = "Public Housing", 
+    #     group = "Public Housing", 
+    #     title = ""
+    # ) %>%    
+# Public Housing
+    addCircleMarkers(
+        data = industrial %>% filter(state == st), 
+        radius = 5, 
+        lng = ~longitude, 
+        lat = ~latitude, 
+        color = ~indpal(site),
+        # clusterOptions = markerClusterOptions(), 
+        group = 'Industrial Sites', 
+        popup = ~site,
+        fillOpacity = .5, 
+        stroke = FALSE
+    ) %>%     
+    # addAwesomeMarkers(
+    #     data = industrial %>% filter(state == st), 
+    #     lng = ~longitude, 
+    #     lat = ~latitude, 
+    #     icon = indcons, 
+    #     clusterOptions = markerClusterOptions(), 
+    #     group = 'Industrial Sites', 
+    #     popup = ~site
+    # ) %>% 
+    addLegend(
+        data = industrial, 
+        pal = indpal, 
+        values = ~site, 
+        group = "Industrial Sites", 
+        title = "Industrial Sites"
+    ) %>%    
     addLayersControl(
-        overlayGroups = c("SPARCC Typology", "Redlined Areas"),
+        overlayGroups = c("SPARCC Typology", "Redlined Areas", "Public Housing", "Industrial Sites"),
         options = layersControlOptions(collapsed = FALSE)) %>% 
-    hideGroup(c('Redlined Areas'))
+    hideGroup(c('Redlined Areas', 'Industrial Sites', 'Public Housing'))
 }
 
 # Atlanta, GA
-atlanta <- map_it(atl_df, "Atlanta")
+atlanta <- 
+    map_it(atl_df, "Atlanta", 'GA') %>% 
+    setView(lng = -84.3, lat = 33.749, zoom = 10)
+
+atlanta
 # save map
 htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta.html")
 
 # Chicago, IL
-chicago <- map_it(chi_df, "Chicago")
+chicago <- 
+    map_it(chi_df, "Chicago", 'IL') %>% 
+    setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
 htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago.html")
 
 # Denver, CO
-denver <- map_it(den_df, "Denver")
-
+denver <- 
+    map_it(den_df, "Denver", 'CO') %>% 
+    setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
 htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver.html")
 
 # Memphis, TN
-memphis <- map_it(mem_df, "Memphis")
-
+memphis <- 
+    map_it(mem_df, "Memphis", 'TN') %>% 
+    setView(lng = -89.9, lat = 35.2, zoom = 11)
 # # save map
 htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis.html")
 
