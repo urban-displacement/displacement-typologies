@@ -93,7 +93,10 @@ df <-
 					'Stable/Advanced Exclusive', 
                     'Insufficient Data' #D5722D
 				)
-		)) %>% 
+		), 
+        real_mhval_17 = case_when(real_mhval_17 < 0 ~ NA_real_),
+        real_mrent_17 = case_when(real_mrent_17 < 0 ~ NA_real_)
+    ) %>% 
     group_by(city) %>% 
     mutate(
         rm_real_mhval_17 = median(real_mhval_17, na.rm = TRUE), 
@@ -171,7 +174,7 @@ tracts <-
 # Join the tracts to the dataframe
 df_sf <- 
 	right_join(tracts, df) 
-
+47157011400
 # ==========================================================================
 # overlays
 # ==========================================================================
