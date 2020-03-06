@@ -21,7 +21,7 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(sf, geojsonsf, tidyverse, tigris, tidycensus, leaflet)
+pacman::p_load(sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
@@ -36,13 +36,13 @@ options(tigris_use_cache = TRUE)
 
 data <- 
     bind_rows( # pull in data
-        read_csv('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Outputs/atlanta_typology_2020.2.29.csv') %>% 
+        read_csv('~/git/sparcc/data/Atlanta_typology_output.csv') %>% 
         mutate(city = 'Atlanta'),
-        read_csv('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Outputs/denver_typology_2020.2.29.csv') %>%
+        read_csv('~/git/sparcc/data/Denver_typology_output.csv') %>%
         mutate(city = 'Denver'),
-        read_csv('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Outputs/chicago_typology_2020.2.29.csv') %>% 
+        read_csv('~/git/sparcc/data/Chicago_typology_output.csv') %>% 
         mutate(city = 'Chicago'),
-        read_csv('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Outputs/memphis_typology_2020.2.29.csv') %>% 
+        read_csv('~/git/sparcc/data/Memphis_typology_output.csv') %>% 
         mutate(city = 'Memphis')
     ) %>% 
     left_join(., 
@@ -50,7 +50,6 @@ data <-
         select(GEOID = geoid, opp_zone = tract_type) %>%
         mutate(GEOID = as.numeric(GEOID)) 
     )
-
 #
 # Prep dataframe for mapping
 # --------------------------------------------------------------------------
@@ -95,44 +94,58 @@ df <-
                     'Insufficient Data' #D5722D
 				)
 		)) %>% 
+    group_by(city) %>% 
+    mutate(
+        rm_real_mhval_17 = median(real_mhval_17, na.rm = TRUE), 
+        rm_real_mrent_17 = median(real_mrent_17, na.rm = TRUE), 
+        rm_per_nonwhite_17 = median(per_nonwhite_17, na.rm = TRUE), 
+        rm_per_col_17 = median(per_col_17, na.rm = TRUE)
+    ) %>% 
     group_by(GEOID) %>% 
     mutate( 
         per_ch_li = (all_li_count_17-all_li_count_00)/all_li_count_00,
         popup = # What to include in the popup 
           str_c(
-              "<b>Tract: ", GEOID, "</b>",
-              "<br>", 
-              Typology, 
+              '<b>Tract: ', GEOID, '<br>', 
+              Typology, '</b>',
             # Market
-              "<br><br>",
-              "<b>Market Dynamics<b><br>",
-              Tract median home value: real_mhval_17<br>
-              Change from 2000 to 2017: pctch_real_mhval_00_17,<br>
-              Regional median home value: rm_real_mhval_17<br>
-              <br>
-              Tract median rent: real_mrent_17<br>
-              Change from 2000 to 2017: pctch_real_mrent_00_17<br>
-              Regional median rent: rm_real_mrent_17<br>
-              <br>
+              '<br><br>',
+              '<b><i><u>Market Dynamics</u></i></b><br>',
+              'Tract median home value: ', dollar(real_mhval_17), '<br>',
+              'Tract change from 2000 to 2017: ', percent(pctch_real_mhval_00_17),'<br>',
+              'Regional median home value: ', dollar(rm_real_mhval_17), '<br>',
+              '<br>',
+              'Tract median rent: ', dollar(real_mrent_17), '<br>', 
+              'Regional median rent: ', dollar(rm_real_mrent_17), '<br>', 
+              'Change from 2000 to 2017: ', percent(pctch_real_mrent_00_17), '<br>',
+              '<br>',
+              'Rent gap: ', dollar(tr_rent_gap), '<br>',
+              'Regional median rent gap: ', dollar(rm_rent_gap), '<br>',
+              '<br>',
             # demographics
-             "<b>Demographics<b/><br>", 
-             Tract population: pop_17
-             Tract household count: hh_17
-             Tract median income: real_hinc_17
-             Percent low income hh: per_all_li_17
-             Percent change in LI: per_ch_li
-
-             Percent non-White: per_nonwhite_17
-             Regional median non-White: rm_per_nonwhite_17
-
-             Percent college educated: per_col_17
-             Regainal median educated: rm_per_col_17
-            
+             '<b><i><u>Demographics</u></i></b><br>', 
+             'Tract population: ', comma(pop_17), '<br>', 
+             'Tract household count: ', comma(hh_17), '<br>', 
+             'Tract median income: ', dollar(real_hinc_17), '<br>', 
+             'Percent low income hh: ', percent(per_all_li_17), '<br>', 
+             'Percent change in LI: ', percent(per_ch_li), '<br>',
+             '<br>',
+             'Percent non-White: ', percent(per_nonwhite_17), '<br>',
+             'Regional median non-White: ', percent(rm_per_nonwhite_17), '<br>',
+             '<br>',
+             'Percent college educated: ', percent(per_col_17), '<br>',
+             'Regainal median educated: ', percent(rm_per_col_17), '<br>',
+            '<br>',
             # risk factors
-            
-            
+             '<b><i><u>Risk Factors</u></i></b><br>', 
+             'Mostly low income: ', case_when(low_pdmt_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Mix low income: ', case_when(mix_low_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Rent change: ', case_when(dp_PChRent == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Rent gap: ', case_when(dp_RentGap == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No')
           )
 	) %>% 
+    ungroup() %>% 
 	data.frame()
 
 # State codes for downloading tract polygons
@@ -324,7 +337,8 @@ map_it <- function(data, city_name, st){
 							weight = 5,
       						bringToFront = TRUE
       						), 
-		popup = ~popup
+		popup = ~popup, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
 	) %>% 	
 	addLegend(
 		pal = pal3, 
