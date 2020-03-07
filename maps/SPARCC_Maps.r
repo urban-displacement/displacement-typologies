@@ -50,6 +50,7 @@ data <-
         select(GEOID = geoid, opp_zone = tract_type) %>%
         mutate(GEOID = as.numeric(GEOID)) 
     )
+
 #
 # Prep dataframe for mapping
 # --------------------------------------------------------------------------
@@ -94,8 +95,8 @@ df <-
                     'Insufficient Data' #D5722D
 				)
 		), 
-        real_mhval_17 = case_when(real_mhval_17 < 0 ~ NA_real_),
-        real_mrent_17 = case_when(real_mrent_17 < 0 ~ NA_real_)
+        real_mhval_17 = case_when(real_mhval_17 > 0 ~ real_mhval_17),
+        real_mrent_17 = case_when(real_mrent_17 > 0 ~ real_mrent_17)
     ) %>% 
     group_by(city) %>% 
     mutate(
@@ -105,7 +106,7 @@ df <-
         rm_per_col_17 = median(per_col_17, na.rm = TRUE)
     ) %>% 
     group_by(GEOID) %>% 
-    mutate( 
+    mutate(
         per_ch_li = (all_li_count_17-all_li_count_00)/all_li_count_00,
         popup = # What to include in the popup 
           str_c(
@@ -114,12 +115,12 @@ df <-
             # Market
               '<br><br>',
               '<b><i><u>Market Dynamics</u></i></b><br>',
-              'Tract median home value: ', dollar(real_mhval_17), '<br>',
-              'Tract change from 2000 to 2017: ', percent(pctch_real_mhval_00_17),'<br>',
+              'Tract median home value: ', case_when(!is.na(real_mhval_17) ~ dollar(real_mhval_17), TRUE ~ 'No data'), '<br>',
+              'Tract change from 2000 to 2017: ', case_when(is.na(real_mhval_17) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_17)),'<br>',
               'Regional median home value: ', dollar(rm_real_mhval_17), '<br>',
               '<br>',
-              'Tract median rent: ', dollar(real_mrent_17), '<br>', 
-              'Regional median rent: ', dollar(rm_real_mrent_17), '<br>', 
+              'Tract median rent: ', case_when(!is.na(real_mrent_17) ~ dollar(real_mrent_17), TRUE ~ 'No data'), '<br>', 
+              'Regional median rent: ', case_when(is.na(real_mrent_17) ~ 'No data', TRUE ~ dollar(rm_real_mrent_17)), '<br>', 
               'Change from 2000 to 2017: ', percent(pctch_real_mrent_00_17), '<br>',
               '<br>',
               'Rent gap: ', dollar(tr_rent_gap), '<br>',
@@ -174,7 +175,7 @@ tracts <-
 # Join the tracts to the dataframe
 df_sf <- 
 	right_join(tracts, df) 
-47157011400
+
 # ==========================================================================
 # overlays
 # ==========================================================================
@@ -221,6 +222,25 @@ industrial <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/S
 
 hud <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/HUDhousing.shp') %>% 
     st_as_sf() 
+
+### Rail data
+rail <- fread('~/git/sparcc/data/tod_database_download.csv')
+rail %>% group_by(Buffer) %>% count()
+
+### Hospitals
+hospitals <- fread('~/git/sparcc/data/Hospitals.csv')
+hospitals %>% group_by(TYPE) %>% count()
+# Describe tye in popup
+
+### Universities
+university <- fread('~/git/sparcc/data/university_HD2016.csv')
+glimpse(university)
+
+### LIHTC
+lihtc <- fread('~/git/sparcc/data/LowIncome_Housing_Tax_Credit_Properties.csv')
+
+### Public housing
+pub_hous <- fread('~/git/sparcc/data/Public_Housing_Buildings.csv')
 
 # ==========================================================================
 # Maps
@@ -398,7 +418,7 @@ map_it <- function(data, city_name, st){
     #     group = "Public Housing", 
     #     title = ""
     # ) %>%    
-# Public Housing
+# Industrial
     addCircleMarkers(
         data = industrial %>% filter(state == st), 
         radius = 5, 
@@ -411,15 +431,6 @@ map_it <- function(data, city_name, st){
         fillOpacity = .5, 
         stroke = FALSE
     ) %>%     
-    # addAwesomeMarkers(
-    #     data = industrial %>% filter(state == st), 
-    #     lng = ~longitude, 
-    #     lat = ~latitude, 
-    #     icon = indcons, 
-    #     clusterOptions = markerClusterOptions(), 
-    #     group = 'Industrial Sites', 
-    #     popup = ~site
-    # ) %>% 
     addLegend(
         data = industrial, 
         pal = indpal, 
@@ -438,7 +449,6 @@ atlanta <-
     map_it(atl_df, "Atlanta", 'GA') %>% 
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
-atlanta
 # save map
 htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta.html")
 
