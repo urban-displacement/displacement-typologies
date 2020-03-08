@@ -138,7 +138,7 @@ df <-
              'Regional median non-White: ', percent(rm_per_nonwhite_17), '<br>',
              '<br>',
              'Percent college educated: ', percent(per_col_17), '<br>',
-             'Regainal median educated: ', percent(rm_per_col_17), '<br>',
+             'Regional median educated: ', percent(rm_per_col_17), '<br>',
             '<br>',
             # risk factors
              '<b><i><u>Risk Factors</u></i></b><br>', 
@@ -224,23 +224,58 @@ hud <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/D
     st_as_sf() 
 
 ### Rail data
-rail <- fread('~/git/sparcc/data/tod_database_download.csv')
-rail %>% group_by(Buffer) %>% count()
+rail <- 
+    st_join(
+        fread('~/git/sparcc/data/tod_database_download.csv') %>% 
+            st_as_sf(
+                coords = c('Longitude', 'Latitude'), 
+                crs = 4269
+            ) %>% 
+            st_transform(4326), 
+        df_sf %>% select(city), 
+        join = st_intersects
+    ) %>% 
+    filter(!is.na(city))
 
 ### Hospitals
-hospitals <- fread('~/git/sparcc/data/Hospitals.csv')
-hospitals %>% group_by(TYPE) %>% count()
-# Describe tye in popup
+hospitals <- 
+    st_join(
+        fread('~/git/sparcc/data/Hospitals.csv') %>% 
+            st_as_sf(
+                coords = c('X', 'Y'), 
+                crs = 4269
+            ) %>% 
+            st_transform(4326), 
+        df_sf %>% select(city), 
+        join = st_intersects
+    ) %>% 
+    mutate(
+        popup = str_c(NAME, "<br>", NAICS_DESC), 
+        legend = "Hospitals"
+    ) %>% 
+    filter(!is.na(city))
+    # Describe NAME, TYPE, and NAICS_DESC in popup
 
 ### Universities
-university <- fread('~/git/sparcc/data/university_HD2016.csv')
-glimpse(university)
+university <- 
+    st_join(
+        fread('~/git/sparcc/data/university_HD2016.csv') %>% 
+            st_as_sf(
+                coords = c('LONGITUD', 'LATITUDE'), 
+                crs = 4269
+            ) %>% 
+            st_transform(4326), 
+        df_sf %>% select(city), 
+        join = st_intersects
+    ) %>% 
+    mutate(legend = "Universities") %>% 
+    filter(!is.na(city))
 
 ### LIHTC
-lihtc <- fread('~/git/sparcc/data/LowIncome_Housing_Tax_Credit_Properties.csv')
+# lihtc <- fread('~/git/sparcc/data/LowIncome_Housing_Tax_Credit_Properties.csv')
 
 ### Public housing
-pub_hous <- fread('~/git/sparcc/data/Public_Housing_Buildings.csv')
+# pub_hous <- fread('~/git/sparcc/data/Public_Housing_Buildings.csv')
 
 # ==========================================================================
 # Maps
@@ -279,17 +314,46 @@ redline_pal <-
 
 sparcc_pal <- 
 	colorFactor(
-		c("#f2f0f7",
-            "#6699cc","#cbc9e2",
+		c(
+            # '#e3dcf5',
+            "#f2f0f7", 
+            "#6699cc",
+            "#cbc9e2",
             # "#9e9ac8",
-            "#756bb1","#54278f","#ffffd4","#fed98e","#fe9929","#cc4c02", "#ffffff"), 
+            "#756bb1",
+            "#54278f",
+            "#ffffd4",
+            # '#ffff85',
+            "#fed98e",
+            "#fe9929",
+            "#cc4c02", 
+            "#ffffff"), 
 		domain = df$Typology, 
 		na.color = "transparent"
 	)
 
 industrial_pal <- 
-    colorFactor(c("orange", "red"), domain = c("Superfund", "TRI"))
+    colorFactor(c("#a65628", "#999999"), domain = c("Superfund", "TRI"))
 
+rail_pal <- 
+    colorFactor(
+        c(
+            '#377eb8',
+            '#4daf4a',
+            '#984ea3'
+        ), 
+        domain = c("Proposed Transit", "Planned Transit", "Existing Transit"))
+
+
+#e41a1c # red - hospital ###
+#377eb8 # blue - rail
+#4daf4a # green - rail
+#984ea3 # purple - rail
+#ff7f00 # orange - HUD 
+#ffff33 # yellow
+#a65628 # brown - industrial
+#f781bf # pink - universities ###
+#999999 # grey - industrial
 
 # make map
 
@@ -307,9 +371,9 @@ map_it <- function(data, city_name, st){
 	addPolygons(
 		data = data, 
 		group = "SPARCC Typology", 
-        label = ~paste(sep = '<br/>', Typology, '(click for more)'),
+        label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
-		fillOpacity = .5, 
+		fillOpacity = .7, 
 		color = ~sparcc_pal(Typology), 
 		stroke = TRUE, 
 		weight = .5, 
@@ -358,7 +422,7 @@ map_it <- function(data, city_name, st){
         radius = 5, 
         lng = ~longitude, 
         lat = ~latitude, 
-        color = ~"green",
+        color = ~"#ff7f00",
         # clusterOptions = markerClusterOptions(), 
         group = 'Public Housing', 
         # popup = ~site,
@@ -368,9 +432,10 @@ map_it <- function(data, city_name, st){
 # Industrial
     addCircleMarkers(
         data = industrial %>% filter(state == st), 
+        label = ~site, 
         radius = 5, 
-        lng = ~longitude, 
-        lat = ~latitude, 
+        # lng = ~longitude, 
+        # lat = ~latitude, 
         color = ~industrial_pal(site),
         # clusterOptions = markerClusterOptions(), 
         group = 'Industrial Sites', 
@@ -385,18 +450,84 @@ map_it <- function(data, city_name, st){
         group = "Industrial Sites", 
         title = "Industrial Sites"
     ) %>%    
+# Rail
+    addCircleMarkers(
+        data = rail %>% filter(city == city_name), 
+        label = ~Buffer, 
+        radius = 5, 
+        color = ~rail_pal(Buffer),
+        group = 'Rail Stations', 
+        popup = ~Buffer,
+        fillOpacity = .5, 
+        stroke = FALSE
+    ) %>%     
+    addLegend(
+        data = rail, 
+        pal = rail_pal, 
+        values = ~Buffer, 
+        group = "Rail Stations", 
+        title = "Rail Stations"
+    ) %>%  
+# University
+    addCircleMarkers(
+        data = university %>% filter(city == city_name), 
+        label = ~INSTNM, 
+        radius = 5, 
+        color = ~'#f781bf',
+        group = 'Universities & Colleges', 
+        popup = ~INSTNM,
+        fillOpacity = .5, 
+        stroke = FALSE
+    ) %>%     
+    # addLegend(
+    #     data = university, 
+    #     pal = ~'#f781bf', 
+    #     values = ~legend,
+    #     group = "Universities & Colleges", 
+    #     title = "Universities & Colleges"
+    # ) %>%    
+# Hospitals
+    addCircleMarkers(
+        data = hospitals %>% filter(city == city_name), 
+        label = ~NAME, 
+        radius = 5, 
+        color = ~"#e41a1c",
+        group = 'Hospitals', 
+        popup = ~popup,
+        fillOpacity = .5, 
+        stroke = FALSE
+    ) %>%     
+    # addLegend(
+    #     data = rail, 
+    #     pal = ~"#e41a1c", 
+    #     values = ~legend,
+    #     group = "Hospitals", 
+    #     title = "Hospitals"
+    # ) %>%    
 # Options
     addLayersControl(
-        overlayGroups = c("SPARCC Typology", "Redlined Areas", "Public Housing", "Industrial Sites"),
+        overlayGroups = 
+            c("SPARCC Typology", 
+                "Redlined Areas", 
+                "Hospitals", 
+                "Universities & Colleges", 
+                "Public Housing", 
+                "Rail Stations", 
+                "Industrial Sites"),
         options = layersControlOptions(collapsed = FALSE)) %>% 
-    hideGroup(c('Redlined Areas', 'Industrial Sites', 'Public Housing'))
+    hideGroup(
+        c("Redlined Areas", 
+            "Hospitals", 
+            "Universities & Colleges", 
+            "Public Housing", 
+            "Rail Stations", 
+            "Industrial Sites"))
 }
 
 # Atlanta, GA
 atlanta <- 
     map_it(atl_df, "Atlanta", 'GA') %>% 
     setView(lng = -84.3, lat = 33.749, zoom = 10)
-atlanta
 # save map
 htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta.html")
 
