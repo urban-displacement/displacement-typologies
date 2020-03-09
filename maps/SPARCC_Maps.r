@@ -217,7 +217,8 @@ industrial <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/S
         case_when(
             site_type == 0 ~ "Superfund", 
             site_type == 1 ~ "TRI", 
-        )) %>%
+        )) %>% 
+    filter(state != "CO") %>% 
     st_as_sf() 
 
 hud <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/HUDhousing.shp') %>% 
@@ -418,7 +419,7 @@ map_it <- function(data, city_name, st){
     ) %>%     
 # Public Housing
     addCircleMarkers(
-        data = hud %>% filter(state == st), 
+        data = hud %>% filter(state %in% st), 
         radius = 5, 
         lng = ~longitude, 
         lat = ~latitude, 
@@ -431,7 +432,7 @@ map_it <- function(data, city_name, st){
     ) %>%     
 # Industrial
     addCircleMarkers(
-        data = industrial %>% filter(state == st), 
+        data = industrial %>% filter(state %in% st), 
         label = ~site, 
         radius = 5, 
         # lng = ~longitude, 
@@ -524,6 +525,137 @@ map_it <- function(data, city_name, st){
             "Industrial Sites"))
 }
 
+## Map without industry for Denver
+map_it2 <- function(data, city_name, st){
+    leaflet(data = data) %>% 
+    addProviderTiles(providers$CartoDB.Positron) %>% 
+    # addMiniMap(tiles = providers$CartoDB.Positron, 
+    #          toggleDisplay = TRUE) %>% 
+    addEasyButton(
+        easyButton(
+            icon="fa-crosshairs", 
+            title="My Location",
+            onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
+# SPARCC typology
+    addPolygons(
+        data = data, 
+        group = "SPARCC Typology", 
+        label = ~Typology,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .7, 
+        color = ~sparcc_pal(Typology), 
+        stroke = TRUE, 
+        weight = .5, 
+        opacity = .60, 
+        highlightOptions = highlightOptions(
+                            color = "#ff4a4a", 
+                            weight = 5,
+                            bringToFront = TRUE
+                            ), 
+        popup = ~popup, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+    ) %>%   
+    addLegend(
+        pal = sparcc_pal, 
+        values = ~Typology, 
+        group = "SPARCC Typology"
+    ) %>% 
+# Redlined areas
+    addPolygons(
+        data = red %>% filter(city == city_name), 
+        group = "Redlined Areas", 
+        label = ~Grade,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .3, 
+        color = ~redline_pal(Grade), 
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .8, 
+        highlightOptions = highlightOptions(
+                            color = "#ff4a4a", 
+                            weight = 5,
+                            bringToFront = TRUE
+                            ), 
+        popup = ~popup
+    ) %>%   
+    addLegend(
+        data = red, 
+        pal = redline_pal, 
+        values = ~Grade, 
+        group = "Redlined Areas",
+        title = "Redline Zones"
+    ) %>%     
+# Public Housing
+    addCircleMarkers(
+        data = hud %>% filter(state %in% st), 
+        radius = 5, 
+        lng = ~longitude, 
+        lat = ~latitude, 
+        color = ~"#ff7f00",
+        # clusterOptions = markerClusterOptions(), 
+        group = 'Public Housing', 
+        # popup = ~site,
+        fillOpacity = .5, 
+        stroke = FALSE
+    ) %>%      
+# Rail
+    addCircleMarkers(
+        data = rail %>% filter(city == city_name), 
+        label = ~Buffer, 
+        radius = 5, 
+        color = ~rail_pal(Buffer),
+        group = 'Rail Stations', 
+        popup = ~Buffer,
+        fillOpacity = .5, 
+        stroke = FALSE
+    ) %>%     
+    addLegend(
+        data = rail, 
+        pal = rail_pal, 
+        values = ~Buffer, 
+        group = "Rail Stations", 
+        title = "Rail Stations"
+    ) %>%  
+# University
+    addCircleMarkers(
+        data = university %>% filter(city == city_name), 
+        label = ~INSTNM, 
+        radius = 5, 
+        color = ~'#f781bf',
+        group = 'Universities & Colleges', 
+        popup = ~INSTNM,
+        fillOpacity = .5, 
+        stroke = FALSE
+    ) %>%      
+# Hospitals
+    addCircleMarkers(
+        data = hospitals %>% filter(city == city_name), 
+        label = ~NAME, 
+        radius = 5, 
+        color = ~"#e41a1c",
+        group = 'Hospitals', 
+        popup = ~popup,
+        fillOpacity = .5, 
+        stroke = FALSE
+    ) %>%     
+# Options
+    addLayersControl(
+        overlayGroups = 
+            c("SPARCC Typology", 
+                "Redlined Areas", 
+                "Hospitals", 
+                "Universities & Colleges", 
+                "Public Housing", 
+                "Rail Stations"),
+        options = layersControlOptions(collapsed = FALSE)) %>% 
+    hideGroup(
+        c("Redlined Areas", 
+            "Hospitals", 
+            "Universities & Colleges", 
+            "Public Housing", 
+            "Rail Stations"))
+}
+
 # Atlanta, GA
 atlanta <- 
     map_it(atl_df, "Atlanta", 'GA') %>% 
@@ -540,15 +672,15 @@ htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago.html")
 
 # Denver, CO
 denver <- 
-    map_it(den_df, "Denver", 'CO') %>% 
+    map_it2(den_df, "Denver", 'CO') %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
 htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver.html")
 
 # Memphis, TN
 memphis <- 
-    map_it(mem_df, "Memphis", 'TN') %>% 
-    setView(lng = -89.9, lat = 35.2, zoom = 11)
+    map_it(mem_df, "Memphis", c('TN', 'MS')) %>% 
+    setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
 htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis.html")
 
