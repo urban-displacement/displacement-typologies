@@ -21,7 +21,7 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
+pacman::p_load(fst, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
@@ -180,6 +180,7 @@ df_sf <-
 # overlays
 # ==========================================================================
 
+### Redlining
 red <- 
     rbind(
         geojson_sf('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/CODenver1938_1.geojson') %>% 
@@ -212,6 +213,7 @@ red <-
           )
     ) 
 
+### Industrial points
 industrial <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/industrial.shp') %>% 
     mutate(site = 
         case_when(
@@ -227,7 +229,7 @@ hud <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/D
 ### Rail data
 rail <- 
     st_join(
-        fread('~/git/sparcc/data/tod_database_download.csv') %>% 
+        fread('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/tod_database_download.csv') %>% 
             st_as_sf(
                 coords = c('Longitude', 'Latitude'), 
                 crs = 4269
@@ -241,7 +243,7 @@ rail <-
 ### Hospitals
 hospitals <- 
     st_join(
-        fread('~/git/sparcc/data/Hospitals.csv') %>% 
+        fread('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/Hospitals.csv') %>% 
             st_as_sf(
                 coords = c('X', 'Y'), 
                 crs = 4269
@@ -260,7 +262,7 @@ hospitals <-
 ### Universities
 university <- 
     st_join(
-        fread('~/git/sparcc/data/university_HD2016.csv') %>% 
+        fread('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/university_HD2016.csv') %>% 
             st_as_sf(
                 coords = c('LONGITUD', 'LATITUDE'), 
                 crs = 4269
@@ -269,8 +271,35 @@ university <-
         df_sf %>% select(city), 
         join = st_intersects
     ) %>% 
-    mutate(legend = "Universities") %>% 
+    filter(ICLEVEL == 1, SECTOR < 3) %>% # filters to significant universities and colleges
+    mutate(
+        legend = case_when(
+            SECTOR == 1 ~ 'Major University', 
+            SECTOR == 2 ~ 'Medium University or College')
+    ) %>% 
     filter(!is.na(city))
+
+### Roads
+state_co <- 
+    df_sf %>% 
+    filter(!is.na(state)) %>% 
+    mutate(
+        state = str_pad(state, 2, pad = '0'), 
+        county = str_pad(county, 3, pad = '0'), 
+        state_co = paste0(state, county, city)
+    ) %>% 
+    pull(state_co) %>% 
+    unique()
+
+road_map <- 
+    map_dfr(state_co, function(x){
+        bind_rows(
+           test <- roads(state = substr(state_co[1], 1,2), county = substr(state_co[1], 3, 5), class = 'sf') %>% 
+            mutate(city = substr(state_co[1], 6, nchar(state_co[1])))
+        )
+    })
+
+### places
 
 ### LIHTC
 # lihtc <- fread('~/git/sparcc/data/LowIncome_Housing_Tax_Credit_Properties.csv')
