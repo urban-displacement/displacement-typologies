@@ -21,7 +21,7 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
+pacman::p_load(fst, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
@@ -83,7 +83,7 @@ df <-
 			), 
 			levels = 
 				c(
-					'Stable/Low-Income', #E4E0EB
+					'Stable/Low-Income', #E4E0EB 
 					'Ongoing Displacement', #AAC2F0
 					'At Risk of Gentrification', #CAC2D7
 					'Early/Ongoing Gentrification', #8B7EBE
@@ -91,7 +91,7 @@ df <-
 					'Stable Moderate/Mixed Income', #FAEBDC
 					'At Risk of Becoming Exclusive', #F5D6B9
 					'Becoming Exclusive', #ECB476
-					'Stable/Advanced Exclusive', 
+					'Stable/Advanced Exclusive', #C75023
                     'Insufficient Data' #D5722D
 				)
 		), 
@@ -180,6 +180,7 @@ df_sf <-
 # overlays
 # ==========================================================================
 
+### Redlining
 red <- 
     rbind(
         geojson_sf('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/CODenver1938_1.geojson') %>% 
@@ -212,6 +213,7 @@ red <-
           )
     ) 
 
+### Industrial points
 industrial <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/industrial.shp') %>% 
     mutate(site = 
         case_when(
@@ -227,7 +229,7 @@ hud <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/D
 ### Rail data
 rail <- 
     st_join(
-        fread('~/git/sparcc/data/tod_database_download.csv') %>% 
+        fread('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/tod_database_download.csv') %>% 
             st_as_sf(
                 coords = c('Longitude', 'Latitude'), 
                 crs = 4269
@@ -241,7 +243,7 @@ rail <-
 ### Hospitals
 hospitals <- 
     st_join(
-        fread('~/git/sparcc/data/Hospitals.csv') %>% 
+        fread('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/Hospitals.csv') %>% 
             st_as_sf(
                 coords = c('X', 'Y'), 
                 crs = 4269
@@ -260,7 +262,7 @@ hospitals <-
 ### Universities
 university <- 
     st_join(
-        fread('~/git/sparcc/data/university_HD2016.csv') %>% 
+        fread('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/university_HD2016.csv') %>% 
             st_as_sf(
                 coords = c('LONGITUD', 'LATITUDE'), 
                 crs = 4269
@@ -269,8 +271,90 @@ university <-
         df_sf %>% select(city), 
         join = st_intersects
     ) %>% 
-    mutate(legend = "Universities") %>% 
+    filter(ICLEVEL == 1, SECTOR < 3) %>% # filters to significant universities and colleges
+    mutate(
+        legend = case_when(
+            SECTOR == 1 ~ 'Major University', 
+            SECTOR == 2 ~ 'Medium University or College')
+    ) %>% 
     filter(!is.na(city))
+
+### Roads
+# state_co <- 
+#     df_sf %>% 
+#     filter(!is.na(state)) %>% 
+#     mutate(
+#         state = str_pad(state, 2, pad = '0'), 
+#         county = str_pad(county, 3, pad = '0'), 
+#         state_co = paste0(state, county, city)
+#     ) %>% 
+#     pull(state_co) %>% 
+#     unique()
+
+# road_map <- 
+#     map_dfr(state_co, function(x){
+#         roads(state = substr(x, 1,2), county = substr(x, 3, 5), class = 'sf') %>% 
+#         mutate(city = substr(x, 6, nchar(x)))
+#     })
+
+# road_map <- 
+#     reduce(
+#         map(state_co, function(x){
+#             roads(
+#                 state = substr(x, 1,2), 
+#                 county = substr(x, 3, 5), 
+#                 class = 'sf'
+#             ) %>% 
+#             mutate(city = substr(x, 6, nchar(x)))
+#         })
+#     )
+
+states <- 
+    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL')
+
+road_map <- 
+    reduce(
+        map(states, function(state){
+            primary_secondary_roads(state, class = 'sf')
+        }),
+        rbind
+    ) %>% 
+    filter(RTTYP %in% c('I','U')) %>% 
+    st_simplify() %>% 
+    st_transform(st_crs(df_sf)) %>%
+    st_join(., df_sf %>% select(city), join = st_intersects) %>% 
+    mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
+    filter(!is.na(city))
+
+# osm_lines <- osm$osm_lines
+# names(osm_lines$geometry) <- NULL
+# leaflet(osm_lines) %>%
+#   addPolylines()
+
+### places
+# place_pop <- 
+#     reduce(
+#         map(states, function(state){
+#             get_acs(
+#                 geography = "place", 
+#                 variables = "B01003_001", 
+#                 state = state)
+#         }), 
+#         rbind
+#     )
+
+# place <- 
+#     reduce(
+#         map(states, function(state){
+#             places(state, class = 'sf') %>% 
+#             st_centroid() %>% 
+#             st_transform(st_crs(df_sf))
+#         }), 
+#         rbind
+#     ) %>% 
+#     st_intersection(., df_sf %>% select(city)) %>% 
+#     left_join(., place_pop %>% select(GEOID, pop = estimate))
+
 
 ### LIHTC
 # lihtc <- fread('~/git/sparcc/data/LowIncome_Housing_Tax_Credit_Properties.csv')
@@ -317,21 +401,26 @@ sparcc_pal <-
 	colorFactor(
 		c(
             # '#e3dcf5',
-            "#f2f0f7", 
-            "#6699cc",
-            "#cbc9e2",
+            '#cbc9e2', # "#f2f0f7", 
+            '#5b88b5', #"#6699cc",
+            '#9e9ac8', #D9D7E8', #"#cbc9e2", #D9D7E8
             # "#9e9ac8",
-            "#756bb1",
-            "#54278f",
-            "#ffffd4",
+            '#756bb1', #B7B6D3', #"#756bb1", #B7B6D3
+            '#54278f', #8D82B6', #"#54278f", #8D82B6
+            '#FBEDE0', #"#ffffd4", #FBEDE0
             # '#ffff85',
-            "#fed98e",
-            "#fe9929",
-            "#cc4c02", 
+            '#F4C08D', #"#fed98e", #EE924F
+            '#EE924F', #"#fe9929", #EE924F
+            '#C95123', #"#cc4c02", #C75023
             "#ffffff"), 
 		domain = df$Typology, 
 		na.color = "transparent"
 	)
+
+
+
+
+
 
 industrial_pal <- 
     colorFactor(c("#a65628", "#999999"), domain = c("Superfund", "TRI"))
@@ -345,6 +434,14 @@ rail_pal <-
         ), 
         domain = c("Proposed Transit", "Planned Transit", "Existing Transit"))
 
+road_pal <- 
+    colorFactor(
+        c(
+            '#333333',
+            '#666666'
+        ), 
+        domain = c("Interstate", "US Highway"))
+
 
 #e41a1c # red - hospital ###
 #377eb8 # blue - rail
@@ -353,14 +450,23 @@ rail_pal <-
 #ff7f00 # orange - HUD 
 #ffff33 # yellow
 #a65628 # brown - industrial
-#f781bf # pink - universities ###
+#39992b # pink - universities ###
 #999999 # grey - industrial
 
 # make map
 
 map_it <- function(data, city_name, st){
 	leaflet(data = data) %>% 
-	addProviderTiles(providers$CartoDB.Positron) %>% 
+    addMapPane(name = "polygons", zIndex = 410) %>% 
+    addMapPane(name = "maplabels", zIndex = 420) %>% # higher zIndex rendered on top
+    # addProviderTiles("CartoDB.VoyagerNoLabels") %>%
+    # addProviderTiles("CartoDB.VoyagerOnlyLabels", 
+    addProviderTiles("CartoDB.PositronNoLabels") %>%
+    addProviderTiles("CartoDB.PositronOnlyLabels", 
+                   options = leafletOptions(pane = "maplabels"),
+                   group = "map labels") %>%
+	# addProviderTiles(providers$CartoDB.Positron) %>% 
+    # http://leaflet-extras.github.io/leaflet-providers/preview/index.html
 	# addMiniMap(tiles = providers$CartoDB.Positron, 
 	# 		   toggleDisplay = TRUE) %>% 
     addEasyButton(
@@ -374,16 +480,16 @@ map_it <- function(data, city_name, st){
 		group = "SPARCC Typology", 
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
-		fillOpacity = .7, 
+		fillOpacity = .5, 
 		color = ~sparcc_pal(Typology), 
 		stroke = TRUE, 
-		weight = .5, 
+		weight = .7, 
 		opacity = .60, 
-		highlightOptions = highlightOptions(
-							color = "#ff4a4a", 
-							weight = 5,
-      						bringToFront = TRUE
-      						), 
+		# highlightOptions = highlightOptions(
+		# 					color = "#ff4a4a", 
+		# 					weight = 5,
+  #     						bringToFront = TRUE
+  #     						), 
 		popup = ~popup, 
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
 	) %>% 	
@@ -416,8 +522,27 @@ map_it <- function(data, city_name, st){
         values = ~Grade, 
         group = "Redlined Areas",
         title = "Redline Zones"
+    ) %>%  
+# Roads
+    addPolylines(
+        data = road_map %>% filter(city == city_name), 
+        group = "Highways", 
+        # label = ~rt,
+        # labelOptions = labelOptions(textsize = "12px"),
+        # fillOpacity = .3, 
+        color = ~road_pal(rt), 
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .1    
+    ) %>%
+    addLegend(
+        data = road_map, 
+        pal = road_pal, 
+        values = ~rt, 
+        group = "Highways",
+        title = "Highways"
     ) %>%     
-# Public Housing
+# # Public Housing
     addCircleMarkers(
         data = hud %>% filter(state %in% st), 
         radius = 5, 
@@ -441,8 +566,9 @@ map_it <- function(data, city_name, st){
         # clusterOptions = markerClusterOptions(), 
         group = 'Industrial Sites', 
         popup = ~site,
-        fillOpacity = .5, 
-        stroke = FALSE
+        fillOpacity = .8, 
+        stroke = TRUE, 
+        weight = .6
     ) %>%     
     addLegend(
         data = industrial, 
@@ -457,32 +583,34 @@ map_it <- function(data, city_name, st){
         label = ~Buffer, 
         radius = 5, 
         color = ~rail_pal(Buffer),
-        group = 'Rail Stations', 
+        group = 'Transit Stations', 
         popup = ~Buffer,
-        fillOpacity = .5, 
-        stroke = FALSE
+        fillOpacity = .8, 
+        stroke = TRUE, 
+        weight = .6
     ) %>%     
     addLegend(
         data = rail, 
         pal = rail_pal, 
         values = ~Buffer, 
-        group = "Rail Stations", 
-        title = "Rail Stations"
+        group = "Transit Stations", 
+        title = "Transit Stations"
     ) %>%  
 # University
     addCircleMarkers(
         data = university %>% filter(city == city_name), 
         label = ~INSTNM, 
         radius = 5, 
-        color = ~'#f781bf',
+        color = ~'#39992b',
         group = 'Universities & Colleges', 
         popup = ~INSTNM,
-        fillOpacity = .5, 
-        stroke = FALSE
+        fillOpacity = .8, 
+        stroke = TRUE, 
+        weight = .6
     ) %>%     
     # addLegend(
     #     data = university, 
-    #     pal = ~'#f781bf', 
+    #     pal = ~'#39992b', 
     #     values = ~legend,
     #     group = "Universities & Colleges", 
     #     title = "Universities & Colleges"
@@ -495,8 +623,9 @@ map_it <- function(data, city_name, st){
         color = ~"#e41a1c",
         group = 'Hospitals', 
         popup = ~popup,
-        fillOpacity = .5, 
-        stroke = FALSE
+        fillOpacity = .8, 
+        stroke = TRUE, 
+        weight = .6
     ) %>%     
     # addLegend(
     #     data = rail, 
@@ -508,27 +637,37 @@ map_it <- function(data, city_name, st){
 # Options
     addLayersControl(
         overlayGroups = 
-            c("SPARCC Typology", 
-                "Redlined Areas", 
+            c("Redlined Areas", 
                 "Hospitals", 
                 "Universities & Colleges", 
                 "Public Housing", 
-                "Rail Stations", 
-                "Industrial Sites"),
+                "Transit Stations", 
+                "Industrial Sites", 
+                "Highways",
+                "SPARCC Typology"),
         options = layersControlOptions(collapsed = FALSE)) %>% 
     hideGroup(
         c("Redlined Areas", 
             "Hospitals", 
             "Universities & Colleges", 
             "Public Housing", 
-            "Rail Stations", 
+            "Transit Stations", 
             "Industrial Sites"))
 }
 
 ## Map without industry for Denver
 map_it2 <- function(data, city_name, st){
     leaflet(data = data) %>% 
-    addProviderTiles(providers$CartoDB.Positron) %>% 
+    addMapPane(name = "polygons", zIndex = 410) %>% 
+    addMapPane(name = "maplabels", zIndex = 420) %>% # higher zIndex rendered on top
+    # addProviderTiles("CartoDB.VoyagerNoLabels") %>%
+    # addProviderTiles("CartoDB.VoyagerOnlyLabels", 
+    addProviderTiles("CartoDB.PositronNoLabels") %>%
+    addProviderTiles("CartoDB.PositronOnlyLabels", 
+                   options = leafletOptions(pane = "maplabels"),
+                   group = "map labels") %>%
+    # addProviderTiles(providers$CartoDB.Positron) %>% 
+    # http://leaflet-extras.github.io/leaflet-providers/preview/index.html
     # addMiniMap(tiles = providers$CartoDB.Positron, 
     #          toggleDisplay = TRUE) %>% 
     addEasyButton(
@@ -542,16 +681,16 @@ map_it2 <- function(data, city_name, st){
         group = "SPARCC Typology", 
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
-        fillOpacity = .7, 
+        fillOpacity = .5, 
         color = ~sparcc_pal(Typology), 
         stroke = TRUE, 
-        weight = .5, 
+        weight = .7, 
         opacity = .60, 
-        highlightOptions = highlightOptions(
-                            color = "#ff4a4a", 
-                            weight = 5,
-                            bringToFront = TRUE
-                            ), 
+        # highlightOptions = highlightOptions(
+        #                   color = "#ff4a4a", 
+        #                   weight = 5,
+  #                             bringToFront = TRUE
+  #                             ), 
         popup = ~popup, 
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
     ) %>%   
@@ -584,8 +723,27 @@ map_it2 <- function(data, city_name, st){
         values = ~Grade, 
         group = "Redlined Areas",
         title = "Redline Zones"
+    ) %>%  
+# Roads
+    addPolylines(
+        data = road_map %>% filter(city == city_name), 
+        group = "Highways", 
+        # label = ~rt,
+        # labelOptions = labelOptions(textsize = "12px"),
+        # fillOpacity = .3, 
+        color = ~road_pal(rt), 
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .1    
+    ) %>%
+    addLegend(
+        data = road_map, 
+        pal = road_pal, 
+        values = ~rt, 
+        group = "Highways",
+        title = "Highways"
     ) %>%     
-# Public Housing
+# # Public Housing
     addCircleMarkers(
         data = hud %>% filter(state %in% st), 
         radius = 5, 
@@ -604,29 +762,38 @@ map_it2 <- function(data, city_name, st){
         label = ~Buffer, 
         radius = 5, 
         color = ~rail_pal(Buffer),
-        group = 'Rail Stations', 
+        group = 'Transit Stations', 
         popup = ~Buffer,
-        fillOpacity = .5, 
-        stroke = FALSE
+        fillOpacity = .8, 
+        stroke = TRUE, 
+        weight = .6
     ) %>%     
     addLegend(
         data = rail, 
         pal = rail_pal, 
         values = ~Buffer, 
-        group = "Rail Stations", 
-        title = "Rail Stations"
+        group = "Transit Stations", 
+        title = "Transit Stations"
     ) %>%  
 # University
     addCircleMarkers(
         data = university %>% filter(city == city_name), 
         label = ~INSTNM, 
         radius = 5, 
-        color = ~'#f781bf',
+        color = ~'#39992b',
         group = 'Universities & Colleges', 
         popup = ~INSTNM,
-        fillOpacity = .5, 
-        stroke = FALSE
-    ) %>%      
+        fillOpacity = .8, 
+        stroke = TRUE, 
+        weight = .6
+    ) %>%     
+    # addLegend(
+    #     data = university, 
+    #     pal = ~'#39992b', 
+    #     values = ~legend,
+    #     group = "Universities & Colleges", 
+    #     title = "Universities & Colleges"
+    # ) %>%    
 # Hospitals
     addCircleMarkers(
         data = hospitals %>% filter(city == city_name), 
@@ -635,31 +802,41 @@ map_it2 <- function(data, city_name, st){
         color = ~"#e41a1c",
         group = 'Hospitals', 
         popup = ~popup,
-        fillOpacity = .5, 
-        stroke = FALSE
+        fillOpacity = .8, 
+        stroke = TRUE, 
+        weight = .6
     ) %>%     
+    # addLegend(
+    #     data = rail, 
+    #     pal = ~"#e41a1c", 
+    #     values = ~legend,
+    #     group = "Hospitals", 
+    #     title = "Hospitals"
+    # ) %>%    
 # Options
     addLayersControl(
         overlayGroups = 
-            c("SPARCC Typology", 
-                "Redlined Areas", 
+            c("Redlined Areas", 
                 "Hospitals", 
                 "Universities & Colleges", 
                 "Public Housing", 
-                "Rail Stations"),
+                "Transit Stations",
+                "Highways",
+                "SPARCC Typology"),
         options = layersControlOptions(collapsed = FALSE)) %>% 
     hideGroup(
         c("Redlined Areas", 
             "Hospitals", 
             "Universities & Colleges", 
             "Public Housing", 
-            "Rail Stations"))
+            "Transit Stations"))
 }
 
 # Atlanta, GA
 atlanta <- 
     map_it(atl_df, "Atlanta", 'GA') %>% 
     setView(lng = -84.3, lat = 33.749, zoom = 10)
+
 # save map
 htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta.html")
 
