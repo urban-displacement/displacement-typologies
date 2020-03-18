@@ -1,5 +1,2 @@
 *.DS_Store
-/code/.ipynb_checkpoints/*
-
-/data/*
-!/data/README.md
+*/.ipynb_checkpoints/*
