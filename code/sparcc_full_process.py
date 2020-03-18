@@ -2384,14 +2384,15 @@ print('There are ', data['SMMI'].isna().sum(), 'census tract with NaN as data')
 print('There are ',str((data['SMMI']==1).sum()), 'Stable Moderate/Mixed Income CT')
 
 
-# #### At Risk of Gentrification
-
-
+#
+# Run create_lag_vars.r to create lag variables
+# --------------------------------------------------------------------------
+# Note: If additional cities are added, make sure to change create_lag_vars.r
+# accordingly. 
 
 lag = pd.read_csv('~/git/sparcc/data/test.csv')
 
-
-
+# #### At Risk of Gentrification
 
 data = pd.merge(data,lag[['dp_PChRent','dp_RentGap','GEOID']],on='GEOID')
 
