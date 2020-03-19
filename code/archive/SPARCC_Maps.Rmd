@@ -1,0 +1,561 @@
+---
+title: "SPARCC Maps Draft"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# ==========================================================================
+# Develop data for displacement and vulnerability measures
+# Author: Tim Thomas - timthomas@berkeley.edu
+# Created: 2019.10.13
+# 1.0 code: 2019.12.1
+# ==========================================================================
+
+# Encrypt with: https://robinmoisson.github.io/staticrypt/
+
+# Clear the session
+rm(list = ls())
+options(scipen = 10) # avoid scientific notation
+
+# ==========================================================================
+# Libraries
+# ==========================================================================
+
+#
+# Load packages and install them if they're not installed.
+# --------------------------------------------------------------------------
+
+# load packages
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, tigris, tidycensus, leaflet)
+
+# Cache downloaded tiger files
+options(tigris_use_cache = TRUE)
+```
+
+```{r include=FALSE, cache = TRUE}
+# ==========================================================================
+# Data
+# ==========================================================================
+
+data <- 
+    readRDS("~/git/sparcc/data/df2.rds") %>% 
+    # bind_rows(
+    #         read_csv("~/git/sparcc/data/Atlanta_typology_output.csv") %>% 
+    #         select(!X1) %>% 
+    #         mutate(city = "Atlanta"),
+    #         read_csv("~/git/sparcc/data/Denver_typology_output.csv") %>% 
+    #         select(!X1) %>% 
+    #         mutate(city = "Denver"),
+    #         read_csv("~/git/sparcc/data/Chicago_typology_output.csv") %>% 
+    #         select(!X1) %>% 
+    #         mutate(city = "Chicago"),
+    #         read_csv("~/git/sparcc/data/Memphis_typology_output.csv") %>% 
+    #         select(!X1) %>% 
+    #         mutate(city = "Memphis")
+    # ) %>% 
+	mutate(
+        typology = 
+		factor(
+			case_when(
+                typ_cat2 == 'AdvG' ~ 'Advanced Gentrification', 
+                typ_cat2 == 'ARE' ~ 'At Risk of Becoming Exclusive', 
+                typ_cat2 == 'ARG' ~ 'At Risk of Gentrification', 
+                typ_cat2 == 'BE' ~ 'Becoming Exclusive', #
+                typ_cat2 == 'EOG' ~ 'Early/Ongoing Gentrification', 
+                typ_cat2 == 'OD' ~ 'Ongoing Displacement', 
+                typ_cat2 == 'SAE' ~ 'Stable/Advanced Exclusive', #
+                typ_cat2 == 'SLI' ~ 'Stable/Low-Income',
+                typ_cat2 == 'SMMI' ~ 'Stable Moderate/Mixed Income', 
+				# typ_cat == "['AdvG']" ~ 'Advanced Gentrification', #
+				# typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive', #
+				# typ_cat == "['ARG']" ~ 'At Risk of Gentrification', #
+				# typ_cat == "['BE']" ~ 'Becoming Exclusive', # 
+				# typ_cat == "['EOG']" ~ 'Early/Ongoing Gentrification', #
+				# typ_cat == "['OD']" ~ 'Ongoing Displacement', #
+				# typ_cat == "['SAE']" ~ 'Stable/Advanced Exclusive', # 
+				# typ_cat == "['SLI']" ~ 'Stable/Low-Income',
+				# typ_cat == "['SMMI']" ~ 'Stable Moderate/Mixed Income', #
+				TRUE ~ "No Data"
+			), 
+			levels = 
+				c(
+					'Stable/Low-Income', #E4E0EB
+					'Ongoing Displacement', #AAC2F0
+					'At Risk of Gentrification', #CAC2D7
+					'Early/Ongoing Gentrification', #8B7EBE
+					'Advanced Gentrification', #5C4B77
+					'Stable Moderate/Mixed Income', #FAEBDC
+					'At Risk of Becoming Exclusive', #F5D6B9
+					'Becoming Exclusive', #ECB476
+					'Stable/Advanced Exclusive', 
+                    'No Data' #D5722D
+				)
+		), 
+        popup = 
+          str_c(
+              "<h3>Tract: ", GEOID, "</h3>",
+              typology)
+	) %>% 
+	data.frame()
+
+states <- c("17", "13", "08", "28", "47")
+
+tracts <- 
+	reduce(
+  		map(states, function(x) {
+    		get_acs(
+    			geography = "tract", 
+    			variables = "B01003_001", 
+            	state = x, 
+            	geometry = TRUE, 
+            	year = 2017)
+  }), 
+  rbind
+) %>% 
+	select(GEOID) %>% 
+	mutate(GEOID = as.numeric(GEOID))
+
+data_sf <- 
+	right_join(tracts, data)
+
+```
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+# ==========================================================================
+# Maps
+# ==========================================================================
+
+#
+# Atlanta
+# --------------------------------------------------------------------------
+
+atl_data <- 
+	data_sf %>% 
+	filter(city == "Atlanta") 
+
+den_data <- 
+	data_sf %>% 
+	filter(city == "Denver") 
+
+chi_data <- 
+	data_sf %>% 
+	filter(city == "Chicago") 
+
+mem_data <- 
+	data_sf %>% 
+	filter(city == "Memphis") 
+
+pal1 <- 
+	colorFactor(
+		c("#E4E0EB","#AAC2F0","#CAC2D7","#8B7EBE","#5C4B77","#FAEBDC","#F5D6B9","#ECB476","#D5722D"), 
+		domain = data$typology, 
+		na.color = "transparent"
+	)
+
+pal2 <- 
+	colorFactor(
+		c("#CCCCCC","#99CCff","#CCCCFF","#6666CC","#663399","#FFFFCC","#FFCC99","#FF9933","#FF6600"), 
+		domain = data$typology, 
+		na.color = "transparent"
+	)
+
+pal3 <- 
+	colorFactor(
+		c("#f2f0f7","#cbc9e2","#9e9ac8","#756bb1","#54278f","#ffffd4","#fed98e","#fe9929","#cc4c02", "#666666"), 
+		domain = data$typology, 
+		na.color = "transparent"
+	)
+
+# pal1 <- 
+# 	colorFactor(
+# 		c("#FF6633", "#CCCCCC"), 
+# 		domain = df_tiers$tier1, 
+# 		na.color = "transparent"
+# 	)
+
+# # color scheme 2
+# pal2 <- 
+# 	colorFactor(
+# 		c("#6699FF", "#CCCCCC"), 
+# 		domain = df_tiers$tier2, 
+# 		na.color = "transparent"
+# 	)
+
+# make map
+
+map <- function(data){
+	leaflet(data = data) %>% 
+	addProviderTiles(providers$CartoDB.Positron) %>% 
+	addMiniMap(tiles = providers$CartoDB.Positron, 
+			   toggleDisplay = TRUE) %>% 
+	addPolygons(
+		data = data, 
+		group = "SPARCC Typology", 
+		fillOpacity = .6, 
+		color = ~pal3(typology), 
+		stroke = TRUE, 
+		weight = .5, 
+		opacity = .60, 
+		highlightOptions = highlightOptions(
+							color = "#ff4a4a", 
+							weight = 5,
+      						bringToFront = TRUE
+      						), 
+		popup = ~popup
+	) %>% 	
+	addLegend(
+		pal = pal3, 
+		values = ~typology, 
+		group = "typology"
+	)
+}
+```
+
+# Atlanta, GA
+[Orginal Atlanta Maps](https://chartmann.carto.com/builder/78629402-5b92-4c6d-a83f-5ee5688ceee9/embed)
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+map(atl_data)
+```
+
+# Chicago, IL
+[Original Chicago Maps](https://chartmann.carto.com/builder/faa29556-1032-4ca5-aad2-095506519032/embed)
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+map(chi_data)
+```
+
+# Denver, CO
+[Original Denver Maps](https://chartmann.carto.com/builder/1cf30dff-e70c-4ad4-ae8d-bd1a62c994e4/embed)
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+map(den_data)
+```
+
+# Memphis, TN
+[Original Memphis Links](https://chartmann.carto.com/builder/ce3071a5-53f2-4c07-ae60-e15234f23886/embed)
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+map(mem_data)
+```
+
+
+```{r, include = FALSE}
+# 	addPolygons(
+# 		data = df_tiers, 
+# 		group = "Heightened Sensitivity",
+# 		fillOpacity = .5, 
+# 		color = ~pal1(tier1),
+# 		stroke = TRUE, 
+# 		weight = .5, # border thickness
+# 		opacity = .45, 
+# 		highlightOptions = highlightOptions(
+# 							color = "#ff4a4a", 
+# 							weight = 5,
+#       						bringToFront = TRUE
+#       						), 
+# 		popup = ~popup, 
+# 		popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+# 	) %>% 
+# 	addLegend(
+# 		pal = pal1, 
+# 		values = ~tier1, 
+# 		title = ""
+# 	) %>% 
+# 	addLayersControl(overlayGroups = c("Heightened Sensitivity", "Vulnerable", "Bus", "Rail"),
+# 					 options = layersControlOptions(collapsed = TRUE)) %>% 
+# 	hideGroup(c("Bus", "Vulnerable"))
+# 	# addEasyButton(
+# 	# 	easyButton(
+# 	# 	    icon="fa-crosshairs", 
+# 	# 	    title="My Location",
+# 	# 	    onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>% 
+# 	# setView(-122.2712, 37.8044, zoom = 10) %>% 
+# # Bus layer
+# 	addPolygons(data = Bus, 
+# 				label = "label", 
+# 				color = "#000000", 
+# 				fillColor="#CCCCCC", 
+# 				weight = .5, 
+# 				opacity = .45, 
+# 				fillOpacity = .1, 
+# 				stroke = TRUE, 
+# 				group = "Bus") %>% 	
+# 	addLegend(
+# 		color = "#CCCCCC", 
+# 		labels = Bus$label, 
+# 		group = "Bus"
+# 	) %>% 
+# # Rail layer
+# 	addPolygons(data = Rail, 
+# 				layerId = "label", 
+# 				color = "#000000", 
+# 				fillColor="#CCCCCC", 
+# 				weight = .5, 
+# 				opacity = .45, 
+# 				fillOpacity = .1, 
+# 				stroke = TRUE, 
+# 				group = "Rail"
+# 	) %>% 
+# 	addLegend(
+# 		color = "#CCCCCC", 
+# 		labels = Rail$label, 
+# 		group = "Rail"
+# 	) %>% 
+# # Vulnerable layer
+# 	addPolygons(
+# 		data = df_tier2, 
+# 		group = "Vulnerable",
+# 		fillOpacity = .5, 
+# 		color = ~pal2(tier2),
+# 		stroke = TRUE, 
+# 		weight = .5, # border thickness
+# 		opacity = .45, 
+# 		highlightOptions = highlightOptions(
+# 							color = "#ff4a4a", 
+# 							weight = 5,
+#       						bringToFront = TRUE
+#       						), 
+# 		popup = ~popup, 
+# 		popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+# 	) %>% 
+# 	addLegend(
+# 		pal = pal2, 
+# 		values = ~tier2, 
+# 		group = "Vulnerable", 
+# 		title = ""
+# 	) %>% 
+# # Heightened Sensitivity layer
+# 	addPolygons(
+# 		data = df_tiers, 
+# 		group = "Heightened Sensitivity",
+# 		fillOpacity = .5, 
+# 		color = ~pal1(tier1),
+# 		stroke = TRUE, 
+# 		weight = .5, # border thickness
+# 		opacity = .45, 
+# 		highlightOptions = highlightOptions(
+# 							color = "#ff4a4a", 
+# 							weight = 5,
+#       						bringToFront = TRUE
+#       						), 
+# 		popup = ~popup, 
+# 		popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+# 	) %>% 
+# 	addLegend(
+# 		pal = pal1, 
+# 		values = ~tier1, 
+# 		title = ""
+# 	) %>% 
+# 	addLayersControl(overlayGroups = c("Heightened Sensitivity", "Vulnerable", "Bus", "Rail"),
+# 					 options = layersControlOptions(collapsed = TRUE)) %>% 
+# 	hideGroup(c("Bus", "Vulnerable"))
+
+# # save map
+# htmlwidgets::saveWidget(map, file="~/git/sensitive_communities/docs/map.html")
+
+
+
+# df_tiers <- 
+# 	df_final.RB50VLI %>%
+# 	select(GEOID, tr_population, tr_households, v_VLI, tr_VLI_prop, co_VLI_prop, tr_pstudents, v_POC, tr_pPOC, co_pPOC, tr_POC_rank, v_Renters, tr_prenters, co_prenters, v_RB50VLI, tr_irVLI_50p, co_irVLI_50p, dp_PChRent, tr_pchrent, tr_pchrent.lag, co_pchrent, dp_RentGap, tr_rentgap, co_rentgap, tr_medrent, tr_medrent.lag, NeighType, tr_pWhite, tr_pBlack, tr_pAsian, tr_pLatinx, tr_pOther, tier1, tier2) %>% 
+# 	mutate(popup = 
+# 		str_c(
+# 			"<h3>Tract: ", GEOID, "</h3>", 
+
+# 			"<b>Total population</b><br>", 
+# 				comma(tr_population), 
+# 				"<br>", 
+			 		    
+# 			"<b>Total households</b><br>", 
+# 				comma(tr_households),
+# 				"<br>", 
+# 				"<br>",		
+
+# 			"<b><i><u>Vulnerable Population Measures Met</b></i></u>", 
+# 				"<br>", 
+			
+# 			"<b>Very low income</b><br>", 
+# 				case_when(v_VLI == 1 ~ "Yes", TRUE ~ "No"), 
+# 			 	"<br>(<i>",
+# 			 		percent(tr_VLI_prop, accuracy = .1), " tract VLI, ",
+# 			 		percent(co_VLI_prop, accuracy = .1), " county VLI, & ",
+# 			 		percent(tr_pstudents, accuracy = .1), " students</i>)", 
+# 			 	"<br>",
+
+# 			"<b>Persons of color</b><br>", 
+# 			  	case_when(v_POC == 1 ~ "Yes", TRUE ~ "No"), 
+# 			 	" (<i>",
+# 			 		percent(tr_pPOC, accuracy = .1), " tract & ",
+# 			 		percent(co_pPOC, accuracy = .1), " county</i>)", 
+# 			 	"<br>",
+
+# 			"<b>Renting household percentage</b><br>    ", 
+# 			  	case_when(v_Renters == 1 ~ "Yes", TRUE ~ "No"), 
+# 			 	" (<i>",
+# 			 		percent(tr_prenters, accuracy = .1), " tract & ",
+# 			 		percent(co_prenters, accuracy = .1), " county</i>)", 
+# 				"<br>", 
+
+# 			"<b>Very low income renters paying<br>over 50% of income to rent</b><br>    ", 
+# 			  	case_when(v_RB50VLI == 1 ~ "Yes", TRUE ~ "No"), 
+# 			 	" (<i>",
+# 			 		percent(tr_irVLI_50p, accuracy = .1), " tract & ",
+# 			 		percent(co_irVLI_50p, accuracy = .1), " county</i>)", 
+# 				"<br>", 			  
+# 				"<br>",
+
+# 			"<b><i><u>Displacement Pressures Met</b></i></u>", 
+# 			  "<br>", 
+# 			  "<b>Change in rent</b><br>    ", 
+# 			  	case_when(dp_PChRent == 1 ~ "Yes", TRUE ~ "No"), 
+# 			 	" (<i>",
+# 			 		percent(tr_pchrent, accuracy = .1), " tract, ",
+# 			 		percent(tr_pchrent.lag, accuracy = .1), " nearby, & ",
+# 			 		percent(co_pchrent, accuracy = .1), " county</i>)", 
+# 			 	"<br>",
+	  
+# 			"<b>Rent gap</b><br>     ", 
+# 			  	case_when(dp_RentGap == 1 ~ "Yes", TRUE ~ "No"), 
+# 			 	" (<i>",
+# 			 		dollar(tr_rentgap), " tract & ",
+# 			 		dollar(co_rentgap), " county</i>)", 
+# 				"<br>", 			  
+# 				"<br>",
+
+# 			"<b><i><u>Rent</b></i></u>", 
+# 				"<br>", 
+# 					"<b>Local</b>","<br>", 
+# 					dollar(tr_medrent), "<br>", 
+# 					"<b>Nearby</b>", "<br>", 
+# 					dollar(tr_medrent.lag), "<br>", 
+# 				"<br>", 
+
+# 			"<b><i><u>Racial composition</b></i></u>", "<br>", 
+# 				"<b>Neighborhood Type</b>", "<br>", 
+# 				NeighType, "<br>", 
+# 				"<b>White alone</b>", "<br>",  
+# 				percent(tr_pWhite, accuracy = .1), "<br>", 
+# 				"<b>Black or African American alone</b>", "<br>", 
+# 				percent(tr_pBlack, accuracy = .1), "<br>", 
+# 				"<b>Asian alone</b>", "<br>", 
+# 				percent(tr_pAsian, accuracy = .1), "<br>", 
+# 				"<b>Latinx</b>", "<br>", 
+# 				percent(tr_pLatinx, accuracy = .1), "<br>", 
+# 				"<b>Other</b>", "<br>", 
+# 				percent(tr_pOther, accuracy = .1), "<br>"
+# 			  )) # %>% ms_simplify(.) # prefer the detail 
+
+# df_tier2 <- 
+# 	df_tiers %>% 
+# 	filter(!is.na(tier2))
+
+# # color scheme 1
+# pal1 <- 
+# 	colorFactor(
+# 		c("#FF6633", "#CCCCCC"), 
+# 		domain = df_tiers$tier1, 
+# 		na.color = "transparent"
+# 	)
+
+# # color scheme 2
+# pal2 <- 
+# 	colorFactor(
+# 		c("#6699FF", "#CCCCCC"), 
+# 		domain = df_tiers$tier2, 
+# 		na.color = "transparent"
+# 	)
+
+# # make map
+# map <- 
+# 	leaflet(data = c(df_tiers, df_tier2)) %>% 
+# 	addProviderTiles(providers$CartoDB.Positron) %>% 
+# 	addMiniMap(tiles = providers$CartoDB.Positron, 
+# 			   toggleDisplay = TRUE) %>% 
+# 	addEasyButton(
+# 		easyButton(
+# 		    icon="fa-crosshairs", 
+# 		    title="My Location",
+# 		    onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>% 
+# 	setView(-122.2712, 37.8044, zoom = 10) %>% 
+# # Bus layer
+# 	addPolygons(data = Bus, 
+# 				label = "label", 
+# 				color = "#000000", 
+# 				fillColor="#CCCCCC", 
+# 				weight = .5, 
+# 				opacity = .45, 
+# 				fillOpacity = .1, 
+# 				stroke = TRUE, 
+# 				group = "Bus") %>% 	
+# 	addLegend(
+# 		color = "#CCCCCC", 
+# 		labels = Bus$label, 
+# 		group = "Bus"
+# 	) %>% 
+# # Rail layer
+# 	addPolygons(data = Rail, 
+# 				layerId = "label", 
+# 				color = "#000000", 
+# 				fillColor="#CCCCCC", 
+# 				weight = .5, 
+# 				opacity = .45, 
+# 				fillOpacity = .1, 
+# 				stroke = TRUE, 
+# 				group = "Rail"
+# 	) %>% 
+# 	addLegend(
+# 		color = "#CCCCCC", 
+# 		labels = Rail$label, 
+# 		group = "Rail"
+# 	) %>% 
+# # Vulnerable layer
+# 	addPolygons(
+# 		data = df_tier2, 
+# 		group = "Vulnerable",
+# 		fillOpacity = .5, 
+# 		color = ~pal2(tier2),
+# 		stroke = TRUE, 
+# 		weight = .5, # border thickness
+# 		opacity = .45, 
+# 		highlightOptions = highlightOptions(
+# 							color = "#ff4a4a", 
+# 							weight = 5,
+#       						bringToFront = TRUE
+#       						), 
+# 		popup = ~popup, 
+# 		popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+# 	) %>% 
+# 	addLegend(
+# 		pal = pal2, 
+# 		values = ~tier2, 
+# 		group = "Vulnerable", 
+# 		title = ""
+# 	) %>% 
+# # Heightened Sensitivity layer
+# 	addPolygons(
+# 		data = df_tiers, 
+# 		group = "Heightened Sensitivity",
+# 		fillOpacity = .5, 
+# 		color = ~pal1(tier1),
+# 		stroke = TRUE, 
+# 		weight = .5, # border thickness
+# 		opacity = .45, 
+# 		highlightOptions = highlightOptions(
+# 							color = "#ff4a4a", 
+# 							weight = 5,
+#       						bringToFront = TRUE
+#       						), 
+# 		popup = ~popup, 
+# 		popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+# 	) %>% 
+# 	addLegend(
+# 		pal = pal1, 
+# 		values = ~tier1, 
+# 		title = ""
+# 	) %>% 
+# 	addLayersControl(overlayGroups = c("Heightened Sensitivity", "Vulnerable", "Bus", "Rail"),
+# 					 options = layersControlOptions(collapsed = TRUE)) %>% 
+# 	hideGroup(c("Bus", "Vulnerable"))
+
+# # save map
+# htmlwidgets::saveWidget(map, file="~/git/sensitive_communities/docs/map.html")
+# # run in terminal, not in rstudio
+```

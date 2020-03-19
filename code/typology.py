@@ -9,11 +9,6 @@
 # ==========================================================================
 # ==========================================================================
 
-# ### Choose city and census tracts of interest
-# To get city data, run the following code in the terminal
-# `python data.py <city name>`
-# Example: python data.py Atlanta
-
 import pandas as pd
 import geopandas as gpd
 import numpy as np
@@ -23,7 +18,13 @@ from pathlib import Path
 from shapely import wkt
 import sys
 
+# ### Choose city and census tracts of interest
+# To get city data, run the following code in the terminal
+# `python data.py <city name>`
+# Example: python data.py Atlanta
+
 city_name = str(sys.argv[1])
+# city_name = "Atlanta"
 
 #
 # Run create_lag_vars.r to create lag variables
@@ -464,7 +465,7 @@ df['SMMI'] = np.where((df['pop00flag'].isna())|
 
 # #### At Risk of Gentrification
 
-df = pd.merge(df,lag[['dp_PChRent','dp_RentGap','GEOID']],on='GEOID')
+df = pd.merge(df,lag[['dp_PChRent','dp_RentGap','GEOID', 'tr_rent_gap', 'rm_rent_gap']],on='GEOID')
 
 
 
@@ -577,7 +578,7 @@ df['OD'] = np.where((df['OD'] == 1)&(df['EOG']==1), 0, df['OD']) ### This is to 
 df['SLI'] = 0
 df['SLI'] = np.where((df['pop00flag'] == 1)&
                      ((df['low_pdmt_medhhinc_17'] == 1)|(df['mix_low_medhhinc_17'] == 1))&
-                     (df['OD']!=1) & (df['ARG']!=1) *(df['EOG']!=1), 1, 0)
+                     (df['OD']!=1) & (df['ARG']!=1) & (df['EOG']!=1), 1, 0)
 
 
 
@@ -666,7 +667,7 @@ print('TYPOLOGIES')
 
 
 
-data['FIPS'] = data['FIPS'].astype(str)
-data = data.drop(columns = 'geometry')
-data.to_csv(output_path+city_name+'_typology_output.csv')
+df['FIPS'] = df['FIPS'].astype(str)
+df = df.drop(columns = 'geometry')
+df.to_csv(output_path+city_name+'_typology_output.csv')
 
