@@ -3,19 +3,24 @@
 
 # ### Import libraries
 
+# In[34]:
+
+
 import census
 import pandas as pd
 import numpy as np
+
 
 # ### Read files
 # 
 # Most of the input files are located on google drive and . I suggest downloading [Google's Drive File Stream](https://support.google.com/a/answer/7491144?utm_medium=et&utm_source=aboutdrive&utm_content=getstarted&utm_campaign=en_us) app, which doesn't download all Google Drive items to your computer, but rather pulls them as necessary. This will save a lot of space but compromises speed. 
 
+# In[35]:
 
 
 # Data files
 # If reproducing for a new city, change to that city name here
-city_name = 'Chicago'
+city_name = 'Denver'
 
 # Google File Drive Stream pathway for a mac. 
 input_path = '~/git/sparcc/data/inputs/'
@@ -31,6 +36,7 @@ xwalk_00_10 = pd.read_csv(input_path+'crosswalk_2000_2010.csv')
 
 # ### Choose city and census tracts of interest
 
+# In[36]:
 
 
 #add elif for your city here
@@ -62,6 +68,7 @@ else:
 # ### Creates filter function
 # Note - Memphis is different bc it's located in 2 states
 
+# In[37]:
 
 
 def filter_FIPS(df):
@@ -80,6 +87,7 @@ def filter_FIPS(df):
 
 # ### Creates crosswalking function
 
+# In[38]:
 
 
 def crosswalk_files (df, xwalk, counts, medians, df_fips_base, xwalk_fips_base, xwalk_fips_horizon):
@@ -116,6 +124,9 @@ def crosswalk_files (df, xwalk, counts, medians, df_fips_base, xwalk_fips_base, 
 
 # ###### 1990 Census Data
 
+# In[39]:
+
+
 counts = census_90.columns.drop(['county', 'state', 'tract', 'mrent_90', 'mhval_90', 'hinc_90', 'FIPS'])
 medians = ['mrent_90', 'mhval_90', 'hinc_90']
 df_fips_base = 'FIPS'
@@ -126,6 +137,7 @@ census_90_xwalked = crosswalk_files (census_90, xwalk_90_10,  counts, medians, d
 
 # ###### 2000 Census Data
 
+# In[40]:
 
 
 counts = census_00.columns.drop(['county', 'state', 'tract', 'mrent_00', 'mhval_00', 'hinc_00', 'FIPS'])
@@ -138,18 +150,21 @@ census_00_xwalked = crosswalk_files (census_00, xwalk_00_10,  counts, medians, d
 
 # ###### Filters and exports data
 
+# In[41]:
 
 
 census_90_filtered = filter_FIPS(census_90_xwalked)
 census_00_filtered = filter_FIPS(census_00_xwalked)
 
 
+# In[42]:
 
 
 census_90_filtered.to_csv('~/git/sparcc/data/'+city_name+'census_90_10.csv')
 census_00_filtered.to_csv('~/git/sparcc/data/'+city_name+'census_00_10.csv')
 
 
+# In[ ]:
 
 
 

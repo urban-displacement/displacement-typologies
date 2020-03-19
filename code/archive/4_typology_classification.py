@@ -3,6 +3,7 @@
 
 # ### Import packages
 
+# In[778]:
 
 
 import pandas as pd
@@ -14,13 +15,15 @@ from shapely import wkt
 
 # ### Define city and work folder
 
+# In[779]:
 
 
-city_name='Atlanta'
+city_name='Memphis'
 
 
 # ### Load file and convert to pd geodataframe (for visualizing results)
 
+# In[780]:
 
 
 # Below is the Google File Drive Stream pathway for a mac. 
@@ -33,6 +36,7 @@ geo_typology_input  = gpd.GeoDataFrame(typology_input, geometry='geometry') ### 
 data = geo_typology_input.copy(deep=True)
 
 
+# In[781]:
 
 
 data.plot()
@@ -41,11 +45,13 @@ plt.show()
 
 # ## Summarize Income Categorization Data
 
+# In[782]:
 
 
 data.groupby('inc_cat_medhhinc_17').count()['FIPS']
 
 
+# In[783]:
 
 
 data.groupby('inc_cat_medhhinc_00').count()['FIPS']
@@ -57,12 +63,14 @@ data.groupby('inc_cat_medhhinc_00').count()['FIPS']
 
 # #### Flag for sufficient pop in tract by 2000
 
+# In[784]:
 
 
 ### The input file has a flag for 2017 population, but this step will generate the same flag for 2000
 data['pop00flag'] = np.where((data['pop_00'] >500), 1, 0)
 
 
+# In[785]:
 
 
 print('POPULATION OVER 500 FOR YEAR 2000')
@@ -74,28 +82,38 @@ print('There are ', len(data[data['pop00flag']==0]), 'census tract with pop<500 
 
 # ### Vulnerability to Gentrification
 
+# In[786]:
 
 
 ### Vulnerable to gentrification index, for both '90 and '00 - make it a flag
 
 ### ***** 1990 *****
-### 2/4 Criteria that needs to be met
+### 3/4 Criteria that needs to be met
 data['vul_gent_90'] = np.where(((data['aboverm_real_mrent_90']==0)|(data['aboverm_real_mhval_90']==0))&
                                  ((data['aboverm_per_all_li_90']+
                                    data['aboverm_per_nonwhite_90']+
                                    data['aboverm_per_rent_90']+
-                                   (1-data['aboverm_per_col_90']))>1), 1, 0)
+                                   (1-data['aboverm_per_col_90']))>2), 1, 0)
 
 
 # ### ***** 2000 *****
-# ### 2/4 Criteria that needs to be met
+# ### 3/4 Criteria that needs to be met
 data['vul_gent_00'] = np.where(((data['aboverm_real_mrent_00']==0)|(data['aboverm_real_mhval_00']==0))&
                                  ((data['aboverm_per_all_li_00']+
                                    data['aboverm_per_nonwhite_00']+
                                    data['aboverm_per_rent_00']+
-                                   (1-data['aboverm_per_col_00']))>1), 1, 0)
+                                   (1-data['aboverm_per_col_00']))>2), 1, 0)
+
+# ### ***** 2017 *****
+# ### 3/4 Criteria that needs to be met
+data['vul_gent_17'] = np.where(((data['aboverm_real_mrent_17']==0)|(data['aboverm_real_mhval_17']==0))&
+                                 ((data['aboverm_per_all_li_17']+
+                                   data['aboverm_per_nonwhite_17']+
+                                   data['aboverm_per_rent_17']+
+                                   (1-data['aboverm_per_col_17']))>2), 1, 0)
 
 
+# In[787]:
 
 
 print('VULNERABLE IN 1990')
@@ -106,6 +124,7 @@ print('There are ', data['vul_gent_90'].isna().sum(), 'census tract with NaN as 
 print('There are ', (data['vul_gent_90']==1).sum(), 'census tracts vulnerable in 1990')
 
 
+# In[788]:
 
 
 print('VULNERABLE IN 2000')
@@ -116,14 +135,27 @@ print('There are ', data['vul_gent_00'].isna().sum(), 'census tract with NaN as 
 print('There are ', (data['vul_gent_00']==1).sum(), 'census tracts vulnerable in 2000')
 
 
+# In[834]:
+
+
+print('VULNERABLE IN 2017')
+ax = data.plot(color = 'grey')
+ax = data[~data['vul_gent_17'].isna()].plot(ax = ax, column = 'vul_gent_17', legend = True)
+plt.show()
+print('There are ', data['vul_gent_17'].isna().sum(), 'census tract with NaN as data')
+print('There are ', (data['vul_gent_17']==1).sum(), 'census tracts vulnerable in 2017')
+
+
 # ###### Out of curiosity
 
+# In[790]:
 
 
 ### Out of curiosity
 data['vulnerable'] = data['vul_gent_90']*data['vul_gent_00']
 
 
+# In[791]:
 
 
 print('VULNERABLE IN BOTH YEARS')
@@ -136,6 +168,7 @@ print('There are ', (data['vulnerable']==1).sum(), 'census tracts vulnerable in 
 
 # ### Hot Market
 
+# In[792]:
 
 
 ### Hot market in '00 and '17 - make it a flag:
@@ -153,6 +186,7 @@ data['hotmarket_17'] = np.where((data['aboverm_pctch_real_mhval_00_17'].isna())|
                                   (data['aboverm_pctch_real_mrent_00_17'].isna()), np.nan, data['hotmarket_17'])
 
 
+# In[793]:
 
 
 print('HOT MARKET 2017')
@@ -163,6 +197,7 @@ print('There are ', data['hotmarket_17'].isna().sum(), 'census tract with NaN as
 print('There are ', (data['hotmarket_17']==1).sum(), 'census tracts with hot market in 2017')
 
 
+# In[794]:
 
 
 print('HOT MARKET 2000')
@@ -175,6 +210,7 @@ print('There are ', (data['hotmarket_00']==1).sum(), 'census tracts with hot mar
 
 # ### Gentrification
 
+# In[795]:
 
 
 ### 2 out of 3 required
@@ -212,6 +248,7 @@ data['gent_00_17'] = np.where((data['vul_gent_00']==1)&
                                 (data['hotmarket_17']==1), 1, 0)
 
 
+# In[796]:
 
 
 print('GENTRIFICATION 1990 - 2000')
@@ -222,6 +259,7 @@ print('There are ', data['gent_90_00'].isna().sum(), 'census tract with NaN as d
 print(str((data['gent_90_00']==1).sum()), 'census tracts were gentrified 1990-2000')
 
 
+# In[797]:
 
 
 print('GENTRIFICATION 2000 - 2017')
@@ -232,6 +270,7 @@ print('There are ', data['gent_00_17'].isna().sum(), 'census tract with NaN as d
 print(str((data['gent_00_17']==1).sum()), 'census tracts were gentrified 2000-2017')
 
 
+# In[798]:
 
 
 (data['gent_00_17']*data['gent_90_00']).sum()
@@ -244,6 +283,7 @@ print(str((data['gent_00_17']==1).sum()), 'census tracts were gentrified 2000-20
 
 # #### Stable/Advanced Exclusive
 
+# In[799]:
 
 
 ### ********* Stable/advanced exclusive *************
@@ -265,6 +305,7 @@ df['SAE'] = np.where((df['pop00flag'].isna())|
 # replace SAE=1 if A==1 & (A==1) & (B==1) & (C==5| D==6)& (E==18 | F==19 | G==20)
 
 
+# In[800]:
 
 
 print('STABLE ADVANCED EXCLUSIVE')
@@ -275,6 +316,7 @@ print('There are ', data['SAE'].isna().sum(), 'census tract with NaN as data')
 print('There are ',str((data['SAE']==1).sum()), 'Stable Advanced Exclusive CT')
 
 
+# In[801]:
 
 
 ### Creates flag for proximity to exclusive neighborhood
@@ -294,6 +336,7 @@ plt.show()
 
 # #### Advanced Gentrification
 
+# In[802]:
 
 
 ### ************* Advanced gentrification **************
@@ -320,6 +363,7 @@ df['AdvG'] = np.where((df['pop00flag'].isna())|
 df['AdvG'] = np.where((df['AdvG'] == 1)&(df['SAE']==1), 0, df['AdvG']) ### This is to account for double classification
 
 
+# In[803]:
 
 
 print('ADVANCED GENTRIFICATION')
@@ -332,6 +376,7 @@ print('There are ',str((data['AdvG']==1).sum()), 'Advanced Gentrification CT')
 
 # #### At Risk of Becoming Exclusive
 
+# In[804]:
 
 
 df = data
@@ -355,6 +400,7 @@ df['ARE'] = np.where((df['ARE'] == 1)&(df['AdvG']==1), 0, df['ARE']) ### This is
 df['ARE'] = np.where((df['ARE'] == 1)&(df['SAE']==1), 0, df['ARE']) ### This is to account for double classification
 
 
+# In[805]:
 
 
 print('AT RISK OF BECOMING EXCLUSIVE')
@@ -367,6 +413,7 @@ print('There are ',str((data['ARE']==1).sum()), 'At Risk of Exclusive CT')
 
 # #### Becoming Exclusive
 
+# In[806]:
 
 
 ### *********** Becoming exclusive *************
@@ -397,6 +444,7 @@ df['BE'] = np.where((df['pop00flag'].isna())|
 df['BE'] = np.where((df['BE'] == 1)&(df['SAE']==1), 0, df['BE']) ### This is to account for double classification
 
 
+# In[807]:
 
 
 print('BECOMING EXCLUSIVE')
@@ -409,6 +457,7 @@ print('There are ',str((data['BE']==1).sum()), 'Becoming Exclusive CT')
 
 # #### Stable Moderate/Mixed Income
 
+# In[808]:
 
 
 df['SMMI'] = 0
@@ -424,6 +473,7 @@ df['SMMI'] = np.where((df['pop00flag'].isna())|
                       (df['high_pdmt_medhhinc_17'].isna()), np.nan, df['SMMI'])
 
 
+# In[809]:
 
 
 print('Stable Moderate/Mixed Income')
@@ -436,18 +486,31 @@ print('There are ',str((data['SMMI']==1).sum()), 'Stable Moderate/Mixed Income C
 
 # #### At Risk of Gentrification
 
+# In[827]:
 
 
-df = data
+lag = pd.read_csv('~/git/sparcc/data/test.csv')
+
+
+# In[811]:
+
+
+data = pd.merge(data,lag[['dp_PChRent','dp_RentGap','GEOID']],on='GEOID')
+
+
+# In[832]:
+
+
 
 ### Needs to run exclusive code for analysis of risk factors
-### **** ARG ****
+### ****ARG ****
 df['ARG'] = 0
 df['ARG'] = np.where((df['pop00flag']==1)&
                     ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))&
                     ((df['lmh_flag_encoded']==1)|(df['lmh_flag_encoded']==4))&
-                    ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2))&
+                    ((df['change_flag_encoded'] == 1))&
                      (df['gent_90_00']==0)&
+                     ((df['dp_PChRent'] == 1)|(df['dp_RentGap'] == 1)) &
                      (df['gent_00_17']==0), 1, 0)
 
 df['ARG'] = np.where((df['pop00flag'].isna())|
@@ -456,14 +519,18 @@ df['ARG'] = np.where((df['pop00flag'].isna())|
                      (df['lmh_flag_encoded'].isna())|
                      (df['change_flag_encoded'].isna())|
                      (df['gent_90_00'].isna())|
+                     (df['vul_gent_00'].isna())|
+                     (df['dp_PChRent'].isna())|
+                     (df['dp_RentGap'].isna())|
                      (df['gent_00_17'].isna()), np.nan, df['ARG'])
 
 
+# In[833]:
 
 
 print('AT RISK OF GENTRIFICATION')
 ax = data.plot(color = 'white')
-ax = data[~data['ARG'].isna()].plot(ax = ax, column = 'ARG', legend = True)
+ax = data[~df['ARG'].isna()].plot(ax = ax, column = 'ARG', legend = True)
 plt.show()
 print('There are ', data['ARG'].isna().sum(), 'census tract with NaN as data')
 print('There are ',str((data['ARG']==1).sum()), 'At Risk of Gentrification CT')
@@ -471,6 +538,7 @@ print('There are ',str((data['ARG']==1).sum()), 'At Risk of Gentrification CT')
 
 # #### Early/Ongoing Gentrification
 
+# In[815]:
 
 
 ###************* Early/ongoing gentrification **************
@@ -496,6 +564,7 @@ df['EOG'] = np.where((df['pop00flag'].isna())|
                      (df['ab_50pct_ch'].isna()), np.nan, df['EOG'])
 
 
+# In[816]:
 
 
 print('EARLY/ONGOING GENTRIFICATION')
@@ -508,6 +577,7 @@ print('There are ',str((data['EOG']==1).sum()), 'Early/Ongoing Gentrification CT
 
 # #### Ongoing Displacement
 
+# In[817]:
 
 
 df = data
@@ -526,6 +596,7 @@ df['OD'] = np.where((df['OD'] == 1)&(df['ARG']==1), 0, df['OD']) ### This is to 
 df['OD'] = np.where((df['OD'] == 1)&(df['EOG']==1), 0, df['OD']) ### This is to account for double classification
 
 
+# In[818]:
 
 
 print('ONGOING DISPLACEMENT')
@@ -538,6 +609,7 @@ print('There are ',str((data['OD']==1).sum()), 'Ongoing Displacement CT')
 
 # #### Stable/Low-Income
 
+# In[819]:
 
 
 df['SLI'] = 0
@@ -546,6 +618,7 @@ df['SLI'] = np.where((df['pop00flag'] == 1)&
                      (df['OD']!=1) & (df['ARG']!=1) *(df['EOG']!=1), 1, 0)
 
 
+# In[820]:
 
 
 print('STABLE LOW INCOME TRACTS')
@@ -558,6 +631,7 @@ print('There are ',str((data['SLI']==1).sum()), 'Stable Low Income CT')
 
 # ## Create Typology variables from all the dummies
 
+# In[821]:
 
 
 df['double_counted'] = (df['SLI'].fillna(0) + df['OD'].fillna(0) + df['ARG'].fillna(0) + df['EOG'].fillna(0) +
@@ -578,6 +652,7 @@ df['typology'] = np.where(df['double_counted']>1, 99, df['typology'])
 
 # #### Double Classification
 
+# In[822]:
 
 
 cat_i = list()
@@ -608,11 +683,13 @@ for i in range (0, len (df)):
 df['typ_cat'] = cat_i
 
 
+# In[823]:
 
 
 df.groupby('typ_cat').count()['FIPS']
 
 
+# In[824]:
 
 
 print('TYPOLOGIES')
@@ -620,14 +697,21 @@ print('TYPOLOGIES')
 f, ax = plt.subplots(1, figsize=(8, 8))
 data.plot(ax=ax, color = 'lightgrey')
 lims = plt.axis('equal')
-data[~data['typology'].isna()].plot(ax = ax, column = 'typology', legend = True)
+df[~data['typology'].isna()].plot(ax = ax, column = 'typ_cat', legend = True)
 plt.show()
 print('There are ', data['typology'].isna().sum(), 'census tract with NaN as data')
 
 
+# In[825]:
 
 
-data['FIPS'] = data['FIPS'].astype(str)
-data = data.drop(columns = 'geometry')
-data.to_csv(output_path+city_name+'_typology_output.csv')
+data.to_file(city_name+'_typology_output.shp')
+
+
+# In[826]:
+
+
+#data['FIPS'] = data['FIPS'].astype(str)
+#data = data.drop(columns = 'geometry')
+#data.to_csv(output_path+city_name+'_typology_output.csv')
 

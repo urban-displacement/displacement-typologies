@@ -3,6 +3,7 @@
 
 # ### Import libraries
 
+# In[84]:
 
 
 import census
@@ -12,6 +13,7 @@ import numpy as np
 
 # ### Set API key
 
+# In[85]:
 
 
 key = '4c26aa6ebbaef54a55d3903212eabbb506ade381'
@@ -20,9 +22,10 @@ c = census.Census(key)
 
 # ### Choose city and census tracts of interest
 
+# In[86]:
 
 
-city_name = 'Atlanta'
+city_name = 'Memphis'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -50,6 +53,7 @@ else:
     print ('There is not information for the selected city')
 
 
+# In[87]:
 
 
 if city_name != 'Memphis':
@@ -62,6 +66,7 @@ else:
 # ### Creates filter function
 # Note - Memphis is different bc it's located in 2 states
 
+# In[88]:
 
 
 def filter_FIPS(df):
@@ -80,6 +85,7 @@ def filter_FIPS(df):
 
 # ### Download ACS 2017 5-Year Estimates
 
+# In[89]:
 
 
 df_vars_17=['B03002_001E',
@@ -103,6 +109,7 @@ df_vars_17=['B03002_001E',
             'B25105_001E',
             'B06011_001E']
 
+# Income categories - see notes
 var_str = 'B19001'
 var_list = []
 for i in range (1, 18):
@@ -120,6 +127,7 @@ df_vars_17 = df_vars_17 + var_list
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
 
+# In[90]:
 
 
 if city_name != 'Memphis':
@@ -135,6 +143,7 @@ else:
 
 # #### Converts variables into dataframe and filters only FIPS of interest
 
+# In[91]:
 
 
 df_vars_17 = pd.DataFrame.from_dict(var_dict_acs5)
@@ -144,6 +153,7 @@ df_vars_17 = filter_FIPS(df_vars_17)
 
 # #### Renames variables
 
+# In[92]:
 
 
 df_vars_17 = df_vars_17.rename(columns = {'B03002_001E':'pop_17',
@@ -227,6 +237,7 @@ df_vars_17 = df_vars_17.rename(columns = {'B03002_001E':'pop_17',
 # H061A001 - median house value,
 # H043A001 - median rent
 
+# In[93]:
 
 
 df_vars_12=['B25077_001E',
@@ -275,6 +286,7 @@ df_vars_12=['B25077_001E',
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
 
+# In[94]:
 
 
 if city_name != 'Memphis':
@@ -290,6 +302,7 @@ else:
 
 # #### Converts variables into dataframe and filters only FIPS of interest
 
+# In[95]:
 
 
 df_vars_12 = pd.DataFrame.from_dict(var_dict_acs5)
@@ -299,6 +312,7 @@ df_vars_12 = filter_FIPS(df_vars_12)
 
 # #### Renames variables
 
+# In[96]:
 
 
 df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
@@ -346,6 +360,7 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
 
 # ### Download ACS 2010 5-Year Estimates
 
+# In[97]:
 
 
 # df_vars_10=[]
@@ -361,6 +376,7 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
 
+# In[98]:
 
 
 # if city_name != 'Memphis':
@@ -376,6 +392,7 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
 
 # #### Converts variables into dataframe and filters only FIPS of interest
 
+# In[99]:
 
 
 # df_vars_10 = pd.DataFrame.from_dict(var_dict_acs5)
@@ -385,6 +402,7 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
 
 # #### Renames variables
 
+# In[100]:
 
 
 # df_vars_10 = df_vars_10.rename(columns = {'B07010_025E':'mov_wc_w_income_10',
@@ -428,6 +446,7 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
 
 # ### Decennial Census 2000 Variables
 
+# In[101]:
 
 
 var_sf1=['P004001',
@@ -461,6 +480,7 @@ var_sf3 = var_sf3 + var_list
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
 
+# In[102]:
 
 
 # SF1
@@ -488,6 +508,7 @@ else:
 
 # #### Converts variables into dataframe and filters only FIPS of interest
 
+# In[103]:
 
 
 df_vars_sf1 = pd.DataFrame.from_dict(var_dict_sf1)
@@ -500,6 +521,7 @@ df_vars_sf3 = filter_FIPS(df_vars_sf3)
 
 # #### Renames variables
 
+# In[104]:
 
 
 df_vars_sf1 = df_vars_sf1.rename(columns = {'P004001':'pop_00',
@@ -539,6 +561,7 @@ df_vars_sf3 = df_vars_sf3.rename(columns = {'P037001':'total_25_00',
                                             'P052017':'I_201000_00'})
 
 
+# In[105]:
 
 
 df_vars_00 = df_vars_sf1.merge(df_vars_sf3.drop(columns=['county', 'state', 'tract']), on = 'FIPS')
@@ -546,6 +569,7 @@ df_vars_00 = df_vars_sf1.merge(df_vars_sf3.drop(columns=['county', 'state', 'tra
 
 # ### Download Decennial Census 1990 Variables
 
+# In[106]:
 
 
 var_sf3=['P0010001',
@@ -575,6 +599,7 @@ var_sf3 = var_sf3 + var_list
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
 
+# In[107]:
 
 
 # SF1 - All of the variables are found in the SF3
@@ -592,6 +617,7 @@ else:
 
 # #### Converts variables into dataframe and filters only FIPS of interest
 
+# In[108]:
 
 
 df_vars_90 = pd.DataFrame.from_dict(var_dict_sf3)
@@ -601,6 +627,7 @@ df_vars_90 = filter_FIPS(df_vars_90)
 
 # #### Renames variables
 
+# In[109]:
 
 
 df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
@@ -653,6 +680,7 @@ df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
 # 
 # The input file folder is about 1gb in size and will be pulled from the Google Drive. You will see the path in the next notebook. 
 
+# In[110]:
 
 
 # Merge 2010 & 2017 files - same geometry
@@ -665,6 +693,7 @@ df_vars_90.to_csv('~/git/sparcc/data/'+city_name+'census_90.csv')
 df_vars_00.to_csv('~/git/sparcc/data/'+city_name+'census_00.csv')
 
 
+# In[ ]:
 
 
 
