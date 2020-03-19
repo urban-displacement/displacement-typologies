@@ -661,12 +661,12 @@ print('TYPOLOGIES')
 
 
 
-df.to_file(city_name+'_typology_output.csv')
+# df.to_file(city_name+'_typology_output.csv')
 
 
 
 
-#data['FIPS'] = data['FIPS'].astype(str)
-#data = data.drop(columns = 'geometry')
-#data.to_csv(output_path+city_name+'_typology_output.csv')
+data['FIPS'] = data['FIPS'].astype(str)
+data = data.drop(columns = 'geometry')
+data.to_csv(output_path+city_name+'_typology_output.csv')
 
