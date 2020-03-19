@@ -661,7 +661,7 @@ print('TYPOLOGIES')
 
 
 
-df.to_file(city_name+'_typology_output.shp')
+df.to_file(city_name+'_typology_output.csv')
 
 
 
