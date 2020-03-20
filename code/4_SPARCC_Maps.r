@@ -46,7 +46,7 @@ data <-
         mutate(city = 'Memphis')
     ) %>% 
     left_join(., 
-        read_csv('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/oppzones.csv') %>% 
+        read_csv('/Users/timothythomas/git/sparcc/data/overlays/oppzones.csv') %>% 
         select(GEOID = geoid, opp_zone = tract_type) %>%
         mutate(GEOID = as.numeric(GEOID)) 
     )
@@ -59,42 +59,33 @@ df <-
     data %>% 
     mutate( # create typology for maps
         Typology = 
-        factor( # turn to factor for mapping 
-            case_when(
-                # typ_cat2 == 'AdvG' ~ 'Advanced Gentrification', 
-                # typ_cat2 == 'ARE' ~ 'At Risk of Becoming Exclusive', 
-                # typ_cat2 == 'ARG' ~ 'At Risk of Gentrification', 
-                # typ_cat2 == 'BE' ~ 'Becoming Exclusive', #
-                # typ_cat2 == 'EOG' ~ 'Early/Ongoing Gentrification', 
-                # typ_cat2 == 'OD' ~ 'Ongoing Displacement', 
-                # typ_cat2 == 'SAE' ~ 'Stable/Advanced Exclusive', #
-                # typ_cat2 == 'SLI' ~ 'Stable/Low-Income',
-                # typ_cat2 == 'SMMI' ~ 'Stable Moderate/Mixed Income', 
-                typ_cat == "['AdvG']" ~ 'Advanced Gentrification', #
-                typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive', #
-                typ_cat == "['ARG']" ~ 'At Risk of Gentrification', #
-                typ_cat == "['BE']" ~ 'Becoming Exclusive', # 
-                typ_cat == "['EOG']" ~ 'Early/Ongoing Gentrification', #
-                typ_cat == "['OD']" ~ 'Ongoing Displacement', #
-                typ_cat == "['SAE']" ~ 'Stable/Advanced Exclusive', # 
-                typ_cat == "['SLI']" ~ 'Stable/Low-Income',
-                typ_cat == "['SMMI']" ~ 'Stable Moderate/Mixed Income', #
-                TRUE ~ "Insufficient Data"
+            factor( # turn to factor for mapping 
+                case_when(
+                    typ_cat == "['AdvG']" ~ 'Advanced Gentrification',
+                    typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive',
+                    typ_cat == "['ARG']" ~ 'At Risk of Gentrification',
+                    typ_cat == "['BE']" ~ 'Becoming Exclusive', 
+                    typ_cat == "['EOG']" ~ 'Early/Ongoing Gentrification',
+                    typ_cat == "['OD']" ~ 'Ongoing Displacement',
+                    typ_cat == "['SAE']" ~ 'Stable/Advanced Exclusive', 
+                    typ_cat == "['SLI']" ~ 'Stable/Low-Income',
+                    typ_cat == "['SMMI']" ~ 'Stable Moderate/Mixed Income',
+                    TRUE ~ "Insufficient Data"
+                ), 
+                levels = 
+                    c(
+                        'Stable/Low-Income',
+                        'Ongoing Displacement',
+                        'At Risk of Gentrification',
+                        'Early/Ongoing Gentrification',
+                        'Advanced Gentrification',
+                        'Stable Moderate/Mixed Income',
+                        'At Risk of Becoming Exclusive',
+                        'Becoming Exclusive',
+                        'Stable/Advanced Exclusive',
+                        'Insufficient Data'
+                    )
             ), 
-            levels = 
-                c(
-                    'Stable/Low-Income', #E4E0EB 
-                    'Ongoing Displacement', #AAC2F0
-                    'At Risk of Gentrification', #CAC2D7
-                    'Early/Ongoing Gentrification', #8B7EBE
-                    'Advanced Gentrification', #5C4B77
-                    'Stable Moderate/Mixed Income', #FAEBDC
-                    'At Risk of Becoming Exclusive', #F5D6B9
-                    'Becoming Exclusive', #ECB476
-                    'Stable/Advanced Exclusive', #C75023
-                    'Insufficient Data' #D5722D
-                )
-        ), 
         real_mhval_17 = case_when(real_mhval_17 > 0 ~ real_mhval_17),
         real_mrent_17 = case_when(real_mrent_17 > 0 ~ real_mrent_17)
     ) %>% 
@@ -183,13 +174,13 @@ df_sf <-
 ### Redlining
 red <- 
     rbind(
-        geojson_sf('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/CODenver1938_1.geojson') %>% 
+        geojson_sf('/Users/timothythomas/git/sparcc/data/overlays/CODenver1938_1.geojson') %>% 
         mutate(city = 'Denver'),
-        geojson_sf('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/GAAtlanta1938_1.geojson') %>% 
+        geojson_sf('/Users/timothythomas/git/sparcc/data/overlays/GAAtlanta1938_1.geojson') %>% 
         mutate(city = 'Atlanta'),
-        geojson_sf('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/ILChicago1940_1.geojson') %>% 
+        geojson_sf('/Users/timothythomas/git/sparcc/data/overlays/ILChicago1940_1.geojson') %>% 
         mutate(city = 'Chicago'),
-        geojson_sf('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/TNMemphis19XX_1.geojson') %>% 
+        geojson_sf('/Users/timothythomas/git/sparcc/data/overlays/TNMemphis19XX_1.geojson') %>% 
         mutate(city = 'Memphis')
     ) %>% 
     mutate(
@@ -214,7 +205,7 @@ red <-
     ) 
 
 ### Industrial points
-industrial <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/industrial.shp') %>% 
+industrial <- st_read('/Users/timothythomas/git/sparcc/data/overlays/industrial.shp') %>% 
     mutate(site = 
         case_when(
             site_type == 0 ~ "Superfund", 
@@ -223,7 +214,7 @@ industrial <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/S
     filter(state != "CO") %>% 
     st_as_sf() 
 
-hud <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/HUDhousing.shp') %>% 
+hud <- st_read('/Users/timothythomas/git/sparcc/data/overlays/HUDhousing.shp') %>% 
     st_as_sf() 
 
 ### Rail data
