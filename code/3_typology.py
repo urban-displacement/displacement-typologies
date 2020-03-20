@@ -477,9 +477,10 @@ df['ARG'] = 0
 df['ARG'] = np.where((df['pop00flag']==1)&
                     ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))&
                     ((df['lmh_flag_encoded']==1)|(df['lmh_flag_encoded']==4))&
-                    ((df['change_flag_encoded'] == 1))&
+                    ((df['change_flag_encoded'] == 1)|(df['ab_90percentile_ch']==1))&
                      (df['gent_90_00']==0)&
                      ((df['dp_PChRent'] == 1)|(df['dp_RentGap'] == 1)) &
+                     (df['vil_gent_17']==1)&
                      (df['gent_00_17']==0), 1, 0)
 
 df['ARG'] = np.where((df['pop00flag'].isna())|
