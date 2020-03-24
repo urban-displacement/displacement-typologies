@@ -856,8 +856,8 @@ htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis.html")
 # To encrypt (mac)
 # brew install npm
 # npm install -g staticrypt # see https://github.com/robinmoisson/staticrypt/
-# staticrypt atlanta.html sparccatlanta2020 -o atlanta.html
-# staticrypt denver.html sparccdenver2020 -o denver.html
-# staticrypt memphis.html sparccmemphis2020 -o memphis.html
-# staticrypt chicago.html sparccchicago2020 -o chicago.html
+# staticrypt atlanta.html atlantasparcc -o atlanta.html
+# staticrypt denver.html denversparcc -o denver.html
+# staticrypt memphis.html memphissparcc -o memphis.html
+# staticrypt chicago.html chicagosparcc -o chicago.html
 # ==========================================================================
