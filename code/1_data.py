@@ -18,6 +18,9 @@ import pandas as pd
 import numpy as np
 import sys
 
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+pd.options.display.float_format = '{:.2f}'.format # avoid scientific notation
 
 # ### Set API key
 
@@ -32,7 +35,8 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-city_name = str(sys.argv[1])
+# city_name = str(sys.argv[1])
+city_name = 'Atlanta'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -966,6 +970,7 @@ census = acs_data.merge(data_2000, on = 'FIPS', how = 'outer').merge(data_1990, 
 ### This is based on the yearly CPI average
 CPI_89_17 = 1.977
 CPI_99_17 = 1.472
+CPI_12_17 = 1.02
 
 ### This is used for the Zillow data, where january values are compared
 CPI_0115_0119 = 1.077
@@ -1165,7 +1170,11 @@ len(census)
 
 # #### Index all values to 2017
 
-
+# ==========================================================================
+# change: 
+# 2020.03.29 - adding 2012 rent and homevalue
+# start change
+# ==========================================================================
 
 census['real_mhval_90'] = census['mhval_90']*CPI_89_17
 census['real_mrent_90'] = census['mrent_90']*CPI_89_17
@@ -1175,14 +1184,22 @@ census['real_mhval_00'] = census['mhval_00']*CPI_99_17
 census['real_mrent_00'] = census['mrent_00']*CPI_99_17
 census['real_hinc_00'] = census['hinc_00']*CPI_99_17
 
+census['real_mhval_12'] = census['mhval_12']*CPI_12_17
+census['real_mrent_12'] = census['mrent_12']*CPI_12_17
+# census['real_hinc_12'] = census['hinc_12']*CPI_12_17 # this isn't calculated yet (2020.03.29)
+
 census['real_mhval_17'] = census['mhval_17']
 census['real_mrent_17'] = census['mrent_17']
 census['real_hinc_17'] = census['hinc_17']
 
+# end change
+# ==========================================================================
+
+
 
 # #### Demographics
 
-
+# bk - bookmark
 
 df = census
 
@@ -1504,13 +1521,22 @@ len(census)
 
 # #### Market Type
 
-
+# ==========================================================================
+# Change: 
+# 2020.03.29 - add 2012 to 2017 changes - tim thomas
+# bk
+# start change
+# ==========================================================================
 
 census['pctch_real_mhval_00_17'] = (census['real_mhval_17']-census['real_mhval_00'])/census['real_mhval_00']
 census['pctch_real_mrent_00_17'] = (census['real_mrent_17']-census['real_mrent_00'])/census['real_mrent_00']
+census['pctch_real_mhval_12_17'] = (census['real_mhval_17']-census['real_mhval_12'])/census['real_mhval_12']
+census['pctch_real_mrent_12_17'] = (census['real_mrent_17']-census['real_mrent_12'])/census['real_mrent_12']
 
 rm_pctch_real_mhval_00_17_increase=np.nanmedian(census['pctch_real_mhval_00_17'][census['pctch_real_mhval_00_17']>0.05])
 rm_pctch_real_mrent_00_17_increase=np.nanmedian(census['pctch_real_mrent_00_17'][census['pctch_real_mrent_00_17']>0.05])
+rm_pctch_real_mhval_12_17_increase=np.nanmedian(census['pctch_real_mhval_12_17'][census['pctch_real_mhval_12_17']>0.05])
+rm_pctch_real_mrent_12_17_increase=np.nanmedian(census['pctch_real_mrent_12_17'][census['pctch_real_mrent_12_17']>0.05])
 
 # rm_pctch_real_mhval_00_17_increase=np.nanmedian(census['pctch_real_mhval_00_17'])
 # rm_pctch_real_mrent_00_17_increase=np.nanmedian(census['pctch_real_mrent_00_17'])
@@ -1518,17 +1544,34 @@ rm_pctch_real_mrent_00_17_increase=np.nanmedian(census['pctch_real_mrent_00_17']
 
 
 
-census['rent_decrease'] = np.where((census['pctch_real_mrent_00_17']<=-0.05), 1, 0)
+# census['rent_decrease'] = np.where((census['pctch_real_mrent_00_17']<=-0.05), 1, 0)
 
-census['rent_marginal'] = np.where((census['pctch_real_mrent_00_17']>-0.05)&
-                                          (census['pctch_real_mrent_00_17']<0.05), 1, 0)
+# census['rent_marginal'] = np.where((census['pctch_real_mrent_00_17']>-0.05)&
+#                                           (census['pctch_real_mrent_00_17']<0.05), 1, 0)
 
-census['rent_increase'] = np.where((census['pctch_real_mrent_00_17']>=0.05)&
-                                          (census['pctch_real_mrent_00_17']<rm_pctch_real_mrent_00_17_increase), 1, 0)
+# census['rent_increase'] = np.where((census['pctch_real_mrent_00_17']>=0.05)&
+#                                           (census['pctch_real_mrent_00_17']<rm_pctch_real_mrent_00_17_increase), 1, 0)
 
-census['rent_rapid_increase'] = np.where((census['pctch_real_mrent_00_17']>=0.05)&
-                                          (census['pctch_real_mrent_00_17']>=rm_pctch_real_mrent_00_17_increase), 1, 0)
+# census['rent_rapid_increase'] = np.where((census['pctch_real_mrent_00_17']>=0.05)&
+#                                           (census['pctch_real_mrent_00_17']>=rm_pctch_real_mrent_00_17_increase), 1, 0)
 
+census['rent_decrease'] = np.where((census['pctch_real_mrent_12_17']<=-0.05), 1, 0)
+
+census['rent_marginal'] = np.where((census['pctch_real_mrent_12_17']>-0.05)&
+                                          (census['pctch_real_mrent_12_17']<0.05), 1, 0)
+
+census['rent_increase'] = np.where((census['pctch_real_mrent_12_17']>=0.05)&
+                                          (census['pctch_real_mrent_12_17']<rm_pctch_real_mrent_12_17_increase), 1, 0)
+
+census['rent_rapid_increase'] = np.where((census['pctch_real_mrent_12_17']>=0.05)&
+                                          (census['pctch_real_mrent_12_17']>=rm_pctch_real_mrent_12_17_increase), 1, 0)
+
+# end change
+# ==========================================================================
+# Note:
+# We're keeping 2000 to 2017 because it's a one year decennial change vs a 5 year change from 2013 to 2017. 
+# I'm afraid using 2 acs 5-years back to back will not be sufficent in capturing change. 
+# ==========================================================================
 
 census['house_decrease'] = np.where((census['pctch_real_mhval_00_17']<=-0.05), 1, 0)
 
@@ -1590,21 +1633,24 @@ def filter_ZILLOW(df, FIPS):
     return df
 
 
-
+# ==========================================================================
+# Begin change
+# shifting zillow to 2012 values
+# ==========================================================================
 
 ### Zillow data
 zillow = pd.read_csv(input_path+'Zip_Zhvi_AllHomes.csv', encoding = "ISO-8859-1")
 zillow_xwalk = pd.read_csv(input_path+'TRACT_ZIP_032015.csv')
 
 ## Compute change over time
-zillow['ch_zillow_15_19'] = zillow['2019-01'] - zillow['2015-01']*CPI_0115_0119
-zillow['per_ch_zillow_15_19'] = zillow['ch_zillow_15_19']/zillow['2015-01']
+zillow['ch_zillow_12_19'] = zillow['2019-01'] - zillow['2012-01']*CPI_12_17
+zillow['per_ch_zillow_12_19'] = zillow['ch_zillow_12_19']/zillow['2012-01']
 zillow = zillow[zillow['State'].isin(state_init)].reset_index(drop = True)
 
 ####### CHANGE HERE: original code commented out below; changed from outer to inner merge
 
-zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_15_19', 'per_ch_zillow_15_19']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
-#zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_15_19', 'per_ch_zillow_15_19']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
+zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_19', 'per_ch_zillow_12_19']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
+#zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_19', 'per_ch_zillow_12_19']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
 zillow = zillow.rename(columns = {'TRACT':'FIPS'})
 
 # Filter only data of interest
@@ -1614,24 +1660,31 @@ zillow = filter_ZILLOW(zillow, FIPS)
 zillow = zillow.sort_values(by = ['FIPS', 'RES_RATIO'], ascending = False).groupby('FIPS').first().reset_index(drop = False)
 
 ### Compute 90th percentile change in region
-percentile_90 = zillow['per_ch_zillow_15_19'].quantile(q = 0.9)
+percentile_90 = zillow['per_ch_zillow_12_19'].quantile(q = 0.9)
 print(percentile_90)
 
 ### Create flags
 ### Change over 50% of change in region
-zillow['ab_50pct_ch'] = np.where(zillow['per_ch_zillow_15_19']>0.5, 1, 0)
+zillow['ab_50pct_ch'] = np.where(zillow['per_ch_zillow_12_19']>0.5, 1, 0)
 ### Change over 90th percentile change
-zillow['ab_90percentile_ch'] = np.where(zillow['per_ch_zillow_15_19']>percentile_90, 1, 0)
-
-
-
+zillow['ab_90percentile_ch'] = np.where(zillow['per_ch_zillow_12_19']>percentile_90, 1, 0)
 
 census = census.merge(zillow[['FIPS', 'ab_50pct_ch', 'ab_90percentile_ch']], on = 'FIPS')
 
+### Create 90th percentile for rent - 
+# census['rent_percentile_90'] = census['pctch_real_mrent_12_17'].quantile(q = 0.9)
+census['rent_90percentile_ch'] = np.where(census['pctch_real_mrent_12_17']>=0.9, 1, 0)
+
+# census[['rent_90percentile_ch', 'real_mrent_12', 'real_mrent_17']]
+
+# End change
+# ==========================================================================
 
 # #### Regional medians
 
-
+# ==========================================================================
+# Begin Change regional median rent for 2012
+# ==========================================================================
 
 rm_per_all_li_90 = np.nanmedian(census['per_all_li_90'])
 rm_per_all_li_00 = np.nanmedian(census['per_all_li_00'])
@@ -1647,6 +1700,7 @@ rm_per_rent_00= np.nanmedian(census['per_rent_00'])
 rm_per_rent_17= np.nanmedian(census['per_rent_17'])
 rm_real_mrent_90 = np.nanmedian(census['real_mrent_90'])
 rm_real_mrent_00 = np.nanmedian(census['real_mrent_00'])
+rm_real_mrent_12 = np.nanmedian(census['real_mrent_12'])
 rm_real_mrent_17 = np.nanmedian(census['real_mrent_17'])
 rm_real_mhval_90 = np.nanmedian(census['real_mhval_90'])
 rm_real_mhval_00 = np.nanmedian(census['real_mhval_00'])
@@ -1655,6 +1709,7 @@ rm_real_hinc_90 = np.nanmedian(census['real_hinc_90'])
 rm_real_hinc_00 = np.nanmedian(census['real_hinc_00'])
 rm_real_hinc_17 = np.nanmedian(census['real_hinc_17'])
 rm_per_units_pre50_17 = np.nanmedian(census['per_units_pre50_17'])
+
 
 
 # #### Percent changes
@@ -1667,6 +1722,7 @@ census['pctch_real_hinc_90_00'] = (census['real_hinc_00']-census['real_hinc_90']
 
 census['pctch_real_mhval_00_17'] = (census['real_mhval_17']-census['real_mhval_00'])/census['real_mhval_00']
 census['pctch_real_mrent_00_17'] = (census['real_mrent_17']-census['real_mrent_00'])/census['real_mrent_00']
+census['pctch_real_mrent_12_17'] = (census['real_mrent_17']-census['real_mrent_12'])/census['real_mrent_12']
 census['pctch_real_hinc_00_17'] = (census['real_hinc_17']-census['real_hinc_00'])/census['real_hinc_00']
 
 ### Regional Medians
@@ -1674,8 +1730,12 @@ pctch_rm_real_mhval_90_00 = (rm_real_mhval_00-rm_real_mhval_90)/rm_real_mhval_90
 pctch_rm_real_mrent_90_00 = (rm_real_mrent_00-rm_real_mrent_90)/rm_real_mrent_90
 pctch_rm_real_mhval_00_17 = (rm_real_mhval_17-rm_real_mhval_00)/rm_real_mhval_00
 pctch_rm_real_mrent_00_17 = (rm_real_mrent_17-rm_real_mrent_00)/rm_real_mrent_00
+pctch_rm_real_mrent_12_17 = (rm_real_mrent_17-rm_real_mrent_12)/rm_real_mrent_12
 pctch_rm_real_hinc_90_00 = (rm_real_hinc_00-rm_real_hinc_90)/rm_real_hinc_90
 pctch_rm_real_hinc_00_17 = (rm_real_hinc_17-rm_real_hinc_00)/rm_real_hinc_00
+
+# End Change
+# ==========================================================================
 
 
 # #### Absolute changes
@@ -1713,12 +1773,14 @@ df['aboverm_per_col_00'] = np.where(df['per_col_00']>=rm_per_col_00, 1, 0)
 df['aboverm_per_col_17'] = np.where(df['per_col_17']>=rm_per_col_17, 1, 0)
 df['aboverm_real_mrent_90'] = np.where(df['real_mrent_90']>=rm_real_mrent_90, 1, 0)
 df['aboverm_real_mrent_00'] = np.where(df['real_mrent_00']>=rm_real_mrent_00, 1, 0)
+df['aboverm_real_mrent_12'] = np.where(df['real_mrent_12']>=rm_real_mrent_12, 1, 0)
 df['aboverm_real_mrent_17'] = np.where(df['real_mrent_17']>=rm_real_mrent_17, 1, 0)
 df['aboverm_real_mhval_90'] = np.where(df['real_mhval_90']>=rm_real_mhval_90, 1, 0)
 df['aboverm_real_mhval_00'] = np.where(df['real_mhval_00']>=rm_real_mhval_00, 1, 0)
 df['aboverm_real_mhval_17'] = np.where(df['real_mhval_17']>=rm_real_mhval_17, 1, 0)
 df['aboverm_pctch_real_mhval_00_17'] = np.where(df['pctch_real_mhval_00_17']>=pctch_rm_real_mhval_00_17, 1, 0)
 df['aboverm_pctch_real_mrent_00_17'] = np.where(df['pctch_real_mrent_00_17']>=pctch_rm_real_mrent_00_17, 1, 0)
+df['aboverm_pctch_real_mrent_12_17'] = np.where(df['pctch_real_mrent_12_17']>=pctch_rm_real_mrent_12_17, 1, 0)
 df['aboverm_pctch_real_mhval_90_00'] = np.where(df['pctch_real_mhval_90_00']>=pctch_rm_real_mhval_90_00, 1, 0)
 df['aboverm_pctch_real_mrent_90_00'] = np.where(df['pctch_real_mrent_90_00']>=pctch_rm_real_mrent_90_00, 1, 0)
 df['lostli_00'] = np.where(df['ch_all_li_count_90_00']<0, 1, 0)
