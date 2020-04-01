@@ -49,21 +49,26 @@ To add other cities, you will have to edit the following files accordingly
 
 ## Changes: 2020.04.01
 ab_90percentile_ch = 
-    zillow 2012 to 2017 home value, 
-    ARG
+    * zillow 2012 to 2017 home value, 
+    * ARG
+
 rent_90percentile_ch = 
-    ACS rent 2012 to 2017, 
-    ARG
+    * ACS rent 2012 to 2017, 
+    * ARG
+
 ab_50pct_ch = 
-    zillow 2012 t0 2017 home value, 
-    EOG
+    * zillow 2012 t0 2017 home value, 
+    * EOG
+
 rent_50pct_ch = 
-    ACS rent 2012 to 2017, 
-    EOG
+    * ACS rent 2012 to 2017, 
+    * EOG
+
 aboverm_pctch_real_mrent_12_17 = 
-    ACS 2012 to 2017, 
-    Hot Market, 
-    gent_00_17, 
-    AdvG == 1 & ARG == 0 & EOG == 1
+    * ACS 2012 to 2017, 
+    * Hot Market, 
+    * gent_00_17, 
+    * AdvG == 1 & ARG == 0 & EOG == 1
+
 advg requires that either home value percent change or rent percent change are positive
     
