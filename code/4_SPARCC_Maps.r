@@ -205,7 +205,11 @@ red <-
     ) 
 
 ### Industrial points
+<<<<<<< HEAD:maps/SPARCC_Maps.r
+industrial <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/industrial.shp') %>% 
+=======
 industrial <- st_read('/Users/timothythomas/git/sparcc/data/overlays/industrial.shp') %>% 
+>>>>>>> 6a394e353337d5ffbd4c026a67eaf58d8d5b0e51:code/4_SPARCC_Maps.r
     mutate(site = 
         case_when(
             site_type == 0 ~ "Superfund", 
@@ -271,6 +275,28 @@ university <-
     filter(!is.na(city))
 
 ### Roads
+<<<<<<< HEAD:maps/SPARCC_Maps.r
+state_co <- 
+    df_sf %>% 
+    filter(!is.na(state)) %>% 
+    mutate(
+        state = str_pad(state, 2, pad = '0'), 
+        county = str_pad(county, 3, pad = '0'), 
+        state_co = paste0(state, county, city)
+    ) %>% 
+    pull(state_co) %>% 
+    unique()
+
+road_map <- 
+    map_dfr(state_co, function(x){
+        bind_rows(
+           test <- roads(state = substr(state_co[1], 1,2), county = substr(state_co[1], 3, 5), class = 'sf') %>% 
+            mutate(city = substr(state_co[1], 6, nchar(state_co[1])))
+        )
+    })
+
+### places
+=======
 # state_co <- 
 #     df_sf %>% 
 #     filter(!is.na(state)) %>% 
@@ -346,6 +372,7 @@ road_map <-
 #     st_intersection(., df_sf %>% select(city)) %>% 
 #     left_join(., place_pop %>% select(GEOID, pop = estimate))
 
+>>>>>>> 6a394e353337d5ffbd4c026a67eaf58d8d5b0e51:code/4_SPARCC_Maps.r
 
 ### LIHTC
 # lihtc <- fread('~/git/sparcc/data/LowIncome_Housing_Tax_Credit_Properties.csv')
