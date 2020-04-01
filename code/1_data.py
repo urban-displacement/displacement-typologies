@@ -35,8 +35,8 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-city_name = str(sys.argv[1])
-# city_name = 'Atlanta'
+# city_name = str(sys.argv[1])
+city_name = 'Atlanta'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -1531,11 +1531,13 @@ len(census)
 # census['pctch_real_mhval_00_17'] = (census['real_mhval_17']-census['real_mhval_00'])/census['real_mhval_00']
 # census['pctch_real_mrent_00_17'] = (census['real_mrent_17']-census['real_mrent_00'])/census['real_mrent_00']
 census['pctch_real_mhval_00_17'] = (census['real_mhval_17']-census['real_mhval_00'])/census['real_mhval_00']
+census['pctch_real_mhval_12_17'] = (census['real_mhval_17']-census['real_mhval_12'])/census['real_mhval_12']
 census['pctch_real_mrent_12_17'] = (census['real_mrent_17']-census['real_mrent_12'])/census['real_mrent_12']
 
 # rm_pctch_real_mhval_00_17_increase=np.nanmedian(census['pctch_real_mhval_00_17'][census['pctch_real_mhval_00_17']>0.05])
 # rm_pctch_real_mrent_00_17_increase=np.nanmedian(census['pctch_real_mrent_00_17'][census['pctch_real_mrent_00_17']>0.05])
 rm_pctch_real_mhval_00_17_increase=np.nanmedian(census['pctch_real_mhval_00_17'][census['pctch_real_mhval_00_17']>0.05])
+rm_pctch_real_mhval_12_17_increase=np.nanmedian(census['pctch_real_mhval_12_17'][census['pctch_real_mhval_12_17']>0.05])
 rm_pctch_real_mrent_12_17_increase=np.nanmedian(census['pctch_real_mrent_12_17'][census['pctch_real_mrent_12_17']>0.05])
 
 # rm_pctch_real_mhval_00_17_increase=np.nanmedian(census['pctch_real_mhval_00_17'])
