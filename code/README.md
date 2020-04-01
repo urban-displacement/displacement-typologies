@@ -29,7 +29,7 @@ python 3_typology.py Memphis
 Rscript 4_SPARCC_Maps.r
 ```
 
-## To edit
+## Adding cities
 
 To add other cities, you will have to edit the following files accordingly
 
@@ -37,3 +37,23 @@ To add other cities, you will have to edit the following files accordingly
 * `2_create_lag_vars.r`
 * `3_typology.py`
 * `4_SPARCC_Maps.r`
+
+## Changes: 2020.04.01
+ab_90percentile_ch = 
+    zillow 2012 to 2017 home value, 
+    ARG
+rent_90percentile_ch = 
+    ACS rent 2012 to 2017, 
+    ARG
+ab_50pct_ch = 
+    zillow 2012 t0 2017 home value, 
+    EOG
+rent_50pct_ch = 
+    ACS rent 2012 to 2017, 
+    EOG
+aboverm_pctch_real_mrent_12_17 = 
+    ACS 2012 to 2017, 
+    Hot Market, 
+    gent_00_17, 
+    AdvG == 1 & ARG == 0 & EOG == 1
+    

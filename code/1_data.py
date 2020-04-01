@@ -35,8 +35,8 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-# city_name = str(sys.argv[1])
-city_name = 'Atlanta'
+city_name = str(sys.argv[1])
+# city_name = 'Atlanta'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -1531,13 +1531,13 @@ len(census)
 # census['pctch_real_mhval_00_17'] = (census['real_mhval_17']-census['real_mhval_00'])/census['real_mhval_00']
 # census['pctch_real_mrent_00_17'] = (census['real_mrent_17']-census['real_mrent_00'])/census['real_mrent_00']
 census['pctch_real_mhval_00_17'] = (census['real_mhval_17']-census['real_mhval_00'])/census['real_mhval_00']
-census['pctch_real_mhval_12_17'] = (census['real_mhval_17']-census['real_mhval_12'])/census['real_mhval_12']
+# census['pctch_real_mhval_12_17'] = (census['real_mhval_17']-census['real_mhval_12'])/census['real_mhval_12']
 census['pctch_real_mrent_12_17'] = (census['real_mrent_17']-census['real_mrent_12'])/census['real_mrent_12']
 
 # rm_pctch_real_mhval_00_17_increase=np.nanmedian(census['pctch_real_mhval_00_17'][census['pctch_real_mhval_00_17']>0.05])
 # rm_pctch_real_mrent_00_17_increase=np.nanmedian(census['pctch_real_mrent_00_17'][census['pctch_real_mrent_00_17']>0.05])
 rm_pctch_real_mhval_00_17_increase=np.nanmedian(census['pctch_real_mhval_00_17'][census['pctch_real_mhval_00_17']>0.05])
-rm_pctch_real_mhval_12_17_increase=np.nanmedian(census['pctch_real_mhval_12_17'][census['pctch_real_mhval_12_17']>0.05])
+# rm_pctch_real_mhval_12_17_increase=np.nanmedian(census['pctch_real_mhval_12_17'][census['pctch_real_mhval_12_17']>0.05])
 rm_pctch_real_mrent_12_17_increase=np.nanmedian(census['pctch_real_mrent_12_17'][census['pctch_real_mrent_12_17']>0.05])
 
 # rm_pctch_real_mhval_00_17_increase=np.nanmedian(census['pctch_real_mhval_00_17'])
@@ -1586,10 +1586,11 @@ census['house_increase'] = np.where((census['pctch_real_mhval_00_17']>=0.05)&
 census['house_rapid_increase'] = np.where((census['pctch_real_mhval_00_17']>=0.05)&
                                           (census['pctch_real_mhval_00_17']>=rm_pctch_real_mhval_00_17_increase), 1, 0)
 
-census['tot_decrease'] = np.where((census['rent_decrease']==1)|(census['house_decrease']), 1, 0)
-census['tot_marginal'] = np.where((census['rent_marginal']==1)|(census['house_marginal']), 1, 0)
-census['tot_increase'] = np.where((census['rent_increase']==1)|(census['house_increase']), 1, 0)
-census['tot_rapid_increase'] = np.where((census['rent_rapid_increase']==1)|(census['house_rapid_increase']), 1, 0)
+## Note change: original didn't have house*** == 1
+census['tot_decrease'] = np.where((census['rent_decrease']==1)|(census['house_decrease']==1), 1, 0)
+census['tot_marginal'] = np.where((census['rent_marginal']==1)|(census['house_marginal']==1), 1, 0)
+census['tot_increase'] = np.where((census['rent_increase']==1)|(census['house_increase']==1), 1, 0)
+census['tot_rapid_increase'] = np.where((census['rent_rapid_increase']==1)|(census['house_rapid_increase']==1), 1, 0)
 
 census['change_flag_encoded'] = 0
 census.loc[(census['tot_decrease']==1)|(census['tot_marginal']==1), 'change_flag_encoded'] = 1
@@ -1645,14 +1646,14 @@ zillow = pd.read_csv(input_path+'Zip_Zhvi_AllHomes.csv', encoding = "ISO-8859-1"
 zillow_xwalk = pd.read_csv(input_path+'TRACT_ZIP_032015.csv')
 
 ## Compute change over time
-zillow['ch_zillow_12_19'] = zillow['2019-01'] - zillow['2012-01']*CPI_12_17
-zillow['per_ch_zillow_12_19'] = zillow['ch_zillow_12_19']/zillow['2012-01']
+zillow['ch_zillow_12_17'] = zillow['2017-01'] - zillow['2012-01']*CPI_12_17
+zillow['per_ch_zillow_12_17'] = zillow['ch_zillow_12_17']/zillow['2012-01']
 zillow = zillow[zillow['State'].isin(state_init)].reset_index(drop = True)
 
 ####### CHANGE HERE: original code commented out below; changed from outer to inner merge
 
-zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_19', 'per_ch_zillow_12_19']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
-#zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_19', 'per_ch_zillow_12_19']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
+zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
+#zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
 zillow = zillow.rename(columns = {'TRACT':'FIPS'})
 
 # Filter only data of interest
@@ -1662,19 +1663,20 @@ zillow = filter_ZILLOW(zillow, FIPS)
 zillow = zillow.sort_values(by = ['FIPS', 'RES_RATIO'], ascending = False).groupby('FIPS').first().reset_index(drop = False)
 
 ### Compute 90th percentile change in region
-percentile_90 = zillow['per_ch_zillow_12_19'].quantile(q = 0.9)
+percentile_90 = zillow['per_ch_zillow_12_17'].quantile(q = 0.9)
 print(percentile_90)
 
 ### Create flags
 ### Change over 50% of change in region
-zillow['ab_50pct_ch'] = np.where(zillow['per_ch_zillow_12_19']>0.5, 1, 0)
+zillow['ab_50pct_ch'] = np.where(zillow['per_ch_zillow_12_17']>0.5, 1, 0)
 ### Change over 90th percentile change
-zillow['ab_90percentile_ch'] = np.where(zillow['per_ch_zillow_12_19']>percentile_90, 1, 0)
+zillow['ab_90percentile_ch'] = np.where(zillow['per_ch_zillow_12_17']>percentile_90, 1, 0)
 
 census = census.merge(zillow[['FIPS', 'ab_50pct_ch', 'ab_90percentile_ch']], on = 'FIPS')
 
 ### Create 90th percentile for rent - 
 # census['rent_percentile_90'] = census['pctch_real_mrent_12_17'].quantile(q = 0.9)
+census['rent_50pct_ch'] = np.where(census['pctch_real_mrent_12_17']>=0.5, 1, 0)
 census['rent_90percentile_ch'] = np.where(census['pctch_real_mrent_12_17']>=0.9, 1, 0)
 
 # census[['rent_90percentile_ch', 'real_mrent_12', 'real_mrent_17']]

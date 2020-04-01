@@ -112,9 +112,9 @@ df <-
               '<br>',
               'Tract median rent: ', case_when(!is.na(real_mrent_17) ~ dollar(real_mrent_17), TRUE ~ 'No data'), '<br>', 
               'Regional median rent: ', case_when(is.na(real_mrent_17) ~ 'No data', TRUE ~ dollar(rm_real_mrent_17)), '<br>', 
-              'Change from 2000 to 2017: ', percent(pctch_real_mrent_00_17), '<br>',
+              'Change from 2012 to 2017: ', percent(pctch_real_mrent_12_17), '<br>',
               '<br>',
-              'Rent gap: ', dollar(tr_rent_gap), '<br>',
+              'Rent gap (nearby - local): ', dollar(tr_rent_gap), '<br>',
               'Regional median rent gap: ', dollar(rm_rent_gap), '<br>',
               '<br>',
             # demographics
@@ -137,7 +137,9 @@ df <-
              'Mix low income: ', case_when(mix_low_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Rent change: ', case_when(dp_PChRent == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Rent gap: ', case_when(dp_RentGap == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No')
+             'Hot Market: ', case_when(hotmarket_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
+             'Gentrified from 2000 to 2017: ', case_when(gent_00_17 == 1 ~ 'Yes', TRUE ~ 'No')
           )
     ) %>% 
     ungroup() %>% 
@@ -205,11 +207,8 @@ red <-
     ) 
 
 ### Industrial points
-<<<<<<< HEAD:maps/SPARCC_Maps.r
-industrial <- st_read('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Overlays/industrial.shp') %>% 
-=======
+
 industrial <- st_read('/Users/timothythomas/git/sparcc/data/overlays/industrial.shp') %>% 
->>>>>>> 6a394e353337d5ffbd4c026a67eaf58d8d5b0e51:code/4_SPARCC_Maps.r
     mutate(site = 
         case_when(
             site_type == 0 ~ "Superfund", 
@@ -251,7 +250,7 @@ hospitals <-
         popup = str_c(NAME, "<br>", NAICS_DESC), 
         legend = "Hospitals"
     ) %>% 
-    filter(!is.na(city))
+    filter(!is.na(city), grepl("GENERAL", NAICS_DESC))
     # Describe NAME, TYPE, and NAICS_DESC in popup
 
 ### Universities
@@ -275,28 +274,6 @@ university <-
     filter(!is.na(city))
 
 ### Roads
-<<<<<<< HEAD:maps/SPARCC_Maps.r
-state_co <- 
-    df_sf %>% 
-    filter(!is.na(state)) %>% 
-    mutate(
-        state = str_pad(state, 2, pad = '0'), 
-        county = str_pad(county, 3, pad = '0'), 
-        state_co = paste0(state, county, city)
-    ) %>% 
-    pull(state_co) %>% 
-    unique()
-
-road_map <- 
-    map_dfr(state_co, function(x){
-        bind_rows(
-           test <- roads(state = substr(state_co[1], 1,2), county = substr(state_co[1], 3, 5), class = 'sf') %>% 
-            mutate(city = substr(state_co[1], 6, nchar(state_co[1])))
-        )
-    })
-
-### places
-=======
 # state_co <- 
 #     df_sf %>% 
 #     filter(!is.na(state)) %>% 
@@ -371,8 +348,6 @@ road_map <-
 #     ) %>% 
 #     st_intersection(., df_sf %>% select(city)) %>% 
 #     left_join(., place_pop %>% select(GEOID, pop = estimate))
-
->>>>>>> 6a394e353337d5ffbd4c026a67eaf58d8d5b0e51:code/4_SPARCC_Maps.r
 
 ### LIHTC
 # lihtc <- fread('~/git/sparcc/data/LowIncome_Housing_Tax_Credit_Properties.csv')
@@ -856,28 +831,28 @@ atlanta <-
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta.html")
+htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta2.html")
 
 # Chicago, IL
 chicago <- 
     map_it(chi_df, "Chicago", 'IL') %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago.html")
+htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago2.html")
 
 # Denver, CO
 denver <- 
     map_it2(den_df, "Denver", 'CO') %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver.html")
+htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver2.html")
 
 # Memphis, TN
 memphis <- 
     map_it(mem_df, "Memphis", c('TN', 'MS')) %>% 
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis.html")
+htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis2.html")
 
 # ==========================================================================
 # To encrypt (mac)

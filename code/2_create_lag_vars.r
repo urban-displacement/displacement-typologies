@@ -190,7 +190,7 @@ lag <-
         rm_medrent17.lag = median(tr_medrent17.lag, na.rm = TRUE), 
         dp_PChRent = case_when(tr_pchrent > 0 & 
                                tr_pchrent > rm_pchrent ~ 1, # ∆ within tract
-                               tr_pchrent.lag > rm_pchrent ~ 1, # ∆ nearby tracts
+                               tr_pchrent.lag > rm_pchrent.lag ~ 1, # ∆ nearby tracts
                                TRUE ~ 0),
         dp_RentGap = case_when(tr_rent_gapprop > 0 & tr_rent_gapprop > rm_rent_gapprop ~ 1,
                                TRUE ~ 0),
