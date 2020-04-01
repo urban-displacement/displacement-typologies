@@ -27,6 +27,15 @@ python 3_typology.py Memphis
 
 # 4. create maps
 Rscript 4_SPARCC_Maps.r
+
+# 5. Encrypt the maps
+# To encrypt (mac)
+# brew install npm
+# npm install -g staticrypt # see https://github.com/robinmoisson/staticrypt/
+staticrypt atlanta.html atlantasparcc -o atlanta.html
+staticrypt denver.html denversparcc -o denver.html
+staticrypt memphis.html memphissparcc -o memphis.html
+staticrypt chicago.html chicagosparcc -o chicago.html
 ```
 
 ## Adding cities
