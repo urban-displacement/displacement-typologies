@@ -56,4 +56,5 @@ aboverm_pctch_real_mrent_12_17 =
     Hot Market, 
     gent_00_17, 
     AdvG == 1 & ARG == 0 & EOG == 1
+advg requires that either home value percent change or rent percent change are positive
     
