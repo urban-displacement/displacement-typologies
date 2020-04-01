@@ -32,10 +32,10 @@ Rscript 4_SPARCC_Maps.r
 # To encrypt (mac)
 # brew install npm
 # npm install -g staticrypt # see https://github.com/robinmoisson/staticrypt/
-staticrypt atlanta.html atlantasparcc -o atlanta.html
-staticrypt denver.html denversparcc -o denver.html
-staticrypt memphis.html memphissparcc -o memphis.html
-staticrypt chicago.html chicagosparcc -o chicago.html
+staticrypt ../maps/atlanta.html atlantasparcc -o ../maps/atlanta.html
+staticrypt ../maps/denver.html denversparcc -o ../maps/denver.html
+staticrypt ../maps/memphis.html memphissparcc -o ../maps/memphis.html
+staticrypt ../maps/chicago.html chicagosparcc -o ../maps/chicago.html
 ```
 
 ## Adding cities
