@@ -518,7 +518,12 @@ df['EOG'] = 0
 df['EOG'] = np.where((df['pop00flag']==1)& # pop > 500
                     ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))& 
                      (df['ch_per_limove_12_17']<0)&                     
-                    # ((df['lmh_flag_encoded'] == 1)|(df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 4)|(df['lmh_flag_encoded'] == 5))&
+                    (
+                        # (df['lmh_flag_encoded'] == 1)|
+                        (df['lmh_flag_encoded'] == 2)|
+                        # (df['lmh_flag_encoded'] == 4)|
+                        (df['lmh_flag_encoded'] == 5)
+                        )&
                     ((df['change_flag_encoded'] == 2)|(df['change_flag_encoded'] == 3)|(df['ab_50pct_ch'] == 1)|(df['rent_50pct_ch'] == 1))&
                      ((df['gent_90_00']==1)|(df['gent_00_17']==1)), 1, 0)
 
@@ -526,7 +531,7 @@ df['EOG'] = np.where((df['pop00flag'].isna())|
                      (df['low_pdmt_medhhinc_17'].isna())|
                      (df['mix_low_medhhinc_17'].isna())|
                      (df['ch_per_limove_12_17'].isna())|
-                     # (df['lmh_flag_encoded'].isna())|
+                     (df['lmh_flag_encoded'].isna())|
                      (df['change_flag_encoded'].isna())|
                      (df['gent_90_00'].isna())|
                      (df['gent_00_17'].isna())|
