@@ -21,7 +21,7 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(fst, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
+pacman::p_load(colorout, fst, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
@@ -223,7 +223,7 @@ hud <- st_read('/Users/timothythomas/git/sparcc/data/overlays/HUDhousing.shp') %
 ### Rail data
 rail <- 
     st_join(
-        fread('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/tod_database_download.csv') %>% 
+        fread('/Users/timothythomas/git/sparcc/data/inputs/tod_database_download.csv') %>% 
             st_as_sf(
                 coords = c('Longitude', 'Latitude'), 
                 crs = 4269
@@ -237,7 +237,7 @@ rail <-
 ### Hospitals
 hospitals <- 
     st_join(
-        fread('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/Hospitals.csv') %>% 
+        fread('/Users/timothythomas/git/sparcc/data/inputs/Hospitals.csv') %>% 
             st_as_sf(
                 coords = c('X', 'Y'), 
                 crs = 4269
@@ -256,7 +256,7 @@ hospitals <-
 ### Universities
 university <- 
     st_join(
-        fread('/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/university_HD2016.csv') %>% 
+        fread('/Users/timothythomas/git/sparcc/data/inputs/university_HD2016.csv') %>% 
             st_as_sf(
                 coords = c('LONGITUD', 'LATITUDE'), 
                 crs = 4269

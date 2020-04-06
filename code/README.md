@@ -29,7 +29,7 @@ python 3_typology.py Memphis
 Rscript 4_SPARCC_Maps.r
 
 # 5. Encrypt the maps
-# To encrypt (mac)
+# To encrypt (on a mac)
 # brew install npm
 # npm install -g staticrypt # see https://github.com/robinmoisson/staticrypt/
 staticrypt ../maps/atlanta.html atlantasparcc -o ../maps/atlanta.html
