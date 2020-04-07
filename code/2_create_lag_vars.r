@@ -234,7 +234,7 @@ stsf <-
     st_join(., puma) %>% 
     mutate(dense = case_when(puma_density >= 3000 ~ 1, TRUE ~ 0)) %>% 
     st_drop_geometry() %>% 
-    select(GEOID, dense) %>% 
+    select(GEOID, puma_density, dense) %>% 
     mutate(GEOID = as.numeric(GEOID))
 
 lag <- 
