@@ -832,26 +832,26 @@ atlanta <-
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_nodense.html")
+htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_6_nodensitylossliaffordlimove")
 
 # Chicago, IL
 chicago <- 
     map_it(chi_df, "Chicago", 'IL') %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_nodense.html")
+htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_6_nodensitylossliaffordlimove")
 
 # Denver, CO
 denver <- 
     map_it2(den_df, "Denver", 'CO') %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_nodense.html")
+htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_6_nodensitylossliaffordlimove")
 
 # Memphis, TN
 memphis <- 
     map_it(mem_df, "Memphis", c('TN', 'MS')) %>% 
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis_nodense.html")
+htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis_6_nodensitylossliaffordlimove")
 
