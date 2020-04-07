@@ -236,7 +236,6 @@ stsf <-
     st_drop_geometry() %>% 
     select(GEOID, dense) %>% 
     mutate(GEOID = as.numeric(GEOID))
-    
 
 lag <- 
     left_join(lag, stsf)
