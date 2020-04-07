@@ -231,6 +231,11 @@ data['gent_90_00'] = np.where((data['vul_gent_90']==1)&
                                 (data['aboverm_pctch_real_hinc_90_00']==1)&
                                 (data['lostli_00']==1)&
                                 (data['hotmarket_00']==1), 1, 0)
+data['gent_90_00_d'] = np.where((data['vul_gent_90']==1)&
+                                (data['aboverm_ch_per_col_90_00']==1)&
+                                (data['aboverm_pctch_real_hinc_90_00']==1)&
+                                # (data['lostli_00']==1)&
+                                (data['hotmarket_00']==1), 1, 0)
 
 
 # # 2000 - 2017
@@ -240,9 +245,15 @@ data['gent_00_17'] = np.where((data['vul_gent_00']==1)&
                                 (data['lostli_17']==1)&
                                 # (data['ch_per_limove_12_17']<0)&
                                 (data['hotmarket_17']==1), 1, 0)
+data['gent_00_17_d'] = np.where((data['vul_gent_00']==1)&
+                                (data['aboverm_ch_per_col_00_17']==1)&
+                                (data['aboverm_pctch_real_hinc_00_17']==1)&
+                                # (data['lostli_17']==1)&
+                                # (data['ch_per_limove_12_17']<0)&
+                                (data['hotmarket_17']==1), 1, 0)
 
-
-
+# Add lag variables
+data = pd.merge(data,lag[['dp_PChRent','dp_RentGap','GEOID', 'tr_rent_gap', 'rm_rent_gap', 'dense']],on='GEOID')
 
 # print('GENTRIFICATION 1990 - 2000')
 # ax = data.plot(color = 'white')
@@ -328,6 +339,26 @@ proximity = df[df.geometry.touches(exclusive.unary_union)]
 
 ### ************* Advanced gentrification **************
 # df = data
+# df['AdvG'] = 0
+# df['AdvG'] = np.where((df['pop00flag']==1)&
+#                     ((df['mod_pdmt_medhhinc_17'] == 1)|(df['mix_mod_medhhinc_17'] == 1)|
+#                      (df['mix_high_medhhinc_17'] == 1)|(df['high_pdmt_medhhinc_17'] == 1))&                    
+#                     # ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
+#                     #  (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
+#                     ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2))&
+#                     ((df['pctch_real_mhval_00_17'] > 0) | (df['pctch_real_mrent_12_17'] > 0)) & 
+#                      ((df['gent_90_00']==1)|(df['gent_00_17']==1)), 1, 0)
+
+# df['AdvG'] = np.where((df['pop00flag']==1)&
+#                       (df['dense'] == 1) & 
+#                     ((df['mod_pdmt_medhhinc_17'] == 1)|(df['mix_mod_medhhinc_17'] == 1)|
+#                      (df['mix_high_medhhinc_17'] == 1)|(df['high_pdmt_medhhinc_17'] == 1))&                    
+#                     ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
+#                      (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
+#                     ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2))&
+#                     ((df['pctch_real_mhval_00_17'] > 0) | (df['pctch_real_mrent_12_17'] > 0)) & 
+#                      ((df['gent_90_00_d']==1)|(df['gent_00_17_d']==1)), 1, 0)
+
 df['AdvG'] = 0
 df['AdvG'] = np.where((df['pop00flag']==1)&
                     ((df['mod_pdmt_medhhinc_17'] == 1)|(df['mix_mod_medhhinc_17'] == 1)|
@@ -336,7 +367,10 @@ df['AdvG'] = np.where((df['pop00flag']==1)&
                      (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
                     ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2))&
                     ((df['pctch_real_mhval_00_17'] > 0) | (df['pctch_real_mrent_12_17'] > 0)) & 
-                     ((df['gent_90_00']==1)|(df['gent_00_17']==1)), 1, 0)
+                    (((df['dense'] == 0) & (df['gent_90_00'] == 1)) |
+                     ((df['dense'] == 0) & (df['gent_00_17'] == 1)) |
+                     ((df['dense'] == 1) & (df['gent_90_00_d'] == 1)) |
+                     ((df['dense'] == 1) & (df['gent_00_17_d'] == 1))), 1, 0)
 
 df['AdvG'] = np.where((df['pop00flag'].isna())|
                      (df['mod_pdmt_medhhinc_17'].isna())|
@@ -346,6 +380,8 @@ df['AdvG'] = np.where((df['pop00flag'].isna())|
                      (df['lmh_flag_encoded'].isna())|
                      (df['change_flag_encoded'].isna())|
                      (df['gent_90_00'].isna())|
+                     (df['gent_90_00_d'].isna())|
+                     (df['gent_00_17_d'].isna())|
                      (df['pctch_real_mhval_00_17'].isna())|
                      (df['pctch_real_mrent_12_17'].isna())|
                      (df['gent_00_17'].isna()), np.nan, df['AdvG'])
@@ -468,23 +504,38 @@ df['SMMI'] = np.where((df['pop00flag'].isna())|
 
 # #### At Risk of Gentrification
 
-df = pd.merge(df,lag[['dp_PChRent','dp_RentGap','GEOID', 'tr_rent_gap', 'rm_rent_gap']],on='GEOID')
-
-
-
-
-
 ### Needs to run exclusive code for analysis of risk factors
 ### ****ARG ****
 df['ARG'] = 0
+# df['ARG'] = np.where((df['pop00flag']==1)&
+#                     ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))&
+#                     # ((df['lmh_flag_encoded']==1)|(df['lmh_flag_encoded']==4))&
+#                     ((df['change_flag_encoded'] == 1)|(df['ab_90percentile_ch']==1)|(df['rent_90percentile_ch']==1))&
+#                      (df['gent_90_00']==0)&
+#                      ((df['dp_PChRent'] == 1)|(df['dp_RentGap'] == 1)) &
+#                      (df['vul_gent_17']==1)&
+#                      (df['gent_00_17']==0), 1, 0)
+
+# df['ARG'] = np.where((df['pop00flag']==1)&
+#                      (df['dense'] == 1) & 
+#                     ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))&
+#                     ((df['lmh_flag_encoded']==1)|(df['lmh_flag_encoded']==4))&
+#                     ((df['change_flag_encoded'] == 1)|(df['ab_90percentile_ch']==1)|(df['rent_90percentile_ch']==1))&
+#                      (df['gent_90_00_d']==0)&
+#                      ((df['dp_PChRent'] == 1)|(df['dp_RentGap'] == 1)) &
+#                      (df['vul_gent_17']==1)&
+#                      (df['gent_00_17_d']==0), 1, 0)
+
 df['ARG'] = np.where((df['pop00flag']==1)&
                     ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))&
-                    ((df['lmh_flag_encoded']==1)|(df['lmh_flag_encoded']==4))&
+                    # ((df['lmh_flag_encoded']==1)|(df['lmh_flag_encoded']==4))&
                     ((df['change_flag_encoded'] == 1)|(df['ab_90percentile_ch']==1)|(df['rent_90percentile_ch']==1))&
-                     (df['gent_90_00']==0)&
                      ((df['dp_PChRent'] == 1)|(df['dp_RentGap'] == 1)) &
                      (df['vul_gent_17']==1)&
-                     (df['gent_00_17']==0), 1, 0)
+                    (((df['dense'] == 0) & (df['gent_90_00'] == 0)) |
+                     ((df['dense'] == 0) & (df['gent_00_17'] == 0)) |
+                     ((df['dense'] == 1) & (df['gent_90_00_d'] == 0)) |
+                     ((df['dense'] == 1) & (df['gent_00_17_d'] == 0))), 1, 0)
 
 df['ARG'] = np.where((df['pop00flag'].isna())|
                      (df['low_pdmt_medhhinc_17'].isna())|
@@ -495,6 +546,7 @@ df['ARG'] = np.where((df['pop00flag'].isna())|
                      (df['vul_gent_00'].isna())|
                      (df['dp_PChRent'].isna())|
                      (df['dp_RentGap'].isna())|
+                     # (df['gent_00_17_d'].isna())|
                      (df['gent_00_17'].isna()), np.nan, df['ARG'])
 
 
@@ -515,9 +567,43 @@ df['ARG'] = np.where((df['pop00flag'].isna())|
 ###************* Early/ongoing gentrification **************
 ### ****EOG ****
 df['EOG'] = 0
-df['EOG'] = np.where((df['pop00flag']==1)& # pop > 500
-                    ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))& # low and mix low income households. 
-                     # (df['ch_per_limove_12_17']<0)& # real count change in low income movers              
+# df['EOG'] = np.where((df['pop00flag']==1)& # pop > 500
+#                     ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))& # low and mix low income households. 
+#                      # (df['ch_per_limove_12_17']<0)& # real count change in low income movers              
+#                     # ( 
+#                     #     # (df['lmh_flag_encoded'] == 1)| # affordable to low income households
+#                     #     (df['lmh_flag_encoded'] == 2)| # predominantly middle income
+#                     #     # (df['lmh_flag_encoded'] == 4)| # Mixed low
+#                     #     (df['lmh_flag_encoded'] == 5) # mixed mod
+#                     #     )&
+#                     (
+#                         (df['change_flag_encoded'] == 2)| # change increase
+#                         (df['change_flag_encoded'] == 3)| # rapid change increase
+#                         (df['ab_50pct_ch'] == 1)| # housing above 50%
+#                         (df['rent_50pct_ch'] == 1) # rent above 50%
+#                         )&
+#                      ((df['gent_90_00']==1)|(df['gent_00_17']==1)), 1, 0) # gentrified (includes hotmarket)
+
+# df['EOG'] = np.where((df['pop00flag']==1)& # pop > 500
+#                      (df['dense'] == 1) & 
+#                     ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))& # low and mix low income households. 
+#                      # (df['ch_per_limove_12_17']<0)& # real count change in low income movers              
+#                     ( 
+#                         # (df['lmh_flag_encoded'] == 1)| # affordable to low income households
+#                         (df['lmh_flag_encoded'] == 2)| # predominantly middle income
+#                         # (df['lmh_flag_encoded'] == 4)| # Mixed low
+#                         (df['lmh_flag_encoded'] == 5) # mixed mod
+#                         )&
+#                     (
+#                         (df['change_flag_encoded'] == 2)| # change increase
+#                         (df['change_flag_encoded'] == 3)| # rapid change increase
+#                         (df['ab_50pct_ch'] == 1)| # housing above 50%
+#                         (df['rent_50pct_ch'] == 1) # rent above 50%
+#                         )&
+#                      ((df['gent_90_00_d']==1)|(df['gent_00_17_d']==1)), 1, 0) # gentrified (includes hotmarket)
+
+df['EOG'] = np.where((df['pop00flag']==1) & 
+                    ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1)) & 
                     ( 
                         # (df['lmh_flag_encoded'] == 1)| # affordable to low income households
                         (df['lmh_flag_encoded'] == 2)| # predominantly middle income
@@ -529,8 +615,11 @@ df['EOG'] = np.where((df['pop00flag']==1)& # pop > 500
                         (df['change_flag_encoded'] == 3)| # rapid change increase
                         (df['ab_50pct_ch'] == 1)| # housing above 50%
                         (df['rent_50pct_ch'] == 1) # rent above 50%
-                        )&
-                     ((df['gent_90_00']==1)|(df['gent_00_17']==1)), 1, 0) # gentrified (includes hotmarket)
+                        ) & 
+                    (((df['dense'] == 0) & (df['gent_90_00'] == 1)) |
+                     ((df['dense'] == 0) & (df['gent_00_17'] == 1)) |
+                     ((df['dense'] == 1) & (df['gent_90_00_d'] == 1)) |
+                     ((df['dense'] == 1) & (df['gent_00_17_d'] == 1))), 1, 0)
 
 df['EOG'] = np.where((df['pop00flag'].isna())|
                      (df['low_pdmt_medhhinc_17'].isna())|
@@ -540,6 +629,8 @@ df['EOG'] = np.where((df['pop00flag'].isna())|
                      (df['change_flag_encoded'].isna())|
                      (df['gent_90_00'].isna())|
                      (df['gent_00_17'].isna())|
+                     # (df['gent_90_00_d'].isna())|
+                     # (df['gent_00_17_d'].isna())|
                      (df['ab_50pct_ch'].isna())|
                      (df['rent_50pct_ch'].isna()), np.nan, df['EOG'])
 
