@@ -238,7 +238,7 @@ data['gent_00_17'] = np.where((data['vul_gent_00']==1)&
                                 (data['aboverm_ch_per_col_00_17']==1)&
                                 (data['aboverm_pctch_real_hinc_00_17']==1)&
                                 (data['lostli_17']==1)&
-                                (data['ch_per_limove_12_17']<0)&
+                                # (data['ch_per_limove_12_17']<0)&
                                 (data['hotmarket_17']==1), 1, 0)
 
 
@@ -517,7 +517,7 @@ df['ARG'] = np.where((df['pop00flag'].isna())|
 df['EOG'] = 0
 df['EOG'] = np.where((df['pop00flag']==1)& # pop > 500
                     ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))& # low and mix low income households. 
-                     (df['ch_per_limove_12_17']<0)& # real count change in low income movers              
+                     # (df['ch_per_limove_12_17']<0)& # real count change in low income movers              
                     ( 
                         # (df['lmh_flag_encoded'] == 1)| # affordable to low income households
                         (df['lmh_flag_encoded'] == 2)| # predominantly middle income

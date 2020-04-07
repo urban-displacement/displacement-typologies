@@ -139,6 +139,7 @@ df <-
              'Rent gap: ', case_when(dp_RentGap == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Hot Market: ', case_when(hotmarket_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
+             'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
              'Gentrified from 2000 to 2017: ', case_when(gent_00_17 == 1 ~ 'Yes', TRUE ~ 'No')
           )
     ) %>% 
