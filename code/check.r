@@ -25,6 +25,7 @@ atlanta_3_noliaffordmoversloss
 atlanta_4_noaffordmovers
 atlanta_5_noaffordmoversloss
 atlanta_6_nodensitylossliaffordlimove
+atlanta_7_nodensitylilossaffordlimove
 
 EOG
                                     atlanta Chicago Denver  Memphis

@@ -6,6 +6,7 @@ scenario 3 = no li afford, li mov, li loss
 scenario 4 = no afford or li movers          
 scenario 5 = no afford, li mov, or li loss   
 scenario 6 = no dense loss, li afford, li move
+scenerio 7 = no density li loss, afford, li move
 
 ## Scenerio counts
 
@@ -93,6 +94,19 @@ scen6
  8 ['SLI']    153   300   139    34
  9 ['SMMI']   239   516   239    41
 10 []           5     5    35     5
+
+scen7
+  typ_cat    atl   chi   den   mem
+  <chr>    <int> <int> <int> <int>
+1 ['AdvG']     3    16    NA     2
+2 ['ARE']    206   554   159    71
+3 ['ARG']     75   236    55    42
+4 ['BE']      16    81    23     1
+5 ['OD']      21   100    13    16
+6 ['SAE']     21   139    12    20
+7 ['SLI']    153   301   139    34
+8 ['SMMI']   238   515   239    41
+9 []           5     5    35     5
 ```
 
 # Maps
@@ -105,6 +119,7 @@ http://cci-ucb.github.io/sparcc/maps/atlanta_3_noliaffordmoversloss.html
 http://cci-ucb.github.io/sparcc/maps/atlanta_4_noaffordmovers.html
 http://cci-ucb.github.io/sparcc/maps/atlanta_5_noaffordmoversloss.html
 http://cci-ucb.github.io/sparcc/maps/atlanta_6_nodensitylossliaffordlimove.html
+http://cci-ucb.github.io/sparcc/maps/atlanta_7_nodensitylilossaffordlimove.html
 
 ## Chicago
 
@@ -114,6 +129,7 @@ http://cci-ucb.github.io/sparcc/maps/chicago_3_noliaffordmoversloss.html
 http://cci-ucb.github.io/sparcc/maps/chicago_4_noaffordmovers.html
 http://cci-ucb.github.io/sparcc/maps/chicago_5_noaffordmoversloss.html
 http://cci-ucb.github.io/sparcc/maps/chicago_6_nodensitylossliaffordlimove.html
+http://cci-ucb.github.io/sparcc/maps/chicago_7_nodensitylilossaffordlimove.html
 
 ## Denver
 
@@ -123,6 +139,7 @@ http://cci-ucb.github.io/sparcc/maps/denver_3_noliaffordmoversloss.html
 http://cci-ucb.github.io/sparcc/maps/denver_4_noaffordmovers.html
 http://cci-ucb.github.io/sparcc/maps/denver_5_noaffordmoversloss.html
 http://cci-ucb.github.io/sparcc/maps/denver_6_nodensitylossliaffordlimove.html
+http://cci-ucb.github.io/sparcc/maps/denver_7_nodensitylilossaffordlimove.html
 
 ## Memphis
 
@@ -132,4 +149,5 @@ http://cci-ucb.github.io/sparcc/maps/memphis_3_noliaffordmoversloss.html
 http://cci-ucb.github.io/sparcc/maps/memphis_4_noaffordmovers.html
 http://cci-ucb.github.io/sparcc/maps/memphis_5_noaffordmoversloss.html
 http://cci-ucb.github.io/sparcc/maps/memphis_6_nodensitylossliaffordlimove.html
+http://cci-ucb.github.io/sparcc/maps/memphis_7_nodensitylilossaffordlimove.html
 
