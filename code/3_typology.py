@@ -229,7 +229,7 @@ data['hotmarket_17'] = np.where((data['aboverm_pctch_real_mhval_00_17'].isna())|
 data['gent_90_00'] = np.where((data['vul_gent_90']==1)&
                                 (data['aboverm_ch_per_col_90_00']==1)&
                                 (data['aboverm_pctch_real_hinc_90_00']==1)&
-                                (data['lostli_00']==1)&
+                                # (data['lostli_00']==1)&
                                 (data['hotmarket_00']==1), 1, 0)
 
 
@@ -237,7 +237,7 @@ data['gent_90_00'] = np.where((data['vul_gent_90']==1)&
 data['gent_00_17'] = np.where((data['vul_gent_00']==1)&
                                 (data['aboverm_ch_per_col_00_17']==1)&
                                 (data['aboverm_pctch_real_hinc_00_17']==1)&
-                                (data['lostli_17']==1)&
+                                # (data['lostli_17']==1)&
                                 # (data['ch_per_limove_12_17']<0)&
                                 (data['hotmarket_17']==1), 1, 0)
 
