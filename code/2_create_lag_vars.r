@@ -142,6 +142,7 @@ stsp@data <-
     select(GEOID:rm_medrent12)
 
 
+
 #
 # Create neighbor matrix
 # --------------------------------------------------------------------------
@@ -194,7 +195,50 @@ lag <-
                                TRUE ~ 0),
         dp_RentGap = case_when(tr_rent_gapprop > 0 & tr_rent_gapprop > rm_rent_gapprop ~ 1,
                                TRUE ~ 0),
-    ) # %>% 
+    ) 
+
+# ==========================================================================
+# PUMA
+# ==========================================================================
+
+puma_df <-
+    get_acs(
+        geography = "public use microdata area", 
+        variable = "B05006_001", 
+        year = 2017, 
+        wide = TRUE
+)
+
+saveRDS(st_read("/Users/timothythomas/Downloads/nhgis0169_shape/nhgis0169_shapefile_tl2017_us_puma_2017/US_puma_2017.shp") %>% 
+    filter(STATEFP10 %in% c("13", "80", "17", "47")) %>% 
+    st_set_crs(102003) %>% 
+    st_transform(4269) %>% 
+    mutate(sqmile = ALAND10/2589988), 
+    "/Users/timothythomas/git/sparcc/data/inputs/nhgispuma.RDS"
+)
+
+puma <-  
+    left_join(
+        readRDS("/Users/timothythomas/git/sparcc/data/inputs/nhgispuma.RDS"), 
+        puma_df %>%
+            mutate(GEOID10 = as.factor(GEOID))
+    ) %>% 
+    mutate(puma_density = estimate/sqmile) %>% 
+    select(puma_density)
+
+stsf <- 
+    stsp %>% 
+    st_as_sf() %>% 
+    st_set_crs(4269) %>% 
+    st_centroid() %>%
+    st_join(., puma) %>% 
+    mutate(dense = case_when(puma_density >= 3000 ~ 1, TRUE ~ 0)) %>% 
+    st_drop_geometry() %>% 
+    select(GEOID, puma_density, dense) %>% 
+    mutate(GEOID = as.numeric(GEOID))
+
+lag <- 
+    left_join(lag, stsf)
 
 # ==========================================================================
 # At risk of gentrification (ARG)
