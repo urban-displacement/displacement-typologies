@@ -1,12 +1,14 @@
 # Map variations
 
-scenario 1 = no li afford                    
-scenario 2 = no li movers or li afford       
-scenario 3 = no li afford, li mov, li loss   
-scenario 4 = no afford or li movers          
-scenario 5 = no afford, li mov, or li loss   
-scenario 6 = no dense loss, li afford, li move  
-scenerio 7 = no density li loss, afford, li move
+These changes mostly affect EOG but also have slight effects on AdvG and ARG. 
+
+scenario 1 = no li afford  
+scenario 2 = no li movers or li afford  
+scenario 3 = no li afford, li mov, li loss  
+scenario 4 = no afford or li movers  
+scenario 5 = no afford, li mov, or li loss  
+scenario 6 = no density li loss, li afford, li move  
+scenerio 7 = no density li loss, afford, li mov  
 
 ## Scenerio counts
 
@@ -67,7 +69,7 @@ scenerio 7 = no density li loss, afford, li move
  9 ['SMMI']   239   516   239    41
 10 []           5     5    35     5
 
-4_noaffordmovers.html # similar to #7 but chicago has fewer in this one
+4_noaffordmovers.html  
    typ_cat    atl   chi   den   mem
    <chr>    <int> <int> <int> <int>
  1 ['AdvG']     2    14    NA     2
@@ -109,7 +111,7 @@ scenerio 7 = no density li loss, afford, li move
  9 ['SMMI']   239   516   239    41
 10 []           5     5    35     5
 
-7_nodensitylilossaffordlimove.html # seems fitting
+7_nodensitylilossaffordlimove.html 
    typ_cat    atl   chi   den   mem
    <chr>    <int> <int> <int> <int>
  1 ['AdvG']     2    15    NA     2
@@ -133,7 +135,7 @@ http://cci-ucb.github.io/sparcc/maps/atlanta_0_base.html
 http://cci-ucb.github.io/sparcc/maps/atlanta_1_noliafford.html  
 http://cci-ucb.github.io/sparcc/maps/atlanta_2_noliaffordmovers.html    
 http://cci-ucb.github.io/sparcc/maps/atlanta_3_noliaffordmoversloss.html  
-http://cci-ucb.github.io/sparcc/maps/atlanta_4_noaffordmovers.html    
+http://cci-ucb.github.io/sparcc/maps/atlanta_4_noaffordmovers.html # 4 and 7 seem to be the same  
 http://cci-ucb.github.io/sparcc/maps/atlanta_5_noaffordmoversloss.html  
 http://cci-ucb.github.io/sparcc/maps/atlanta_6_nodensitylossliaffordlimove.html  
 http://cci-ucb.github.io/sparcc/maps/atlanta_7_nodensitylilossaffordlimove.html  
