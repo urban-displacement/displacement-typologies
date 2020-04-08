@@ -831,26 +831,26 @@ atlanta <-
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_1_noliafford.html")
+htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_0_base.html")
 
 # Chicago, IL
 chicago <- 
     map_it(chi_df, "Chicago", 'IL') %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_1_noliafford.html")
+htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_0_base.html")
 
 # Denver, CO
 denver <- 
     map_it2(den_df, "Denver", 'CO') %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_1_noliafford.html")
+htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_0_base.html")
 
 # Memphis, TN
 memphis <- 
     map_it(mem_df, "Memphis", c('TN', 'MS')) %>% 
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis_1_noliafford.html")
+htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis_0_base.html")
 
