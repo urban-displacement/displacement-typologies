@@ -1,3 +1,11 @@
+python 1_data.py Atlanta
+python 1_data.py Chicago
+python 1_data.py Denver
+python 1_data.py Memphis
+
+Rscript 2_create_lag_vars.r
+
+
 python 3_typology.py Atlanta
 python 3_typology.py Chicago
 python 3_typology.py Denver
@@ -14,18 +22,130 @@ chidf <- fread("data/chicago_typology_output.csv")
 dendf <- fread("data/denver_typology_output.csv")
 memdf <- fread("data/memphis_typology_output.csv")
 
-left_join(atldf %>% group_by(typ_cat) %>% summarise(atl = n()), 
+full_join(atldf %>% group_by(typ_cat) %>% summarise(atl = n()), 
 chidf %>% group_by(typ_cat) %>% summarise(chi = n())) %>% 
 left_join(., dendf %>% group_by(typ_cat) %>% summarise(den = n())) %>% 
 left_join(., memdf %>% group_by(typ_cat) %>% summarise(mem = n()))
 
-atlanta_1_noliafford
-atlanta_2_noliaffordmovers
-atlanta_3_noliaffordmoversloss
-atlanta_4_noaffordmovers
-atlanta_5_noaffordmoversloss
-atlanta_6_nodensitylossliaffordlimove
-atlanta_7_nodensitylilossaffordlimove
+q()
+
+n
+
+# left off add density to back_407
+
+0_base.html
+   typ_cat    atl   chi   den   mem
+   <chr>    <int> <int> <int> <int>
+ 1 ['AdvG']     1    11    NA    NA
+ 2 ['ARE']    207   558   159    73
+ 3 ['ARG']     54   148    36    20
+ 4 ['BE']      16    81    23     1
+ 5 ['EOG']      6    23     4     2
+ 6 ['OD']      17   106    10    20
+ 7 ['SAE']     21   139    12    20
+ 8 ['SLI']    172   395   157    50
+ 9 ['SMMI']   239   516   239    41
+10 []           5     5    35     5
+
+1_noliafford.html
+   typ_cat    atl   chi   den   mem
+   <chr>    <int> <int> <int> <int>
+ 1 ['AdvG']     1    11    NA    NA
+ 2 ['ARE']    207   558   159    73
+ 3 ['ARG']     54   148    36    20
+ 4 ['BE']      16    81    23     1
+ 5 ['EOG']      2    14    NA     1
+ 6 ['OD']      19   115    14    21
+ 7 ['SAE']     21   139    12    20
+ 8 ['SLI']    174   395   157    50
+ 9 ['SMMI']   239   516   239    41
+10 []           5     5    35     5
+
+2_noliaffordmovers.html
+   typ_cat    atl   chi   den   mem
+   <chr>    <int> <int> <int> <int>
+ 1 ['AdvG']     2    14    NA     2
+ 2 ['ARE']    206   555   159    71
+ 3 ['ARG']     54   148    36    19
+ 4 ['BE']      16    81    23     1
+ 5 ['EOG']      3    24     1     2
+ 6 ['OD']      18   111    13    21
+ 7 ['SAE']     21   139    12    20
+ 8 ['SLI']    174   389   157    50
+ 9 ['SMMI']   239   516   239    41
+10 []           5     5    35     5
+
+3_noliaffordmoversloss.html
+   typ_cat    atl   chi   den   mem
+   <chr>    <int> <int> <int> <int>
+ 1 ['AdvG']     4    19     5     3
+ 2 ['ARE']    204   550   154    70
+ 3 ['ARG']     51   148    36    18
+ 4 ['BE']      16    81    23     1
+ 5 ['EOG']     19    39    10     4
+ 6 ['OD']      18   111    13    21
+ 7 ['SAE']     21   139    12    20
+ 8 ['SLI']    161   374   148    49
+ 9 ['SMMI']   239   516   239    41
+10 []           5     5    35     5
+
+4_noaffordmovers.html # similar to #7 but chicago has fewer in this one
+   typ_cat    atl   chi   den   mem
+   <chr>    <int> <int> <int> <int>
+ 1 ['AdvG']     2    14    NA     2
+ 2 ['ARE']    206   555   159    71
+ 3 ['ARG']     54   148    36    19
+ 4 ['BE']      16    81    23     1
+ 5 ['EOG']      8    40     5     4
+ 6 ['OD']      16    97     9    19
+ 7 ['SAE']     21   139    12    20
+ 8 ['SLI']    171   387   157    50
+ 9 ['SMMI']   239   516   239    41
+10 []           5     5    35     5
+
+5_noaffordmoversloss.html
+   typ_cat    atl   chi   den   mem
+   <chr>    <int> <int> <int> <int>
+ 1 ['AdvG']     4    19     5     3
+ 2 ['ARE']    204   550   154    70
+ 3 ['ARG']     51   148    36    18
+ 4 ['BE']      16    81    23     1
+ 5 ['EOG']     35    64    21     7
+ 6 ['OD']      16    97     9    19
+ 7 ['SAE']     21   139    12    20
+ 8 ['SLI']    147   363   141    48
+ 9 ['SMMI']   239   516   239    41
+10 []           5     5    35     5
+
+6_nodensitylossliaffordlimove.html
+   typ_cat    atl   chi   den   mem
+   <chr>    <int> <int> <int> <int>
+ 1 ['AdvG']     2    15    NA     2
+ 2 ['ARE']    206   554   159    71
+ 3 ['ARG']     54   148    36    19
+ 4 ['BE']      16    81    23     1
+ 5 ['EOG']      3    37     1     2
+ 6 ['OD']      18   111    13    21
+ 7 ['SAE']     21   139    12    20
+ 8 ['SLI']    174   376   157    50
+ 9 ['SMMI']   239   516   239    41
+10 []           5     5    35     5
+
+7_nodensitylilossaffordlimove.html # seems fitting
+   typ_cat    atl   chi   den   mem
+   <chr>    <int> <int> <int> <int>
+ 1 ['AdvG']     2    15    NA     2
+ 2 ['ARE']    206   554   159    71
+ 3 ['ARG']     54   148    36    19
+ 4 ['BE']      16    81    23     1
+ 5 ['EOG']      8    58     5     4
+ 6 ['OD']      16    97     9    19
+ 7 ['SAE']     21   139    12    20
+ 8 ['SLI']    171   369   157    50
+ 9 ['SMMI']   239   516   239    41
+10 []           5     5    35     5
+
+
 
 EOG
                                     atlanta Chicago Denver  Memphis
