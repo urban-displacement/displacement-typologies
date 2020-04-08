@@ -27,63 +27,23 @@ chidf %>% group_by(typ_cat) %>% summarise(chi = n())) %>%
 left_join(., dendf %>% group_by(typ_cat) %>% summarise(den = n())) %>% 
 left_join(., memdf %>% group_by(typ_cat) %>% summarise(mem = n()))
 
+q()
+
+y
+
 # left off add density to back_407
 
 0_base.html
-   typ_cat    atl   chi   den   mem
-   <chr>    <int> <int> <int> <int>
- 1 ['AdvG']     1    11    NA    NA
- 2 ['ARE']    207   558   159    73
- 3 ['ARG']     54   148    36    20
- 4 ['BE']      16    81    23     1
- 5 ['EOG']      6    23     4     2
- 6 ['OD']      17   106    10    20
- 7 ['SAE']     21   139    12    20
- 8 ['SLI']    172   395   157    50
- 9 ['SMMI']   239   516   239    41
-10 []           5     5    35     5
+
 
 1_noliafford.html
-   typ_cat    atl   chi   den   mem
-   <chr>    <int> <int> <int> <int>
- 1 ['AdvG']     1    11    NA    NA
- 2 ['ARE']    207   558   159    73
- 3 ['ARG']     54   148    36    20
- 4 ['BE']      16    81    23     1
- 5 ['EOG']      2    14    NA     1
- 6 ['OD']      19   115    14    21
- 7 ['SAE']     21   139    12    20
- 8 ['SLI']    174   395   157    50
- 9 ['SMMI']   239   516   239    41
-10 []           5     5    35     5
+
 
 2_noliaffordmovers.html
-   typ_cat    atl   chi   den   mem
-   <chr>    <int> <int> <int> <int>
- 1 ['AdvG']     2    14    NA     2
- 2 ['ARE']    206   555   159    71
- 3 ['ARG']     54   148    36    19
- 4 ['BE']      16    81    23     1
- 5 ['EOG']      3    24     1     2
- 6 ['OD']      18   111    13    21
- 7 ['SAE']     21   139    12    20
- 8 ['SLI']    174   389   157    50
- 9 ['SMMI']   239   516   239    41
-10 []           5     5    35     5
+
 
 3_noliaffordmoversloss.html
-   typ_cat    atl   chi   den   mem
-   <chr>    <int> <int> <int> <int>
- 1 ['AdvG']     4    19     5     3
- 2 ['ARE']    204   550   154    70
- 3 ['ARG']     51   148    36    18
- 4 ['BE']      16    81    23     1
- 5 ['EOG']     19    39    10     4
- 6 ['OD']      18   111    13    21
- 7 ['SAE']     21   139    12    20
- 8 ['SLI']    161   374   148    49
- 9 ['SMMI']   239   516   239    41
-10 []           5     5    35     5
+
 
 4_noaffordmovers.html
    typ_cat    atl   chi   den   mem
@@ -127,7 +87,7 @@ left_join(., memdf %>% group_by(typ_cat) %>% summarise(mem = n()))
  9 ['SMMI']   239   516   239    41
 10 []           5     5    35     5
 
-7_nodensitylilossaffordlimove.html
+7_nodensitylilossaffordlimove.html # seems fitting
    typ_cat    atl   chi   den   mem
    <chr>    <int> <int> <int> <int>
  1 ['AdvG']     2    15    NA     2
