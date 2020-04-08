@@ -19,6 +19,13 @@ chidf %>% group_by(typ_cat) %>% summarise(chi = n())) %>%
 left_join(., dendf %>% group_by(typ_cat) %>% summarise(den = n())) %>% 
 left_join(., memdf %>% group_by(typ_cat) %>% summarise(mem = n()))
 
+atlanta_1_noliafford
+atlanta_2_noliaffordmovers
+atlanta_3_noliaffordmoversloss
+atlanta_4_noaffordmovers
+atlanta_5_noaffordmoversloss
+atlanta_6_nodensitylossliaffordlimove
+
 EOG
                                     atlanta Chicago Denver  Memphis
 1   no li afford                    2       20      NA      2
