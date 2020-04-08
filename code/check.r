@@ -40,12 +40,34 @@ n
 
 
 2_noliaffordmovers.html
-
+   typ_cat    atl   chi   den   mem
+   <chr>    <int> <int> <int> <int>
+ 1 ['AdvG']     2    14    NA     2
+ 2 ['ARE']    206   555   159    71
+ 3 ['ARG']     54   148    36    19
+ 4 ['BE']      16    81    23     1
+ 5 ['EOG']      3    24     1     2
+ 6 ['OD']      18   111    13    21
+ 7 ['SAE']     21   139    12    20
+ 8 ['SLI']    174   389   157    50
+ 9 ['SMMI']   239   516   239    41
+10 []           5     5    35     5
 
 3_noliaffordmoversloss.html
+   typ_cat    atl   chi   den   mem
+   <chr>    <int> <int> <int> <int>
+ 1 ['AdvG']     4    19     5     3
+ 2 ['ARE']    204   550   154    70
+ 3 ['ARG']     51   148    36    18
+ 4 ['BE']      16    81    23     1
+ 5 ['EOG']     19    39    10     4
+ 6 ['OD']      18   111    13    21
+ 7 ['SAE']     21   139    12    20
+ 8 ['SLI']    161   374   148    49
+ 9 ['SMMI']   239   516   239    41
+10 []           5     5    35     5
 
-
-4_noaffordmovers.html
+4_noaffordmovers.html # similar to #7 but chicago has fewer in this one
    typ_cat    atl   chi   den   mem
    <chr>    <int> <int> <int> <int>
  1 ['AdvG']     2    14    NA     2
