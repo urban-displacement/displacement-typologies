@@ -123,31 +123,31 @@ http://cci-ucb.github.io/sparcc/maps/atlanta_7_nodensitylilossaffordlimove.html
 
 ## Chicago
 
-http://cci-ucb.github.io/sparcc/maps/chicago_1_noliafford.html
-http://cci-ucb.github.io/sparcc/maps/chicago_2_noliaffordmovers.html
-http://cci-ucb.github.io/sparcc/maps/chicago_3_noliaffordmoversloss.html
-http://cci-ucb.github.io/sparcc/maps/chicago_4_noaffordmovers.html
-http://cci-ucb.github.io/sparcc/maps/chicago_5_noaffordmoversloss.html
-http://cci-ucb.github.io/sparcc/maps/chicago_6_nodensitylossliaffordlimove.html
-http://cci-ucb.github.io/sparcc/maps/chicago_7_nodensitylilossaffordlimove.html
+http://cci-ucb.github.io/sparcc/maps/chicago_1_noliafford.html  
+http://cci-ucb.github.io/sparcc/maps/chicago_2_noliaffordmovers.html  
+http://cci-ucb.github.io/sparcc/maps/chicago_3_noliaffordmoversloss.html  
+http://cci-ucb.github.io/sparcc/maps/chicago_4_noaffordmovers.html  
+http://cci-ucb.github.io/sparcc/maps/chicago_5_noaffordmoversloss.html  
+http://cci-ucb.github.io/sparcc/maps/chicago_6_nodensitylossliaffordlimove.html  
+http://cci-ucb.github.io/sparcc/maps/chicago_7_nodensitylilossaffordlimove.html  
 
 ## Denver
 
-http://cci-ucb.github.io/sparcc/maps/denver_1_noliafford.html
-http://cci-ucb.github.io/sparcc/maps/denver_2_noliaffordmovers.html
-http://cci-ucb.github.io/sparcc/maps/denver_3_noliaffordmoversloss.html
-http://cci-ucb.github.io/sparcc/maps/denver_4_noaffordmovers.html
-http://cci-ucb.github.io/sparcc/maps/denver_5_noaffordmoversloss.html
-http://cci-ucb.github.io/sparcc/maps/denver_6_nodensitylossliaffordlimove.html
-http://cci-ucb.github.io/sparcc/maps/denver_7_nodensitylilossaffordlimove.html
+http://cci-ucb.github.io/sparcc/maps/denver_1_noliafford.html  
+http://cci-ucb.github.io/sparcc/maps/denver_2_noliaffordmovers.html  
+http://cci-ucb.github.io/sparcc/maps/denver_3_noliaffordmoversloss.html  
+http://cci-ucb.github.io/sparcc/maps/denver_4_noaffordmovers.html  
+http://cci-ucb.github.io/sparcc/maps/denver_5_noaffordmoversloss.html  
+http://cci-ucb.github.io/sparcc/maps/denver_6_nodensitylossliaffordlimove.html  
+http://cci-ucb.github.io/sparcc/maps/denver_7_nodensitylilossaffordlimove.html  
 
 ## Memphis
 
-http://cci-ucb.github.io/sparcc/maps/memphis_1_noliafford.html
-http://cci-ucb.github.io/sparcc/maps/memphis_2_noliaffordmovers.html
-http://cci-ucb.github.io/sparcc/maps/memphis_3_noliaffordmoversloss.html
-http://cci-ucb.github.io/sparcc/maps/memphis_4_noaffordmovers.html
-http://cci-ucb.github.io/sparcc/maps/memphis_5_noaffordmoversloss.html
-http://cci-ucb.github.io/sparcc/maps/memphis_6_nodensitylossliaffordlimove.html
-http://cci-ucb.github.io/sparcc/maps/memphis_7_nodensitylilossaffordlimove.html
+http://cci-ucb.github.io/sparcc/maps/memphis_1_noliafford.html  
+http://cci-ucb.github.io/sparcc/maps/memphis_2_noliaffordmovers.html  
+http://cci-ucb.github.io/sparcc/maps/memphis_3_noliaffordmoversloss.html  
+http://cci-ucb.github.io/sparcc/maps/memphis_4_noaffordmovers.html  
+http://cci-ucb.github.io/sparcc/maps/memphis_5_noaffordmoversloss.html  
+http://cci-ucb.github.io/sparcc/maps/memphis_6_nodensitylossliaffordlimove.html  
+http://cci-ucb.github.io/sparcc/maps/memphis_7_nodensitylilossaffordlimove.html  
 
