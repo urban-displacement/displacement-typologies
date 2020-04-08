@@ -536,12 +536,12 @@ df['EOG'] = 0
 df['EOG'] = np.where((df['pop00flag']==1)& # pop > 500
                     ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))& # low and mix low income households. 
                      # (df['ch_per_limove_12_17']<0)& # percent change in low income movers              
-                    # ( 
-                    #     # (df['lmh_flag_encoded'] == 1)| # affordable to low income households
-                    #     (df['lmh_flag_encoded'] == 2)| # predominantly middle income
-                    #     # (df['lmh_flag_encoded'] == 4)| # Mixed low
-                    #     (df['lmh_flag_encoded'] == 5) # mixed mod
-                    #     )&
+                    ( 
+                        # (df['lmh_flag_encoded'] == 1)| # affordable to low income households
+                        (df['lmh_flag_encoded'] == 2)| # predominantly middle income
+                        # (df['lmh_flag_encoded'] == 4)| # Mixed low
+                        (df['lmh_flag_encoded'] == 5) # mixed mod
+                        )&
                     (
                         (df['change_flag_encoded'] == 2)| # change increase
                         (df['change_flag_encoded'] == 3)| # rapid change increase
