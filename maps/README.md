@@ -5,7 +5,7 @@ scenario 2 = no li movers or li afford
 scenario 3 = no li afford, li mov, li loss   
 scenario 4 = no afford or li movers          
 scenario 5 = no afford, li mov, or li loss   
-scenario 6 = no dense loss, li afford, li move
+scenario 6 = no dense loss, li afford, li move  
 scenerio 7 = no density li loss, afford, li move
 
 ## Scenerio counts
