@@ -113,13 +113,13 @@ scen7
 
 ## Atlanta
 
-http://cci-ucb.github.io/sparcc/maps/atlanta_1_noliafford.html
-http://cci-ucb.github.io/sparcc/maps/atlanta_2_noliaffordmovers.html ##
-http://cci-ucb.github.io/sparcc/maps/atlanta_3_noliaffordmoversloss.html
-http://cci-ucb.github.io/sparcc/maps/atlanta_4_noaffordmovers.html ###
-http://cci-ucb.github.io/sparcc/maps/atlanta_5_noaffordmoversloss.html
-http://cci-ucb.github.io/sparcc/maps/atlanta_6_nodensitylossliaffordlimove.html #
-http://cci-ucb.github.io/sparcc/maps/atlanta_7_nodensitylilossaffordlimove.html
+http://cci-ucb.github.io/sparcc/maps/atlanta_1_noliafford.html  
+http://cci-ucb.github.io/sparcc/maps/atlanta_2_noliaffordmovers.html ##  
+http://cci-ucb.github.io/sparcc/maps/atlanta_3_noliaffordmoversloss.html  
+http://cci-ucb.github.io/sparcc/maps/atlanta_4_noaffordmovers.html ###  
+http://cci-ucb.github.io/sparcc/maps/atlanta_5_noaffordmoversloss.html  
+http://cci-ucb.github.io/sparcc/maps/atlanta_6_nodensitylossliaffordlimove.html #  
+http://cci-ucb.github.io/sparcc/maps/atlanta_7_nodensitylilossaffordlimove.html  
 
 ## Chicago
 
