@@ -30,6 +30,19 @@ left_join(., memdf %>% group_by(typ_cat) %>% summarise(mem = n()))
 # left off add density to back_407
 
 0_base.html
+   typ_cat    atl   chi   den   mem
+   <chr>    <int> <int> <int> <int>
+ 1 ['AdvG']     1    11    NA    NA
+ 2 ['ARE']    207   558   159    73
+ 3 ['ARG']     54   148    36    20
+ 4 ['BE']      16    81    23     1
+ 5 ['EOG']      6    23     4     2
+ 6 ['OD']      17   106    10    20
+ 7 ['SAE']     21   139    12    20
+ 8 ['SLI']    172   395   157    50
+ 9 ['SMMI']   239   516   239    41
+10 []           5     5    35     5
+
 1_noliafford.html
 2_noliaffordmovers.html
 3_noliaffordmoversloss.html
@@ -37,6 +50,8 @@ left_join(., memdf %>% group_by(typ_cat) %>% summarise(mem = n()))
 5_noaffordmoversloss.html
 6_nodensitylossliaffordlimove.html
 7_nodensitylilossaffordlimove.html
+
+
 
 EOG
                                     atlanta Chicago Denver  Memphis
