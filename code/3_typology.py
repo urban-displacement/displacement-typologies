@@ -255,7 +255,8 @@ data['gent_00_17_urban'] = np.where((data['vul_gent_00']==1)&
                                 (data['hotmarket_17']==1), 1, 0)
 
 
-
+# Add lag variables
+data = pd.merge(data,lag[['dp_PChRent','dp_RentGap','GEOID', 'tr_rent_gap', 'rm_rent_gap', 'dense']],on='GEOID')
 
 # print('GENTRIFICATION 1990 - 2000')
 # ax = data.plot(color = 'white')
@@ -490,11 +491,6 @@ df['SMMI'] = np.where((df['pop00flag'].isna())|
 
 # #### At Risk of Gentrification
 
-df = pd.merge(df,lag[['dp_PChRent','dp_RentGap','GEOID', 'tr_rent_gap', 'rm_rent_gap']],on='GEOID')
-
-
-
-
 
 ### Needs to run exclusive code for analysis of risk factors
 ### ****ARG ****
@@ -540,12 +536,12 @@ df['EOG'] = 0
 df['EOG'] = np.where((df['pop00flag']==1)& # pop > 500
                     ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))& # low and mix low income households. 
                      # (df['ch_per_limove_12_17']<0)& # percent change in low income movers              
-                    ( 
-                        # (df['lmh_flag_encoded'] == 1)| # affordable to low income households
-                        (df['lmh_flag_encoded'] == 2)| # predominantly middle income
-                        # (df['lmh_flag_encoded'] == 4)| # Mixed low
-                        (df['lmh_flag_encoded'] == 5) # mixed mod
-                        )&
+                    # ( 
+                    #     # (df['lmh_flag_encoded'] == 1)| # affordable to low income households
+                    #     (df['lmh_flag_encoded'] == 2)| # predominantly middle income
+                    #     # (df['lmh_flag_encoded'] == 4)| # Mixed low
+                    #     (df['lmh_flag_encoded'] == 5) # mixed mod
+                    #     )&
                     (
                         (df['change_flag_encoded'] == 2)| # change increase
                         (df['change_flag_encoded'] == 3)| # rapid change increase

@@ -114,6 +114,19 @@ left_join(., memdf %>% group_by(typ_cat) %>% summarise(mem = n()))
 10 []           5     5    35     5
 
 6_nodensitylossliaffordlimove.html
+   typ_cat    atl   chi   den   mem
+   <chr>    <int> <int> <int> <int>
+ 1 ['AdvG']     4    19     5     3
+ 2 ['ARE']    204   550   154    70
+ 3 ['ARG']     51   148    36    18
+ 4 ['BE']      16    81    23     1
+ 5 ['EOG']     35    64    21     7
+ 6 ['OD']      16    97     9    19
+ 7 ['SAE']     21   139    12    20
+ 8 ['SLI']    147   363   141    48
+ 9 ['SMMI']   239   516   239    41
+10 []           5     5    35     5
+
 7_nodensitylilossaffordlimove.html
 
 
