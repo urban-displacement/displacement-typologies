@@ -139,8 +139,8 @@ df <-
              'Rent gap: ', case_when(dp_RentGap == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Hot Market: ', case_when(hotmarket_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
-             'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 | gent_90_00_d == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
-             'Gentrified from 2000 to 2017: ', case_when(gent_00_17 == 1 | gent_00_17_d == 1 ~ 'Yes', TRUE ~ 'No')
+             'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 | gent_90_00_urban == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
+             'Gentrified from 2000 to 2017: ', case_when(gent_00_17 == 1 | gent_00_17_urban == 1 ~ 'Yes', TRUE ~ 'No')
           )
     ) %>% 
     ungroup() %>% 
@@ -832,26 +832,26 @@ atlanta <-
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_0_base.html")
+htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta.html")
 
 # Chicago, IL
 chicago <- 
     map_it(chi_df, "Chicago", 'IL') %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_0_base.html")
+htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago.html")
 
 # Denver, CO
 denver <- 
     map_it2(den_df, "Denver", 'CO') %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_0_base.html")
+htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver.html")
 
 # Memphis, TN
 memphis <- 
     map_it(mem_df, "Memphis", c('TN', 'MS')) %>% 
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis_0_base.html")
+htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis.html")
 
