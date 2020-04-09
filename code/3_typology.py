@@ -231,11 +231,6 @@ data['gent_90_00'] = np.where((data['vul_gent_90']==1)&
                                 (data['aboverm_pctch_real_hinc_90_00']==1)&
                                 (data['lostli_00']==1)&
                                 (data['hotmarket_00']==1), 1, 0)
-data['gent_90_00_d'] = np.where((data['vul_gent_90']==1)&
-                                (data['aboverm_ch_per_col_90_00']==1)&
-                                (data['aboverm_pctch_real_hinc_90_00']==1)&
-                                # (data['lostli_00']==1)&
-                                (data['hotmarket_00']==1), 1, 0)
 
 data['gent_90_00_urban'] = np.where((data['vul_gent_90']==1)&
                                 (data['aboverm_ch_per_col_90_00']==1)&
@@ -249,12 +244,6 @@ data['gent_00_17'] = np.where((data['vul_gent_00']==1)&
                                 (data['aboverm_ch_per_col_00_17']==1)&
                                 (data['aboverm_pctch_real_hinc_00_17']==1)&
                                 (data['lostli_17']==1)&
-                                # (data['ch_per_limove_12_17']<0)&
-                                (data['hotmarket_17']==1), 1, 0)
-data['gent_00_17_d'] = np.where((data['vul_gent_00']==1)&
-                                (data['aboverm_ch_per_col_00_17']==1)&
-                                (data['aboverm_pctch_real_hinc_00_17']==1)&
-                                # (data['lostli_17']==1)&
                                 # (data['ch_per_limove_12_17']<0)&
                                 (data['hotmarket_17']==1), 1, 0)
 
@@ -354,40 +343,20 @@ proximity = df[df.geometry.touches(exclusive.unary_union)]
 ### ************* Advanced gentrification **************
 # df = data
 df['AdvG'] = 0
-# df['AdvG'] = np.where((df['pop00flag']==1)&
-#                     ((df['mod_pdmt_medhhinc_17'] == 1)|(df['mix_mod_medhhinc_17'] == 1)|
-#                      (df['mix_high_medhhinc_17'] == 1)|(df['high_pdmt_medhhinc_17'] == 1))&                    
-#                     ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
-#                      (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
-#                     ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2))&
-#                     ((df['pctch_real_mhval_00_17'] > 0) | (df['pctch_real_mrent_12_17'] > 0)) & 
-#                      ((df['gent_90_00']==1)|(df['gent_00_17']==1)), 1, 0)
-
-# df['AdvG'] = np.where((df['pop00flag']==1)&
-#                       (df['dense'] == 1) & 
-#                     ((df['mod_pdmt_medhhinc_17'] == 1)|(df['mix_mod_medhhinc_17'] == 1)|
-#                      (df['mix_high_medhhinc_17'] == 1)|(df['high_pdmt_medhhinc_17'] == 1))&                    
-#                     ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
-#                      (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
-#                     ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2))&
-#                     ((df['pctch_real_mhval_00_17'] > 0) | (df['pctch_real_mrent_12_17'] > 0)) & 
-#                      ((df['gent_90_00_d']==1)|(df['gent_00_17_d']==1)), 1, 0)
-
-# df['AdvG'] = 0
 df['AdvG'] = np.where((df['pop00flag']==1)&
                     ((df['mod_pdmt_medhhinc_17'] == 1)|(df['mix_mod_medhhinc_17'] == 1)|
                      (df['mix_high_medhhinc_17'] == 1)|(df['high_pdmt_medhhinc_17'] == 1))&                    
-                    # ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
-                    #  (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
+                    ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
+                     (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
                     ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2))&
                     ((df['pctch_real_mhval_00_17'] > 0) | (df['pctch_real_mrent_12_17'] > 0)) & 
                      (
-                        (df['gent_90_00']==1)|
-                        (df['gent_00_17']==1)
-                        # ((df['dense'] == 0) & (df['gent_90_00'] == 1))|
-                        # ((df['dense'] == 0) & (df['gent_00_17'] == 1))|
-                        # ((df['dense'] == 1) & (df['gent_90_00_urban'] == 1))|
-                        # ((df['dense'] == 1) & (df['gent_00_17_urban'] == 1))
+                        # (df['gent_90_00']==1)|
+                        # (df['gent_00_17']==1)
+                        ((df['dense'] == 0) & (df['gent_90_00'] == 1))|
+                        ((df['dense'] == 0) & (df['gent_00_17'] == 1))|
+                        ((df['dense'] == 1) & (df['gent_90_00_urban'] == 1))|
+                        ((df['dense'] == 1) & (df['gent_00_17_urban'] == 1))
                     ), 1, 0)
 
 df['AdvG'] = np.where((df['pop00flag'].isna())|
