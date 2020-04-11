@@ -1672,7 +1672,7 @@ zillow['ab_50pct_ch'] = np.where(zillow['per_ch_zillow_12_17']>0.5, 1, 0)
 ### Change over 90th percentile change
 zillow['ab_90percentile_ch'] = np.where(zillow['per_ch_zillow_12_17']>percentile_90, 1, 0)
 
-census = census.merge(zillow[['FIPS', 'ab_50pct_ch', 'ab_90percentile_ch']], on = 'FIPS')
+census = census.merge(zillow[['FIPS', 'per_ch_zillow_12_17', 'ab_50pct_ch', 'ab_90percentile_ch']], on = 'FIPS')
 
 ### Create 90th percentile for rent - 
 # census['rent_percentile_90'] = census['pctch_real_mrent_12_17'].quantile(q = 0.9)
@@ -1713,8 +1713,12 @@ rm_real_hinc_90 = np.nanmedian(census['real_hinc_90'])
 rm_real_hinc_00 = np.nanmedian(census['real_hinc_00'])
 rm_real_hinc_17 = np.nanmedian(census['real_hinc_17'])
 rm_per_units_pre50_17 = np.nanmedian(census['per_units_pre50_17'])
+rm_per_ch_zillow_12_17 = np.nanmedian(census['per_ch_zillow_12_17'])
+rm_pctch_real_mrent_12_17 = np.nanmedian(census['pctch_real_mrent_12_17'])  
 
-
+# Above regional median change home value and rent
+census['hv_abrm_ch'] = np.where(census['per_ch_zillow_12_17'] > rm_per_ch_zillow_12_17, 1, 0)
+census['rent_abrm_ch'] = np.where(census['pctch_real_mrent_12_17'] > rm_pctch_real_mrent_12_17, 1, 0)
 
 # #### Percent changes
 

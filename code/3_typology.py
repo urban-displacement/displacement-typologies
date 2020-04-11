@@ -545,8 +545,10 @@ df['EOG'] = np.where((df['pop00flag']==1)& # pop > 500
                     (
                         (df['change_flag_encoded'] == 2)| # change increase
                         (df['change_flag_encoded'] == 3)| # rapid change increase
-                        (df['ab_50pct_ch'] == 1)| # housing above 50%
-                        (df['rent_50pct_ch'] == 1) # rent above 50%
+                        # (df['ab_50pct_ch'] == 1)| # housing above 50%
+                        # (df['rent_50pct_ch'] == 1) # rent above 50%
+                        (df['hv_abrm_ch'] == 1)| # housing value above regional median
+                        (df['rent_abrm_ch'] == 1) # rent above regional median
                         )&
                      (
                         # (df['gent_90_00']==1)|
@@ -568,6 +570,8 @@ df['EOG'] = np.where((df['pop00flag'].isna())|
                      (df['gent_90_00_urban'].isna())|
                      (df['gent_00_17_urban'].isna())|
                      (df['ab_50pct_ch'].isna())|
+                     (df['hv_abrm_ch'].isna())|
+                     (df['rent_abrm_ch'].isna())|
                      (df['rent_50pct_ch'].isna()), np.nan, df['EOG'])
 
 
