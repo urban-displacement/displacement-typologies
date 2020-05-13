@@ -21,7 +21,7 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(colorout, fst, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
+pacman::p_load(colorout, fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
@@ -167,8 +167,72 @@ tracts <-
     st_transform(st_crs(4326)) 
 
 # Join the tracts to the dataframe
+
 df_sf <- 
     right_join(tracts, df) 
+
+#
+# Explore problem areas
+# --------------------------------------------------------------------------
+
+
+pt <- 
+    fread('~/git/sparcc/data/sparcc_problem_tracts.csv') %>% 
+    rename(city = City) %>% 
+    mutate(GEOID = as.numeric(GEOID)) %>% 
+    left_join(df_sf) %>% 
+    st_set_geometry(value = "geometry") %>% 
+    group_by(GEOID) %>% 
+    mutate(
+        popup = # What to include in the popup 
+          str_c(
+              '<b>Tract: ', GEOID, '<br>', 
+              Typology, '</b>',
+            # Market
+              '<br><br>',
+              '<b>Site Notes</b>: <br>', Site_Notes,
+              '<br><br>',
+              '<b>Miriam notes</b>: <br>', Miriam_Student_Notes,
+              '<br><br>',
+              '<b><i><u>Market Dynamics</u></i></b><br>',
+              'Tract median home value: ', case_when(!is.na(real_mhval_17) ~ dollar(real_mhval_17), TRUE ~ 'No data'), '<br>',
+              'Tract home value change from 2000 to 2017: ', case_when(is.na(real_mhval_17) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_17)),'<br>',
+              'Regional median home value: ', dollar(rm_real_mhval_17), '<br>',
+              '<br>',
+              'Tract median rent: ', case_when(!is.na(real_mrent_17) ~ dollar(real_mrent_17), TRUE ~ 'No data'), '<br>', 
+              'Regional median rent: ', case_when(is.na(real_mrent_17) ~ 'No data', TRUE ~ dollar(rm_real_mrent_17)), '<br>', 
+              'Tract rent change from 2012 to 2017: ', percent(pctch_real_mrent_12_17), '<br>',
+              '<br>',
+              'Rent gap (nearby - local): ', dollar(tr_rent_gap), '<br>',
+              'Regional median rent gap: ', dollar(rm_rent_gap), '<br>',
+              '<br>',
+            # demographics
+             '<b><i><u>Demographics</u></i></b><br>', 
+             'Tract population: ', comma(pop_17), '<br>', 
+             'Tract household count: ', comma(hh_17), '<br>', 
+             'Tract median income: ', dollar(real_hinc_17), '<br>', 
+             'Percent low income hh: ', percent(per_all_li_17), '<br>', 
+             'Percent change in LI: ', percent(per_ch_li), '<br>',
+             '<br>',
+             'Percent non-White: ', percent(per_nonwhite_17), '<br>',
+             'Regional median non-White: ', percent(rm_per_nonwhite_17), '<br>',
+             '<br>',
+             'Percent college educated: ', percent(per_col_17), '<br>',
+             'Regional median educated: ', percent(rm_per_col_17), '<br>',
+            '<br>',
+            # risk factors
+             '<b><i><u>Risk Factors</u></i></b><br>', 
+             'Mostly low income: ', case_when(low_pdmt_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Mix low income: ', case_when(mix_low_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Rent change: ', case_when(dp_PChRent == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Rent gap: ', case_when(dp_RentGap == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Hot Market: ', case_when(hotmarket_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
+             'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 | gent_90_00_urban == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
+             'Gentrified from 2000 to 2017: ', case_when(gent_00_17 == 1 | gent_00_17_urban == 1 ~ 'Yes', TRUE ~ 'No')
+          )
+    ) 
+    
 
 # ==========================================================================
 # overlays
@@ -315,7 +379,7 @@ road_map <-
         rbind
     ) %>% 
     filter(RTTYP %in% c('I','U')) %>% 
-    st_simplify() %>% 
+    ms_simplify(keep = 0.1) %>% 
     st_transform(st_crs(df_sf)) %>%
     st_join(., df_sf %>% select(city), join = st_intersects) %>% 
     mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
@@ -492,6 +556,31 @@ map_it <- function(data, city_name, st){
         values = ~Typology, 
         group = "SPARCC Typology"
     ) %>% 
+
+# Problem tracts
+    addPolygons(
+        data = pt, 
+        group = "Problem Tracts", 
+        label = ~Typology,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .9, 
+        color = ~sparcc_pal(Typology), 
+        stroke = TRUE, 
+        weight = .7, 
+        opacity = .60, 
+        highlightOptions = highlightOptions(
+                          color = "#ff4a4a", 
+                          weight = 5,
+                              bringToFront = TRUE
+                              ), 
+        popup = ~popup, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+    ) %>%   
+    addLegend(
+        pal = sparcc_pal, 
+        values = ~Typology, 
+        group = "Problem Tracts"
+    ) %>% 
 # Redlined areas
     addPolygons(
         data = red %>% filter(city == city_name), 
@@ -631,7 +720,8 @@ map_it <- function(data, city_name, st){
 # Options
     addLayersControl(
         overlayGroups = 
-            c("Redlined Areas", 
+            c("Problem Tracts", 
+                "Redlined Areas", 
                 "Hospitals", 
                 "Universities & Colleges", 
                 "Public Housing", 
@@ -692,6 +782,30 @@ map_it2 <- function(data, city_name, st){
         pal = sparcc_pal, 
         values = ~Typology, 
         group = "SPARCC Typology"
+    ) %>% 
+# Problem tracts
+    addPolygons(
+        data = pt, 
+        group = "Problem Tracts", 
+        label = ~Typology,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .9, 
+        color = ~sparcc_pal(Typology), 
+        stroke = TRUE, 
+        weight = .7, 
+        opacity = .60, 
+        highlightOptions = highlightOptions(
+                          color = "#ff4a4a", 
+                          weight = 5,
+                              bringToFront = TRUE
+                              ), 
+        popup = ~popup, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+    ) %>%   
+    addLegend(
+        pal = sparcc_pal, 
+        values = ~Typology, 
+        group = "Problem Tracts"
     ) %>% 
 # Redlined areas
     addPolygons(
@@ -810,7 +924,8 @@ map_it2 <- function(data, city_name, st){
 # Options
     addLayersControl(
         overlayGroups = 
-            c("Redlined Areas", 
+            c("Problem Tracts", 
+                "Redlined Areas", 
                 "Hospitals", 
                 "Universities & Colleges", 
                 "Public Housing", 
@@ -832,26 +947,26 @@ atlanta <-
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta.html")
+htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_check.html")
 
 # Chicago, IL
 chicago <- 
     map_it(chi_df, "Chicago", 'IL') %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago.html")
+htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_check.html")
 
 # Denver, CO
 denver <- 
     map_it2(den_df, "Denver", 'CO') %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver.html")
+htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_check.html")
 
 # Memphis, TN
 memphis <- 
     map_it(mem_df, "Memphis", c('TN', 'MS')) %>% 
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis.html")
+htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis_check.html")
 
