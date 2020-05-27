@@ -532,7 +532,7 @@ map_it <- function(data, city_name, st){
             icon="fa-crosshairs", 
             title="My Location",
             onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
-# SPARCC typology
+  # SPARCC typology
     addPolygons(
         data = data, 
         group = "SPARCC Typology", 
@@ -625,7 +625,7 @@ map_it <- function(data, city_name, st){
         group = "Highways",
         title = "Highways"
     ) %>%     
-# # Public Housing
+# Public Housing
     addCircleMarkers(
         data = hud %>% filter(state %in% st), 
         radius = 5, 
@@ -939,6 +939,256 @@ map_it2 <- function(data, city_name, st){
             "Universities & Colleges", 
             "Public Housing", 
             "Transit Stations"))
+}
+
+atl_map_it <- function(data, city_name, st){
+    leaflet(data = data) %>% 
+    addMapPane(name = "polygons", zIndex = 410) %>% 
+    addMapPane(name = "maplabels", zIndex = 420) %>% # higher zIndex rendered on top
+    # addProviderTiles("CartoDB.VoyagerNoLabels") %>%
+    # addProviderTiles("CartoDB.VoyagerOnlyLabels", 
+    addProviderTiles("CartoDB.PositronNoLabels") %>%
+    addProviderTiles("CartoDB.PositronOnlyLabels", 
+                   options = leafletOptions(pane = "maplabels"),
+                   group = "map labels") %>%
+    # addProviderTiles(providers$CartoDB.Positron) %>% 
+    # http://leaflet-extras.github.io/leaflet-providers/preview/index.html
+    # addMiniMap(tiles = providers$CartoDB.Positron, 
+    #          toggleDisplay = TRUE) %>% 
+    addEasyButton(
+        easyButton(
+            icon="fa-crosshairs", 
+            title="My Location",
+            onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
+  # SPARCC typology
+    addPolygons(
+        data = data, 
+        group = "SPARCC Typology", 
+        label = ~Typology,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .5, 
+        color = ~sparcc_pal(Typology), 
+        stroke = TRUE, 
+        weight = .7, 
+        opacity = .60, 
+        # highlightOptions = highlightOptions(
+        #                   color = "#ff4a4a", 
+        #                   weight = 5,
+  #                             bringToFront = TRUE
+  #                             ), 
+        popup = ~popup, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+    ) %>%   
+    addLegend(
+        pal = sparcc_pal, 
+        values = ~Typology, 
+        group = "SPARCC Typology"
+    ) %>% 
+# Conversions
+    addPolygons(
+        data = data %>% filter(GEOID %in% c("131211005800", "13121004200", "13121002500"), 
+        group = "Conversions", 
+        label = ~Typology,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .5, 
+        color = ~sparcc_pal(Typology), 
+        stroke = TRUE, 
+        weight = .7, 
+        opacity = .60, 
+        # highlightOptions = highlightOptions(
+        #                   color = "#ff4a4a", 
+        #                   weight = 5,
+  #                             bringToFront = TRUE
+  #                             ), 
+        popup = ~popup, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+    ) %>%   
+    addLegend(
+        pal = sparcc_pal, 
+        values = ~Typology, 
+        group = "SPARCC Typology"
+    ) %>% 
+
+# Problem tracts
+    addPolygons(
+        data = pt, 
+        group = "Problem Tracts", 
+        label = ~Typology,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .9, 
+        color = ~sparcc_pal(Typology), 
+        stroke = TRUE, 
+        weight = .7, 
+        opacity = .60, 
+        highlightOptions = highlightOptions(
+                          color = "#ff4a4a", 
+                          weight = 5,
+                              bringToFront = TRUE
+                              ), 
+        popup = ~popup, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+    ) %>%   
+    addLegend(
+        pal = sparcc_pal, 
+        values = ~Typology, 
+        group = "Problem Tracts"
+    ) %>% 
+# Redlined areas
+    addPolygons(
+        data = red %>% filter(city == city_name), 
+        group = "Redlined Areas", 
+        label = ~Grade,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .3, 
+        color = ~redline_pal(Grade), 
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .8, 
+        highlightOptions = highlightOptions(
+                            color = "#ff4a4a", 
+                            weight = 5,
+                            bringToFront = TRUE
+                            ), 
+        popup = ~popup
+    ) %>%   
+    addLegend(
+        data = red, 
+        pal = redline_pal, 
+        values = ~Grade, 
+        group = "Redlined Areas",
+        title = "Redline Zones"
+    ) %>%  
+# Roads
+    addPolylines(
+        data = road_map %>% filter(city == city_name), 
+        group = "Highways", 
+        # label = ~rt,
+        # labelOptions = labelOptions(textsize = "12px"),
+        # fillOpacity = .3, 
+        color = ~road_pal(rt), 
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .1    
+    ) %>%
+    addLegend(
+        data = road_map, 
+        pal = road_pal, 
+        values = ~rt, 
+        group = "Highways",
+        title = "Highways"
+    ) %>%     
+# Public Housing
+    addCircleMarkers(
+        data = hud %>% filter(state %in% st), 
+        radius = 5, 
+        lng = ~longitude, 
+        lat = ~latitude, 
+        color = ~"#ff7f00",
+        # clusterOptions = markerClusterOptions(), 
+        group = 'Public Housing', 
+        # popup = ~site,
+        fillOpacity = .5, 
+        stroke = FALSE
+    ) %>%     
+# Industrial
+    addCircleMarkers(
+        data = industrial %>% filter(state %in% st), 
+        label = ~site, 
+        radius = 5, 
+        # lng = ~longitude, 
+        # lat = ~latitude, 
+        color = ~industrial_pal(site),
+        # clusterOptions = markerClusterOptions(), 
+        group = 'Industrial Sites', 
+        popup = ~site,
+        fillOpacity = .8, 
+        stroke = TRUE, 
+        weight = .6
+    ) %>%     
+    addLegend(
+        data = industrial, 
+        pal = industrial_pal, 
+        values = ~site, 
+        group = "Industrial Sites", 
+        title = "Industrial Sites"
+    ) %>%    
+# Rail
+    addCircleMarkers(
+        data = rail %>% filter(city == city_name), 
+        label = ~Buffer, 
+        radius = 5, 
+        color = ~rail_pal(Buffer),
+        group = 'Transit Stations', 
+        popup = ~Buffer,
+        fillOpacity = .8, 
+        stroke = TRUE, 
+        weight = .6
+    ) %>%     
+    addLegend(
+        data = rail, 
+        pal = rail_pal, 
+        values = ~Buffer, 
+        group = "Transit Stations", 
+        title = "Transit Stations"
+    ) %>%  
+# University
+    addCircleMarkers(
+        data = university %>% filter(city == city_name), 
+        label = ~INSTNM, 
+        radius = 5, 
+        color = ~'#39992b',
+        group = 'Universities & Colleges', 
+        popup = ~INSTNM,
+        fillOpacity = .8, 
+        stroke = TRUE, 
+        weight = .6
+    ) %>%     
+    # addLegend(
+    #     data = university, 
+    #     pal = ~'#39992b', 
+    #     values = ~legend,
+    #     group = "Universities & Colleges", 
+    #     title = "Universities & Colleges"
+    # ) %>%    
+# Hospitals
+    addCircleMarkers(
+        data = hospitals %>% filter(city == city_name), 
+        label = ~NAME, 
+        radius = 5, 
+        color = ~"#e41a1c",
+        group = 'Hospitals', 
+        popup = ~popup,
+        fillOpacity = .8, 
+        stroke = TRUE, 
+        weight = .6
+    ) %>%     
+    # addLegend(
+    #     data = rail, 
+    #     pal = ~"#e41a1c", 
+    #     values = ~legend,
+    #     group = "Hospitals", 
+    #     title = "Hospitals"
+    # ) %>%    
+# Options
+    addLayersControl(
+        overlayGroups = 
+            c("Problem Tracts", 
+                "Redlined Areas", 
+                "Hospitals", 
+                "Universities & Colleges", 
+                "Public Housing", 
+                "Transit Stations", 
+                "Industrial Sites", 
+                "Highways",
+                "SPARCC Typology"),
+        options = layersControlOptions(collapsed = FALSE)) %>% 
+    hideGroup(
+        c("Redlined Areas", 
+            "Hospitals", 
+            "Universities & Colleges", 
+            "Public Housing", 
+            "Transit Stations", 
+            "Industrial Sites"))
 }
 
 # Atlanta, GA
