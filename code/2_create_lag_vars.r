@@ -3,9 +3,9 @@
 # ==========================================================================
 
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(colorout, data.table, tigris, tidycensus, tidyverse, spdep)
-# options(width = Sys.getenv('COLUMNS'))
-
+pacman::p_load(data.table, tigris, tidycensus, tidyverse, spdep)
+options(width = Sys.getenv('COLUMNS'))
+# census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381', install = TRUE, overwrite = TRUE)
 # ==========================================================================
 # Pull in data
 # ==========================================================================
@@ -24,7 +24,11 @@ df <-
             mutate(city = "Chicago"),
             read_csv("~/git/sparcc/data/Memphis_database.csv") %>% 
             select(!X1) %>% 
-            mutate(city = "Memphis")
+            mutate(city = "Memphis") %>%
+            read_csv("~/git/sparcc/data/Los Angeles_database.csv") %>% 
+            select(!X1) %>% 
+            mutate(city = "Los Angeles")
+
     )
 
 # ==========================================================================
@@ -39,7 +43,7 @@ df <-
 # Memphis and IN is within close proximity of Chicago. 
 
 ### Tract data extraction function
-st <- c("IL","GA","AR","TN","CO","MS","AL","KY","MO","IN")
+st <- c("IL","GA","AR","TN","CO","MS","AL","KY","MO","IN", "CA")
 
 tr_rent <- function(year, state){
     get_acs(
@@ -115,6 +119,7 @@ states <-
     raster::union(
     raster::union(
     raster::union(
+    raster::union(
     raster::union(tracts("IL", cb = TRUE), tracts("GA", cb = TRUE)), 
         tracts("AR", cb = TRUE)), 
         tracts("TN", cb = TRUE)), 
@@ -123,7 +128,8 @@ states <-
         tracts("AL", cb = TRUE)), 
         tracts("KY", cb = TRUE)), 
         tracts("MO", cb = TRUE)), 
-        tracts("IN", cb = TRUE))
+        tracts("IN", cb = TRUE)),
+        tracts("CA", cb = TRUE))
     
 stsp <- states
 
@@ -208,15 +214,16 @@ puma_df <-
         year = 2017, 
         wide = TRUE
 )
-
+# Anna will have to locate the file US_puma_2017.shp
 saveRDS(st_read("/Users/timothythomas/Downloads/nhgis0169_shape/nhgis0169_shapefile_tl2017_us_puma_2017/US_puma_2017.shp") %>% 
-    filter(STATEFP10 %in% c("13", "80", "17", "47")) %>% 
+    filter(STATEFP10 %in% c("13", "80", "17", "47", "06")) %>% 
     st_set_crs(102003) %>% 
     st_transform(4269) %>% 
     mutate(sqmile = ALAND10/2589988), 
     "/Users/timothythomas/git/sparcc/data/inputs/nhgispuma.RDS"
 )
 
+# anna will have to find nhgispuma.RDS
 puma <-  
     left_join(
         readRDS("/Users/timothythomas/git/sparcc/data/inputs/nhgispuma.RDS"), 
