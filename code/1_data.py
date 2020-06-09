@@ -63,7 +63,7 @@ elif city_name == 'Los Angeles':
 else:
     print ('There is not information for the selected city')
 
-
+else
 
 
 if city_name != 'Memphis':
