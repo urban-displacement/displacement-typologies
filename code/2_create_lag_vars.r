@@ -14,19 +14,19 @@ pacman::p_load(data.table, tigris, tidycensus, tidyverse, spdep)
 df <- 
     bind_rows(
             read_csv("~/git/sparcc/data/Atlanta_database.csv") %>% 
-            select(!X1) %>% 
+            # select(!X1) %>% 
             mutate(city = "Atlanta"),
             read_csv("~/git/sparcc/data/Denver_database.csv") %>% 
-            select(!X1) %>% 
+            # select(!X1) %>% 
             mutate(city = "Denver"),
             read_csv("~/git/sparcc/data/Chicago_database.csv") %>% 
-            select(!X1) %>% 
+            # select(!X1) %>% 
             mutate(city = "Chicago"),
             read_csv("~/git/sparcc/data/Memphis_database.csv") %>% 
-            select(!X1) %>% 
-            mutate(city = "Memphis") %>%
+            # select(!X1) %>% 
+            mutate(city = "Memphis"),
             read_csv("~/git/sparcc/data/Los Angeles_database.csv") %>% 
-            select(!X1) %>% 
+            # select(!X1) %>% 
             mutate(city = "Los Angeles")
 
     )
