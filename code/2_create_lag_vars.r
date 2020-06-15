@@ -4,7 +4,7 @@
 
 if(!require(pacman)) install.packages("pacman")
 pacman::p_load(data.table, tigris, tidycensus, tidyverse, spdep)
-options(width = Sys.getenv('COLUMNS'))
+# options(width = Sys.getenv('COLUMNS'))
 # census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381', install = TRUE, overwrite = TRUE)
 # ==========================================================================
 # Pull in data
