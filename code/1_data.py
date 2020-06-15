@@ -58,7 +58,7 @@ elif city_name == 'Memphis':
     
 elif city_name == 'Los Angeles':
     state = '06'
-    FIPS = ['037']
+    FIPS = ['037', '059', '073']
 
 else:
     print ('There is not information for the selected city')
@@ -733,7 +733,7 @@ elif city_name == 'Memphis':
     
 elif city_name == 'Los Angeles':
     state = '06'
-    FIPS = ['037']
+    FIPS = ['037', '059', '073']
 
 else:
     print ('There is no information for the selected city')
@@ -945,7 +945,7 @@ elif city_name == 'Memphis':
 elif city_name == 'Los Angeles':
     state = '06'
     state_init = ['CA']
-    FIPS = ['037']
+    FIPS = ['037', '059', '073']
     rail_agency = 'Metro'
     zone = '11S'
     
