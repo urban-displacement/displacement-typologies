@@ -16,7 +16,7 @@ python 1_data.py Atlanta
 python 1_data.py Chicago
 python 1_data.py Denver
 python 1_data.py Memphis
-python 1_data.py Los Angeles
+python 1_data.py 'Los Angeles'
 
 # 2. create lag variables
 Rscript 2_create_lag_vars.r
@@ -26,7 +26,7 @@ python 3_typology.py Atlanta
 python 3_typology.py Chicago
 python 3_typology.py Denver
 python 3_typology.py Memphis
-python 3_typology.py Los Angeles
+python 3_typology.py 'Los Angeles'
 
 # 4. create maps
 Rscript 4_SPARCC_Maps.r

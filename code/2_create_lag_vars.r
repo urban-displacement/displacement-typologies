@@ -28,7 +28,6 @@ df <-
             read_csv("~/git/sparcc/data/Los Angeles_database.csv") %>% 
             # select(!X1) %>% 
             mutate(city = "Los Angeles")
-
     )
 
 # ==========================================================================

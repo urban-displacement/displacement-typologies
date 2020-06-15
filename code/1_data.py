@@ -35,31 +35,26 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-#city_name = str(sys.argv[1])
-city_name = 'Los Angeles'
+city_name = str(sys.argv[1])
+# city_name = 'Los Angeles'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
 if city_name == 'Chicago':
     state = '17'
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
-
 elif city_name == 'Atlanta':
     state = '13'
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
-    
 elif city_name == 'Denver':
     state = '08'
     FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']
-
 elif city_name == 'Memphis':
     state = ['28', '47']
     FIPS = {'28':['033', '093'], '47': ['047', '157']}
-    
 elif city_name == 'Los Angeles':
     state = '06'
     FIPS = ['037', '059', '073']
-
 else:
     print ('There is not information for the selected city')
 
