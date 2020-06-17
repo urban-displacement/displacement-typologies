@@ -3,10 +3,10 @@
 ## Latest maps
 password = `city_namesparcc`
 
-[Atlanta](https://cci-ucb.github.io/sparcc/maps/atlanta)
-[Chicago](https://cci-ucb.github.io/sparcc/maps/chicago)
-[Denver](https://cci-ucb.github.io/sparcc/maps/denver)
-[Memphis](https://cci-ucb.github.io/sparcc/maps/memphis)
+[Atlanta](https://cci-ucb.github.io/sparcc/maps/atlanta)  
+[Chicago](https://cci-ucb.github.io/sparcc/maps/chicago)  
+[Denver](https://cci-ucb.github.io/sparcc/maps/denver)  
+[Memphis](https://cci-ucb.github.io/sparcc/maps/memphis)  
 
 * Market Type and Neighborhood Income Level -- overall doc on approaches, why we're making changes, and summary stats [here](https://docs.google.com/document/d/1-2UMFzDkIgOeHFf7SMeR6FTYD7Lrl56DScJ4Lw5CT_k/edit).
     * Market Type specific folder [here](https://drive.google.com/drive/u/1/folders/1xUVqEPMAjZUc05Kq6kDzxm0V0DiytTSx).
