@@ -35,8 +35,8 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-city_name = str(sys.argv[1])
-# city_name = 'Los Angeles'
+# city_name = str(sys.argv[1])
+city_name = 'Los Angeles'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -75,7 +75,6 @@ else:
 def filter_FIPS(df):
     if city_name != 'Memphis':
         df = df[df['county'].isin(FIPS)]
-
     else:
         fips_list = []
         for i in state:
@@ -713,23 +712,19 @@ xwalk_00_10 = pd.read_csv(input_path+'crosswalk_2000_2010.csv')
 if city_name == 'Chicago':
     state = '17'
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
-
 elif city_name == 'Atlanta':
     state = '13'
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
 # add an LA elif    
 elif city_name == 'Denver':
     state = '08'
-    FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']
-    
+    FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']   
 elif city_name == 'Memphis':
     state = ['28', '47']
-    FIPS = {'28':['033', '093'], '47': ['047', '157']}
-    
+    FIPS = {'28':['033', '093'], '47': ['047', '157']}   
 elif city_name == 'Los Angeles':
     state = '06'
     FIPS = ['037', '059', '073']
-
 else:
     print ('There is no information for the selected city')
 
@@ -742,7 +737,6 @@ else:
 def filter_FIPS(df):
     if city_name != 'Memphis':
         df = df[df['county'].isin(FIPS)].reset_index(drop = True)
-
     else:
         fips_list = []
         for i in state:
@@ -758,32 +752,24 @@ def filter_FIPS(df):
 
 
 def crosswalk_files (df, xwalk, counts, medians, df_fips_base, xwalk_fips_base, xwalk_fips_horizon):
-
     # merge dataframe with xwalk file
     df_merge = df.merge(xwalk[['weight', xwalk_fips_base, xwalk_fips_horizon]], left_on = df_fips_base, right_on = xwalk_fips_base, how='left')                             
-
     df = df_merge
-    
     # apply interpolation weight
     new_var_list = list(counts)+(medians)
     for var in new_var_list:
         df[var] = df[var]*df['weight']
-
     # aggregate by horizon census tracts fips
     df = df.groupby(xwalk_fips_horizon).sum().reset_index()
-    
     # rename trtid10 to FIPS & FIPS to trtid_base
     df = df.rename(columns = {'FIPS':'trtid_base',
-                              'trtid10':'FIPS'})
-    
+                              'trtid10':'FIPS'})  
     # fix state, county and fips code
     df ['state'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[0:2]
     df ['county'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[2:5]
     df ['tract'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[5:]
-    
     # drop weight column
     df = df.drop(columns = ['weight'])
-    
     return df
 
 
@@ -844,11 +830,9 @@ import matplotlib.pyplot as plt
 # input_path = home+'/git/sparcc/data/inputs/'
 # output_path = home+'/git/sparcc/data/'
 shp_folder = input_path+'shp/'+city_name+'/'
-
 data_1990 = pd.read_csv(output_path+city_name+'census_90_10.csv', index_col = 0) 
 data_2000 = pd.read_csv(output_path+city_name+'census_00_10.csv', index_col = 0)
 acs_data = pd.read_csv(output_path+city_name+'census_summ.csv', index_col = 0)
-
 acs_data = acs_data.drop(columns = ['county_y', 'state_y', 'tract_y'])
 acs_data = acs_data.rename(columns = {'county_x': 'county',
                                     'state_x': 'state',
@@ -901,6 +885,7 @@ elif city_name == 'Denver':
     shp_name = 'cb_2017_08_tract_500k.shp'
 elif city_name == 'Los Angeles':
     shp_name = 'cb_2017_06_tract_500k.shp'
+
 city_shp = gpd.read_file(shp_folder+shp_name)
 
 
@@ -913,37 +898,32 @@ if city_name == 'Chicago':
     state_init = ['IL']
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
     rail_agency = 'CTA'
-    zone = '16T'
-    
+    zone = '16T'  
 # Add elif for your city here
 elif city_name == 'Atlanta':
     state = '13'
     state_init = ['GA']
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
     rail_agency = 'MARTA'
-    zone = '16S'
-    
+    zone = '16S' 
 elif city_name == 'Denver':
     state = '08'
     state_init = ['CO']
     FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']
     rail_agency = 'RTD'
     zone = '13S'
-    
 elif city_name == 'Memphis':
     state = ['28', '47']
     state_init = ['MS', 'TN']
     FIPS = {'28':['033', '093'], '47': ['047', '157']}
     rail_agency = np.nan
     zone = '15S'
-    
 elif city_name == 'Los Angeles':
     state = '06'
     state_init = ['CA']
     FIPS = ['037', '059', '073']
     rail_agency = 'Metro'
     zone = '11S'
-    
 else:
     print ('There is no information for the selected city')
 
@@ -985,7 +965,6 @@ census['hinc_90'][census['hinc_90']<0]=np.nan
 rm_hinc_17 = np.nanmedian(census['hinc_17'])
 rm_hinc_00 = np.nanmedian(census['hinc_00'])
 rm_hinc_90 = np.nanmedian(census['hinc_90'])
-
 rm_iinc_17 = np.nanmedian(census['iinc_17'])
 rm_iinc_12 = np.nanmedian(census['iinc_12'])
 
@@ -995,7 +974,6 @@ print(rm_hinc_17, rm_hinc_00, rm_hinc_90, rm_iinc_17, rm_iinc_12)
 
 
 def income_interpolation (census, year, cutoff, mhinc, tot_var, var_suffix, out):
-    
     name = []
     for c in list(census.columns):
         if (c[0]==var_suffix):
@@ -1003,41 +981,32 @@ def income_interpolation (census, year, cutoff, mhinc, tot_var, var_suffix, out)
                 name.append(c)
     name.append('FIPS')
     name.append(tot_var)
-    
     income_cat = census[name]
     income_group = income_cat.drop(columns = ['FIPS', tot_var]).columns
     income_group = income_group.str.split('_')
     number = []
     for i in range (0, len(income_group)):
         number.append(income_group[i][1])
-
     column = []
     for i in number:
         column.append('prop_'+str(i))
-        income_cat['prop_'+str(i)] = income_cat[var_suffix+'_'+str(i)+'_'+year]/income_cat[tot_var]
-             
+        income_cat['prop_'+str(i)] = income_cat[var_suffix+'_'+str(i)+'_'+year]/income_cat[tot_var]          
     reg_median_cutoff = cutoff*mhinc
     cumulative = out+str(int(cutoff*100))+'_cumulative'
-    income = out+str(int(cutoff*100))+'_'+year
-    
+    income = out+str(int(cutoff*100))+'_'+year 
     df = income_cat
     df[cumulative] = 0
     df[income] = 0
-
     for i in range(0,(len(number)-1)):
         a = (number[i])
         b = float(number[i+1])-0.01
         prop = str(number[i+1])
-
         df[cumulative] = df[cumulative]+df['prop_'+a]
-
         if (reg_median_cutoff>=int(a))&(reg_median_cutoff<b):
-            df[income] = ((reg_median_cutoff - int(a))/(b-int(a)))*df['prop_'+prop] + df[cumulative]
-    
+            df[income] = ((reg_median_cutoff - int(a))/(b-int(a)))*df['prop_'+prop] + df[cumulative] 
     df = df.drop(columns = [cumulative])
     prop_col = df.columns[df.columns.str[0:4]=='prop'] 
     df = df.drop(columns = prop_col)     
-
     census = census.merge (df[['FIPS', income]], on = 'FIPS')
     return census
 
@@ -1059,56 +1028,44 @@ census = census.drop(columns = income_col)
 
 
 def income_categories (df, year, mhinc, hinc):
-
-    df['hinc_'+year] = np.where(df['hinc_'+year]<0, 0, df['hinc_'+year])
-    
+    df['hinc_'+year] = np.where(df['hinc_'+year]<0, 0, df['hinc_'+year])  
     reg_med_inc80 = 0.8*mhinc
     reg_med_inc120 = 1.2*mhinc
-    
     low = 'low_80120_'+year 
     mod = 'mod_80120_'+year
     high = 'high_80120_'+year
-
     df[low] = df['inc80_'+year]
     df[mod] = df['inc120_'+year] - df['inc80_'+year]
-    df[high] = 1 - df['inc120_'+year]
-    
+    df[high] = 1 - df['inc120_'+year]  
     ### Low income
     df['low_pdmt_medhhinc_'+year] = np.where((df['low_80120_'+year]>=0.55)&(df['mod_80120_'+year]<0.45)&(df['high_80120_'+year]<0.45),1,0)
-
     ## High income
     df['high_pdmt_medhhinc_'+year] = np.where((df['low_80120_'+year]<0.45)&(df['mod_80120_'+year]<0.45)&(df['high_80120_'+year]>=0.55),1,0)
-
     ### Moderate income
     df['mod_pdmt_medhhinc_'+year] = np.where((df['low_80120_'+year]<0.45)&(df['mod_80120_'+year]>=0.55)&(df['high_80120_'+year]<0.45),1,0)
-
     ### Mixed-Low income
     df['mix_low_medhhinc_'+year] = np.where((df['low_pdmt_medhhinc_'+year]==0)&
                                                   (df['mod_pdmt_medhhinc_'+year]==0)&
                                                   (df['high_pdmt_medhhinc_'+year]==0)&
                                                   (df[hinc]<reg_med_inc80),1,0)
-
     ### Mixed-Moderate income
     df['mix_mod_medhhinc_'+year] = np.where((df['low_pdmt_medhhinc_'+year]==0)&
                                                   (df['mod_pdmt_medhhinc_'+year]==0)&
                                                   (df['high_pdmt_medhhinc_'+year]==0)&
                                                   (df[hinc]>=reg_med_inc80)&
                                                   (df[hinc]<reg_med_inc120),1,0)
-
     ### Mixed-High income
     df['mix_high_medhhinc_'+year] = np.where((df['low_pdmt_medhhinc_'+year]==0)&
                                                   (df['mod_pdmt_medhhinc_'+year]==0)&
                                                   (df['high_pdmt_medhhinc_'+year]==0)&
-                                                  (df[hinc]>=reg_med_inc120),1,0)
-    
+                                                  (df[hinc]>=reg_med_inc120),1,0)   
     df['inc_cat_medhhinc_'+year] = 0
     df.loc[df['low_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 1
     df.loc[df['mix_low_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 2
     df.loc[df['mod_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 3
     df.loc[df['mix_mod_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 4
     df.loc[df['mix_high_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 5
-    df.loc[df['high_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 6
-    
+    df.loc[df['high_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 6    
     df['inc_cat_medhhinc_encoded'+year] = 0
     df.loc[df['low_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'low_pdmt'
     df.loc[df['mix_low_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'mix_low'
@@ -1116,8 +1073,6 @@ def income_categories (df, year, mhinc, hinc):
     df.loc[df['mix_mod_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'mix_mod'
     df.loc[df['mix_high_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'mix_high'
     df.loc[df['high_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'high_pdmt'
-
-    
     df.loc[df['hinc_'+year]==0, 'low_pdmt_medhhinc_'+year] = np.nan
     df.loc[df['hinc_'+year]==0, 'mix_low_medhhinc_'+year] = np.nan
     df.loc[df['hinc_'+year]==0, 'mod_pdmt_medhhinc_'+year] = np.nan
@@ -1125,7 +1080,6 @@ def income_categories (df, year, mhinc, hinc):
     df.loc[df['hinc_'+year]==0, 'mix_high_medhhinc_'+year] = np.nan
     df.loc[df['hinc_'+year]==0, 'high_pdmt_medhhinc_'+year] = np.nan
     df.loc[df['hinc_'+year]==0, 'inc_cat_medhhinc_'+year] = np.nan
-    
     return census
 
 
@@ -1262,9 +1216,7 @@ df['per_units_pre50_17'] = (df['units_40_49_built_17']+df['units_39_early_built_
 
 
 def income_interpolation_movein (census, year, cutoff, rm_iinc):
-    
     # SUM EVERY CATEGORY BY INCOME
-
     ### Filter only move-in variables
     name = []
     for c in list(census.columns):
@@ -1272,13 +1224,11 @@ def income_interpolation_movein (census, year, cutoff, rm_iinc):
             name.append(c)
     name.append('FIPS')
     income_cat = census[name]
-
     ### Pull income categories
     income_group = income_cat.drop(columns = ['FIPS']).columns
     number = []
     for c in name[:9]:
         number.append(c.split('_')[2])
-
     ### Sum move-in in last 5 years by income category, including total w/ income
     column_name_totals = []
     for i in number:
@@ -1290,37 +1240,28 @@ def income_interpolation_movein (census, year, cutoff, rm_iinc):
             i = 'w_income'
         income_cat['mov_tot_'+i+'_'+year] = income_cat[column_name].sum(axis = 1)
         column_name_totals.append('mov_tot_'+i+'_'+year)
-
     # DO INCOME INTERPOLATION
     column = []
     number = [n for n in number if n != 'w'] ### drop total
     for i in number:
         column.append('prop_mov_'+i)
         income_cat['prop_mov_'+i] = income_cat['mov_tot_'+i+'_'+year]/income_cat['mov_tot_w_income_'+year]
-
-
     reg_median_cutoff = cutoff*rm_iinc
     cumulative = 'inc'+str(int(cutoff*100))+'_cumulative'
     per_limove = 'per_limove_'+year
-
     df = income_cat
     df[cumulative] = 0
     df[per_limove] = 0
-
     for i in range(0,(len(number)-1)):
         a = (number[i])
         b = float(number[i+1])-0.01
         prop = str(number[i+1])
-
         df[cumulative] = df[cumulative]+df['prop_mov_'+a]
-
         if (reg_median_cutoff>=int(a))&(reg_median_cutoff<b):
-            df[per_limove] = ((reg_median_cutoff - int(a))/(b-int(a)))*df['prop_mov_'+prop] + df[cumulative]
-            
+            df[per_limove] = ((reg_median_cutoff - int(a))/(b-int(a)))*df['prop_mov_'+prop] + df[cumulative]           
     df = df.drop(columns = [cumulative])
     prop_col = df.columns[df.columns.str[0:4]=='prop'] 
     df = df.drop(columns = prop_col)     
-
     col_list = [per_limove]+['mov_tot_w_income_'+year]
     census = census.merge (df[['FIPS'] + col_list], on = 'FIPS')
     return census
@@ -1345,7 +1286,6 @@ def filter_PUMS(df, FIPS):
     if city_name != 'Memphis':
         FIPS = [int(x) for x in FIPS]
         df = df[(df['STATEA'] == int(state))&(df['COUNTYA'].isin(FIPS))].reset_index(drop = True)
-
     else:
         fips_list = []
         for i in state:
@@ -1620,7 +1560,6 @@ def filter_ZILLOW(df, FIPS):
     if city_name != 'Memphis':
         FIPS_pre = [state+county for county in FIPS]
         df = df[(df['FIPS'].astype(str).str.zfill(11).str[:5].isin(FIPS_pre))].reset_index(drop = True)
-
     else:
         fips_list = []
         for i in state:
@@ -1646,8 +1585,8 @@ zillow = zillow[zillow['State'].isin(state_init)].reset_index(drop = True)
 
 ####### CHANGE HERE: original code commented out below; changed from outer to inner merge
 
-zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
-#zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
+zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
+#zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
 zillow = zillow.rename(columns = {'TRACT':'FIPS'})
 
 # Filter only data of interest
@@ -1865,44 +1804,43 @@ city_shp['rail'] = np.where(city_shp.intersects(rail_buffer_wgs.unary_union) == 
 
 
 ### Hospitals
-hospitals = pd.read_csv(input_path+'Hospitals.csv')
+#hospitals = pd.read_csv(input_path+'Hospitals.csv')
 
 ### Universities
-university = pd.read_csv(input_path+'university_HD2016.csv')
+#university = pd.read_csv(input_path+'university_HD2016.csv')
 
 
 
 
 ### Filter for state of interest
-hospitals = hospitals[hospitals['STATE'].isin(state_init)]
+#hospitals = hospitals[hospitals['STATE'].isin(state_init)]
 
 
 
 
 ### Convert to geodataframe
-hospitals = gpd.GeoDataFrame(hospitals, geometry=[Point(xy) for xy in zip (hospitals['X'], hospitals['Y'])])
+#hospitals = gpd.GeoDataFrame(hospitals, geometry=[Point(xy) for xy in zip (hospitals['X'], hospitals['Y'])])
 
 ### Filter to hospitals with 100+ beds
-hospitals = hospitals[hospitals['BEDS']>=100].reset_index(drop = True)
-hosp_type = ["GENERAL MEDICAL AND SURGICAL HOSPITALS", "CHILDREN'S HOSPITALS, GENERAL"]
-hospitals = hospitals[hospitals['NAICS_DESC'].isin(hosp_type)]
-hospitals = hospitals[['geometry']]
-hospitals = hospitals.reset_index(drop = True)
+#hosp_type = ["GENERAL MEDICAL AND SURGICAL HOSPITALS", "CHILDREN'S HOSPITALS, GENERAL"]
+#hospitals = hospitals[hospitals['NAICS_DESC'].isin(hosp_type)]
+#hospitals = hospitals[['geometry']]
+#hospitals = hospitals.reset_index(drop = True)
 
 
 
 
 ### Filter for state of interest
-university = university[university['STABBR'].isin(state_init)]
+#university = university[university['STABBR'].isin(state_init)]
     
 ### Convert to geodataframe
-university = gpd.GeoDataFrame(university, geometry=[Point(xy) for xy in zip (university['LONGITUD'], university['LATITUDE'])])
+#university = gpd.GeoDataFrame(university, geometry=[Point(xy) for xy in zip (university['LONGITUD'], university['LATITUDE'])])
 
 ### Filter by institution size
-university = university[university['INSTSIZE']>1].reset_index(drop = True)
+#university = university[university['INSTSIZE']>1].reset_index(drop = True)
 
 ### Keep only geometry type
-university = university[['geometry']]
+#university = university[['geometry']]
 
 
 
@@ -1911,16 +1849,16 @@ university = university[['geometry']]
 ### this step optimizes the flagging of census tracts that contain the point of interest
 
 ### Hospitals
-hospitals = hospitals[hospitals['geometry'].within(city_poly.loc[0, 'geometry'])].reset_index(drop = True)
+#hospitals = hospitals[hospitals['geometry'].within(city_poly.loc[0, 'geometry'])].reset_index(drop = True)
 
 ### Universities
-university = university[university['geometry'].within(city_poly.loc[0, 'geometry'])].reset_index(drop = True)
+#university = university[university['geometry'].within(city_poly.loc[0, 'geometry'])].reset_index(drop = True)
 
 
 
 
 ### Create anchor institution variable
-anchor_institutions = university.append(hospitals).reset_index(drop = True)
+#anchor_institutions = university.append(hospitals).reset_index(drop = True)
 
 
 
@@ -1928,27 +1866,27 @@ anchor_institutions = university.append(hospitals).reset_index(drop = True)
 ### Create half mile buffer
 
 ### sets coordinate system to WGS84
-anchor_institutions.crs = {'init' :'epsg:4326'}
+#anchor_institutions.crs = {'init' :'epsg:4326'}
 
 ### creates UTM projection
 ### zone is defined under define city specific variables
-projection = '+proj=utm +zone='+zone+', +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
+#projection = '+proj=utm +zone='+zone+', +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
 
 ### project to UTM coordinate system
-anchor_institutions_proj = anchor_institutions.to_crs(projection)
+#anchor_institutions_proj = anchor_institutions.to_crs(projection)
 
 ### create buffer around anchor institution in meters
-anchor_institutions_buffer = anchor_institutions_proj.buffer(804.672)
+#anchor_institutions_buffer = anchor_institutions_proj.buffer(804.672)
 
 ### convert buffer back to WGS84
-anchor_institutions_buffer_wgs = anchor_institutions_buffer.to_crs(epsg=4326)
+#anchor_institutions_buffer_wgs = anchor_institutions_buffer.to_crs(epsg=4326)
 
 
 
 
 ### check whether census tract contains hospital station
 ### and create anchor institution flag
-city_shp['anchor_institution'] = city_shp.intersects(anchor_institutions_buffer_wgs.unary_union)
+#city_shp['anchor_institution'] = city_shp.intersects(anchor_institutions_buffer_wgs.unary_union)
 
 
 
@@ -2008,7 +1946,9 @@ city_shp['GEOID'] = city_shp['GEOID'].astype('int64')
 
 
 
-census = census.merge(city_shp[['GEOID','geometry','rail', 'anchor_institution', 'presence_ph_LIHTC']], right_on = 'GEOID', left_on = 'FIPS')
+census = census.merge(city_shp[['GEOID','geometry','rail', 
+	# 'anchor_institution', 
+	'presence_ph_LIHTC']], right_on = 'GEOID', left_on = 'FIPS')
 
 
 # ### Export csv file
