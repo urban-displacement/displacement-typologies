@@ -17,6 +17,7 @@ import census
 import pandas as pd
 import numpy as np
 import sys
+import pyarrow.parquet as pq
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -1653,7 +1654,9 @@ zillow = zillow[zillow['State'].isin(state_init)].reset_index(drop = True)
 ####### CHANGE HERE: original code commented out below; changed from outer to inner merge
 
 zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
+
 #zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
+
 zillow = zillow.rename(columns = {'TRACT':'FIPS'})
 
 # Filter only data of interest
@@ -2021,4 +2024,5 @@ census = census.merge(city_shp[['GEOID','geometry','rail', 'anchor_institution',
 
 
 
-census.to_csv(output_path+city_name+'_database.csv')
+# census.to_csv(output_path+city_name+'_database.csv')
+pq.write_table(output_path+city_name+'_database.parquet')
