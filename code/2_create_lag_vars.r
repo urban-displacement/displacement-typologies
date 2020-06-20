@@ -209,7 +209,7 @@ puma_df <-
         wide = TRUE
 )
 
-saveRDS(st_read("/Users/timothythomas/Downloads/nhgis0169_shape/nhgis0169_shapefile_tl2017_us_puma_2017/US_puma_2017.shp") %>% 
+saveRDS(st_read("/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg") %>% 
     filter(STATEFP10 %in% c("13", "80", "17", "47")) %>% 
     st_set_crs(102003) %>% 
     st_transform(4269) %>% 
