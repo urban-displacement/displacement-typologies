@@ -126,8 +126,7 @@ states <-
         tracts("AL", cb = TRUE)), 
         tracts("KY", cb = TRUE)), 
         tracts("MO", cb = TRUE)), 
-        tracts("IN", cb = TRUE)),
-        tracts("CA", cb = TRUE))
+        tracts("IN", cb = TRUE))
     
 stsp <- states
 
