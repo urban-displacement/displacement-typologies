@@ -24,7 +24,10 @@ df <-
             mutate(city = "Chicago"),
             read_csv("~/git/sparcc/data/Memphis_database.csv") %>% 
             select(!X1) %>% 
-            mutate(city = "Memphis")
+            mutate(city = "Memphis"),
+            read_csv("~/git/sparcc/data/Los Angeles_database.csv") %>% 
+            select(!X1) %>% 
+            mutate(city = "Los Angeles")
     )
 
 # ==========================================================================
@@ -39,7 +42,7 @@ df <-
 # Memphis and IN is within close proximity of Chicago. 
 
 ### Tract data extraction function
-st <- c("IL","GA","AR","TN","CO","MS","AL","KY","MO","IN")
+st <- c("IL","GA","AR","TN","CO","MS","AL","KY","MO","IN", "CA")
 
 tr_rent <- function(year, state){
     get_acs(
@@ -123,7 +126,8 @@ states <-
         tracts("AL", cb = TRUE)), 
         tracts("KY", cb = TRUE)), 
         tracts("MO", cb = TRUE)), 
-        tracts("IN", cb = TRUE))
+        tracts("IN", cb = TRUE)),
+        tracts("CA", cb = TRUE))
     
 stsp <- states
 
@@ -210,7 +214,7 @@ puma_df <-
 )
 
 saveRDS(st_read("/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg") %>% 
-    filter(STATEFP10 %in% c("13", "80", "17", "47")) %>% 
+    filter(STATEFP10 %in% c("13", "80", "17", "47", "06")) %>% 
     st_set_crs(102003) %>% 
     st_transform(4269) %>% 
     mutate(sqmile = ALAND10/2589988), 
