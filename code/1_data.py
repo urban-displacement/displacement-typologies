@@ -36,36 +36,28 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-city_name = str(sys.argv[1])
-# city_name = 'Atlanta'
+# city_name = str(sys.argv[1])
+city_name = 'Atlanta'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
 if city_name == 'Chicago':
     state = '17'
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
-
 elif city_name == 'Atlanta':
     state = '13'
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
-    
 elif city_name == 'Denver':
     state = '08'
     FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']
-
 elif city_name == 'Memphis':
     state = ['28', '47']
     FIPS = {'28':['033', '093'], '47': ['047', '157']}
-    
 elif city_name == 'Los Angeles':
     state = '06'
     FIPS = ['037']
-
 else:
     print ('There is not information for the selected city')
-
-
-
 
 if city_name != 'Memphis':
     sql_query='state:{} county:*'.format(state)
@@ -73,16 +65,12 @@ else:
     sql_query_1='state:{} county:*'.format(state[0])
     sql_query_2='state:{} county:*'.format(state[1])
 
-
 # ### Creates filter function
 # Note - Memphis is different bc it's located in 2 states
-
-
 
 def filter_FIPS(df):
     if city_name != 'Memphis':
         df = df[df['county'].isin(FIPS)]
-
     else:
         fips_list = []
         for i in state:
@@ -92,10 +80,7 @@ def filter_FIPS(df):
         df = df[df['FIPS'].isin(fips_list)]
     return df
 
-
 # ### Download ACS 2017 5-Year Estimates
-
-
 
 df_vars_17=['B03002_001E',
             'B03002_003E',
@@ -132,11 +117,8 @@ for i in list(range(25,34))+list(range(36, 45))+list(range(47, 56))+list(range(5
     var_list.append(var_str+'_'+str(i).zfill(3)+'E')
 df_vars_17 = df_vars_17 + var_list
 
-
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-
-
 
 if city_name != 'Memphis':
     var_dict_acs5 = c.acs5.get(df_vars_17, geo = {'for': 'tract:*',
@@ -148,19 +130,13 @@ else:
                                  'in': sql_query_2}, year=2017))
     var_dict_acs5 = var_dict_1+var_dict_2
 
-
 # #### Converts variables into dataframe and filters only FIPS of interest
-
-
 
 df_vars_17 = pd.DataFrame.from_dict(var_dict_acs5)
 df_vars_17['FIPS']=df_vars_17['state']+df_vars_17['county']+df_vars_17['tract']
 df_vars_17 = filter_FIPS(df_vars_17)
 
-
 # #### Renames variables
-
-
 
 df_vars_17 = df_vars_17.rename(columns = {'B03002_001E':'pop_17',
                                           'B03002_003E':'white_17',
@@ -235,15 +211,12 @@ df_vars_17 = df_vars_17.rename(columns = {'B03002_001E':'pop_17',
                                           'B19001_016E':'I_200000_17',
                                           'B19001_017E':'I_201000_17'})
 
-
 # ### Download ACS 2012 5-Year Estimates
 
 # #### List variables of interest
 # 
 # H061A001 - median house value,
 # H043A001 - median rent
-
-
 
 df_vars_12=['B25077_001E',
             'B25077_001M',
@@ -291,8 +264,6 @@ df_vars_12=['B25077_001E',
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
 
-
-
 if city_name != 'Memphis':
     var_dict_acs5 = c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2012)
@@ -306,16 +277,11 @@ else:
 
 # #### Converts variables into dataframe and filters only FIPS of interest
 
-
-
 df_vars_12 = pd.DataFrame.from_dict(var_dict_acs5)
 df_vars_12['FIPS']=df_vars_12['state']+df_vars_12['county']+df_vars_12['tract']
 df_vars_12 = filter_FIPS(df_vars_12)
 
-
 # #### Renames variables
-
-
 
 df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
                                           'B25077_001M':'mhval_12_se',
@@ -359,10 +325,7 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
                                           'B07010_066E':'mov_fa_76000_more_12',
                                           'B06011_001E':'iinc_12'})
 
-
 # ### Download ACS 2010 5-Year Estimates
-
-
 
 # df_vars_10=[]
 
@@ -373,11 +336,8 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
 #     var_list.append(var_str+'_'+str(i).zfill(3)+'E')
 # df_vars_10 = df_vars_10 + var_list
 
-
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-
-
 
 # if city_name != 'Memphis':
 #     var_dict_acs5 = c.acs5.get(df_vars_10, geo = {'for': 'tract:*',
@@ -389,19 +349,13 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
 #                                  'in': sql_query_2}, year=2010))
 #     var_dict_acs5 = var_dict_1+var_dict_2
 
-
 # #### Converts variables into dataframe and filters only FIPS of interest
-
-
 
 # df_vars_10 = pd.DataFrame.from_dict(var_dict_acs5)
 # df_vars_10['FIPS']=df_vars_10['state']+df_vars_10['county']+df_vars_10['tract']
 # df_vars_10 = filter_FIPS(df_vars_10)
 
-
 # #### Renames variables
-
-
 
 # df_vars_10 = df_vars_10.rename(columns = {'B07010_025E':'mov_wc_w_income_10',
 #                                           'B07010_026E':'mov_wc_9000_10',
@@ -443,8 +397,6 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
 
 
 # ### Decennial Census 2000 Variables
-
-
 
 var_sf1=['P004001',
          'P004005',
@@ -501,10 +453,7 @@ else:
                                  'in': sql_query_2}, year=2000))
     var_dict_sf3 = var_dict_1+var_dict_2
 
-
 # #### Converts variables into dataframe and filters only FIPS of interest
-
-
 
 df_vars_sf1 = pd.DataFrame.from_dict(var_dict_sf1)
 df_vars_sf3 = pd.DataFrame.from_dict(var_dict_sf3)
@@ -513,10 +462,7 @@ df_vars_sf3['FIPS']=df_vars_sf3['state']+df_vars_sf3['county']+df_vars_sf3['trac
 df_vars_sf1 = filter_FIPS(df_vars_sf1)
 df_vars_sf3 = filter_FIPS(df_vars_sf3)
 
-
 # #### Renames variables
-
-
 
 df_vars_sf1 = df_vars_sf1.rename(columns = {'P004001':'pop_00',
                                             'P004005':'white_00',
@@ -554,15 +500,9 @@ df_vars_sf3 = df_vars_sf3.rename(columns = {'P037001':'total_25_00',
                                             'P052016':'I_200000_00',
                                             'P052017':'I_201000_00'})
 
-
-
-
 df_vars_00 = df_vars_sf1.merge(df_vars_sf3.drop(columns=['county', 'state', 'tract']), on = 'FIPS')
 
-
 # ### Download Decennial Census 1990 Variables
-
-
 
 var_sf3=['P0010001',
          'P0120001',
@@ -587,11 +527,8 @@ for i in range (1, 26):
 
 var_sf3 = var_sf3 + var_list
 
-
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-
-
 
 # SF1 - All of the variables are found in the SF3
 # SF3
@@ -605,19 +542,13 @@ else:
                                  'in': sql_query_2}, year=1990))
     var_dict_sf3 = var_dict_1+var_dict_2
 
-
 # #### Converts variables into dataframe and filters only FIPS of interest
-
-
 
 df_vars_90 = pd.DataFrame.from_dict(var_dict_sf3)
 df_vars_90['FIPS']=df_vars_90['state']+df_vars_90['county']+df_vars_90['tract']
 df_vars_90 = filter_FIPS(df_vars_90)
 
-
 # #### Renames variables
-
-
 
 df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
                                             'P0120001':'white_90',
@@ -659,7 +590,6 @@ df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
                                             'P0800023':'I_125000_90',
                                             'P0800024':'I_150000_90',
                                             'P0800025':'I_150001_90'})
-
 
 # ### Export files
 # 
@@ -720,36 +650,27 @@ xwalk_00_10 = pd.read_csv(input_path+'crosswalk_2000_2010.csv')
 if city_name == 'Chicago':
     state = '17'
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
-
 elif city_name == 'Atlanta':
     state = '13'
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
-# add an LA elif    
 elif city_name == 'Denver':
     state = '08'
-    FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']
-    
+    FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']    
 elif city_name == 'Memphis':
     state = ['28', '47']
-    FIPS = {'28':['033', '093'], '47': ['047', '157']}
-    
+    FIPS = {'28':['033', '093'], '47': ['047', '157']}   
 elif city_name == 'Los Angeles':
     state = '06'
     FIPS = ['037']
-
 else:
     print ('There is no information for the selected city')
-
 
 # ### Creates filter function
 # Note - Memphis is different bc it's located in 2 states
 
-
-
 def filter_FIPS(df):
     if city_name != 'Memphis':
         df = df[df['county'].isin(FIPS)].reset_index(drop = True)
-
     else:
         fips_list = []
         for i in state:
@@ -759,40 +680,28 @@ def filter_FIPS(df):
         df = df[df['FIPS'].isin(fips_list)].reset_index(drop = True)
     return df
 
-
 # ### Creates crosswalking function
 
-
-
 def crosswalk_files (df, xwalk, counts, medians, df_fips_base, xwalk_fips_base, xwalk_fips_horizon):
-
     # merge dataframe with xwalk file
     df_merge = df.merge(xwalk[['weight', xwalk_fips_base, xwalk_fips_horizon]], left_on = df_fips_base, right_on = xwalk_fips_base, how='left')                             
-
     df = df_merge
-    
     # apply interpolation weight
     new_var_list = list(counts)+(medians)
     for var in new_var_list:
         df[var] = df[var]*df['weight']
-
     # aggregate by horizon census tracts fips
-    df = df.groupby(xwalk_fips_horizon).sum().reset_index()
-    
+    	df = df.groupby(xwalk_fips_horizon).sum().reset_index()
     # rename trtid10 to FIPS & FIPS to trtid_base
-    df = df.rename(columns = {'FIPS':'trtid_base',
+    	df = df.rename(columns = {'FIPS':'trtid_base',
                               'trtid10':'FIPS'})
-    
     # fix state, county and fips code
-    df ['state'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[0:2]
-    df ['county'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[2:5]
-    df ['tract'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[5:]
-    
+    	df ['state'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[0:2]
+    	df ['county'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[2:5]
+    	df ['tract'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[5:]
     # drop weight column
-    df = df.drop(columns = ['weight'])
-    
+    	df = df.drop(columns = ['weight'])
     return df
-
 
 # ### Crosswalking
 
