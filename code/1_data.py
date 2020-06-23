@@ -36,8 +36,8 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-# city_name = str(sys.argv[1])
-city_name = 'Atlanta'
+city_name = str(sys.argv[1])
+# city_name = 'Atlanta'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
