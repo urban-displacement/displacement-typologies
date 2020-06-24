@@ -990,7 +990,7 @@ def income_categories (df, year, mhinc, hinc):
     df.loc[df['mix_mod_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'mix_mod'
     df.loc[df['mix_high_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'mix_high'
     df.loc[df['high_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'high_pdmt'
-	df.loc[df['hinc_'+year]==0, 'low_pdmt_medhhinc_'+year] = np.nan
+    df.loc[df['hinc_'+year]==0, 'low_pdmt_medhhinc_'+year] = np.nan
     df.loc[df['hinc_'+year]==0, 'mix_low_medhhinc_'+year] = np.nan
     df.loc[df['hinc_'+year]==0, 'mod_pdmt_medhhinc_'+year] = np.nan
     df.loc[df['hinc_'+year]==0, 'mix_mod_medhhinc_'+year] = np.nan
