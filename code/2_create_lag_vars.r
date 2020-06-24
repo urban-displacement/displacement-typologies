@@ -3,7 +3,7 @@
 # ==========================================================================
 
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(colorout, data.table, tigris, tidycensus, tidyverse, spdep)
+pacman::p_load(data.table, tigris, tidycensus, tidyverse, spdep)
 # options(width = Sys.getenv('COLUMNS'))
 
 # ==========================================================================
@@ -118,7 +118,10 @@ states <-
     raster::union(
     raster::union(
     raster::union(
-    raster::union(tracts("IL", cb = TRUE), tracts("GA", cb = TRUE)), 
+    raster::union(
+    raster::union(
+        tracts("IL", cb = TRUE), 
+            tracts("GA", cb = TRUE)), 
         tracts("AR", cb = TRUE)), 
         tracts("TN", cb = TRUE)), 
         tracts("CO", cb = TRUE)), 
@@ -126,7 +129,8 @@ states <-
         tracts("AL", cb = TRUE)), 
         tracts("KY", cb = TRUE)), 
         tracts("MO", cb = TRUE)), 
-        tracts("IN", cb = TRUE))
+        tracts("IN", cb = TRUE)), 
+        tracts("CA", cb = TRUE))
     
 stsp <- states
 
@@ -135,11 +139,13 @@ stsp@data <-
     left_join(
         stsp@data %>% 
         mutate(GEOID = case_when(
+            !is.na(GEOID) ~ GEOID,
             !is.na(GEOID.1) ~ GEOID.1, 
             !is.na(GEOID.2) ~ GEOID.2, 
             !is.na(GEOID.1.1) ~ GEOID.1.1, 
             !is.na(GEOID.1.2) ~ GEOID.1.2, 
-            !is.na(GEOID.1.3) ~ GEOID.1.3)), 
+            !is.na(GEOID.1.3) ~ GEOID.1.3), 
+    ), 
         tr_rents, 
         by = "GEOID") %>% 
     select(GEOID:rm_medrent12)
@@ -212,17 +218,17 @@ puma_df <-
         wide = TRUE
 )
 
-saveRDS(st_read("/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg") %>% 
+saveRDS(st_read("/Volumes/GoogleDrive/My Drive/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg") %>% 
     filter(STATEFP10 %in% c("13", "80", "17", "47", "06")) %>% 
     st_set_crs(102003) %>% 
     st_transform(4269) %>% 
     mutate(sqmile = ALAND10/2589988), 
-    "/Users/timothythomas/git/sparcc/data/inputs/nhgispuma.RDS"
+    "/Users/annadriscoll/git/sparcc/data/inputs/nhgispuma.RDS"
 )
 
 puma <-  
     left_join(
-        readRDS("/Users/timothythomas/git/sparcc/data/inputs/nhgispuma.RDS"), 
+        readRDS("/Users/annadriscoll/git/sparcc/data/inputs/nhgispuma.RDS"), 
         puma_df %>%
             mutate(GEOID10 = as.factor(GEOID))
     ) %>% 

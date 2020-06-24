@@ -31,7 +31,7 @@ options(tigris_use_cache = TRUE)
 # ==========================================================================
 
 #
-# Pull in data (change this when there's new data)
+# Pull in data (change this when there's new data): added LA
 # --------------------------------------------------------------------------
 
 data <- 
@@ -43,10 +43,12 @@ data <-
         read_csv('~/git/sparcc/data/Chicago_typology_output.csv') %>% 
         mutate(city = 'Chicago'),
         read_csv('~/git/sparcc/data/Memphis_typology_output.csv') %>% 
-        mutate(city = 'Memphis')
+        mutate(city = 'Memphis'),
+        read_csv('~/git/sparcc/data/Los Angeles_typology_output.csv') %>% 
+        mutate(city = 'Los Angeles')
     ) %>% 
     left_join(., 
-        read_csv('/Users/timothythomas/git/sparcc/data/overlays/oppzones.csv') %>% 
+        read_csv('/Users/annadriscoll/git/sparcc/data/overlays/oppzones.csv') %>% 
         select(GEOID = geoid, opp_zone = tract_type) %>%
         mutate(GEOID = as.numeric(GEOID)) 
     )
@@ -239,16 +241,20 @@ pt <-
 # ==========================================================================
 
 ### Redlining
+
+    ###added one for LA
 red <- 
     rbind(
-        geojson_sf('/Users/timothythomas/git/sparcc/data/overlays/CODenver1938_1.geojson') %>% 
+        geojson_sf('/Users/annadriscoll/git/sparcc/data/overlays/CODenver1938_1.geojson') %>% 
         mutate(city = 'Denver'),
-        geojson_sf('/Users/timothythomas/git/sparcc/data/overlays/GAAtlanta1938_1.geojson') %>% 
+        geojson_sf('/Users/annadriscoll/git/sparcc/data/overlays/GAAtlanta1938_1.geojson') %>% 
         mutate(city = 'Atlanta'),
-        geojson_sf('/Users/timothythomas/git/sparcc/data/overlays/ILChicago1940_1.geojson') %>% 
+        geojson_sf('/Users/annadriscoll/git/sparcc/data/overlays/ILChicago1940_1.geojson') %>% 
         mutate(city = 'Chicago'),
-        geojson_sf('/Users/timothythomas/git/sparcc/data/overlays/TNMemphis19XX_1.geojson') %>% 
-        mutate(city = 'Memphis')
+        geojson_sf('/Users/annadriscoll/git/sparcc/data/overlays/TNMemphis19XX_1.geojson') %>% 
+        mutate(city = 'Memphis'),
+        geojson_sf('/Users/annadriscoll/git/sparcc/data/overlays/CALosAngeles1939.geojson') %>% 
+        mutate(city = 'Los Angeles')
     ) %>% 
     mutate(
         Grade = 
@@ -273,7 +279,7 @@ red <-
 
 ### Industrial points
 
-industrial <- st_read('/Users/timothythomas/git/sparcc/data/overlays/industrial.shp') %>% 
+industrial <- st_read('/Users/annadriscoll/git/sparcc/data/overlays/industrial.shp') %>% 
     mutate(site = 
         case_when(
             site_type == 0 ~ "Superfund", 
@@ -282,13 +288,13 @@ industrial <- st_read('/Users/timothythomas/git/sparcc/data/overlays/industrial.
     filter(state != "CO") %>% 
     st_as_sf() 
 
-hud <- st_read('/Users/timothythomas/git/sparcc/data/overlays/HUDhousing.shp') %>% 
+hud <- st_read('/Users/annadriscoll/git/sparcc/data/overlays/HUDhousing.shp') %>% 
     st_as_sf() 
 
 ### Rail data
 rail <- 
     st_join(
-        fread('/Users/timothythomas/git/sparcc/data/inputs/tod_database_download.csv') %>% 
+        fread('/Users/annadriscoll/git/sparcc/data/inputs/tod_database_download.csv') %>% 
             st_as_sf(
                 coords = c('Longitude', 'Latitude'), 
                 crs = 4269
@@ -302,7 +308,7 @@ rail <-
 ### Hospitals
 hospitals <- 
     st_join(
-        fread('/Users/timothythomas/git/sparcc/data/inputs/Hospitals.csv') %>% 
+        fread('/Users/annadriscoll/git/sparcc/data/inputs/Hospitals.csv') %>% 
             st_as_sf(
                 coords = c('X', 'Y'), 
                 crs = 4269
@@ -321,7 +327,7 @@ hospitals <-
 ### Universities
 university <- 
     st_join(
-        fread('/Users/timothythomas/git/sparcc/data/inputs/university_HD2016.csv') %>% 
+        fread('/Users/annadriscoll/git/sparcc/data/inputs/university_HD2016.csv') %>% 
             st_as_sf(
                 coords = c('LONGITUD', 'LATITUDE'), 
                 crs = 4269
@@ -368,8 +374,9 @@ university <-
 #         })
 #     )
 
+#Added CA
 states <- 
-    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL')
+    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'CA')
 
 road_map <- 
     reduce(
@@ -427,6 +434,7 @@ road_map <-
 #
 # City specific SPARCC data
 # --------------------------------------------------------------------------
+#added LA
 
 atl_df <- 
     df_sf %>% 
@@ -443,6 +451,10 @@ chi_df <-
 mem_df <- 
     df_sf %>% 
     filter(city == "Memphis") 
+
+la_df <- 
+    df_sf %>% 
+    filter(city == "Los Angeles") 
 
 #
 # Color palettes 
@@ -941,6 +953,8 @@ map_it2 <- function(data, city_name, st){
             "Transit Stations"))
 }
 
+#Added LA
+
 # Atlanta, GA
 atlanta <- 
     map_it(atl_df, "Atlanta", 'GA') %>% 
@@ -969,4 +983,12 @@ memphis <-
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
 htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis_check.html")
+
+# Los Angeles, CA
+los angeles <- 
+    map_it(la_df, "Los Angeles", c('CA')) %>% 
+    #set an appropriate view for LA
+    setView(lng = -117.7, lat = 33.6, zoom = 10)
+# # save map
+htmlwidgets::saveWidget(los angeles, file="~/git/sparcc/maps/los angeles_check.html")
 
