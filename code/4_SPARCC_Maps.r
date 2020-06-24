@@ -985,10 +985,10 @@ memphis <-
 htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis_check.html")
 
 # Los Angeles, CA
-los angeles <- 
+losangeles <- 
     map_it(la_df, "Los Angeles", c('CA')) %>% 
     #set an appropriate view for LA
     setView(lng = -117.7, lat = 33.6, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(los angeles, file="~/git/sparcc/maps/los angeles_check.html")
+htmlwidgets::saveWidget(losangeles, file="~/git/sparcc/maps/losangeles_check.html")
 
