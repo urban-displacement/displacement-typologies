@@ -17,6 +17,7 @@ import census
 import pandas as pd
 import numpy as np
 import sys
+import pyarrow.parquet as pq
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -43,28 +44,20 @@ city_name = str(sys.argv[1])
 if city_name == 'Chicago':
     state = '17'
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
-
 elif city_name == 'Atlanta':
     state = '13'
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
-    
 elif city_name == 'Denver':
     state = '08'
     FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']
-
 elif city_name == 'Memphis':
     state = ['28', '47']
     FIPS = {'28':['033', '093'], '47': ['047', '157']}
-    
 elif city_name == 'Los Angeles':
     state = '06'
     FIPS = ['037']
-
 else:
     print ('There is not information for the selected city')
-
-
-
 
 if city_name != 'Memphis':
     sql_query='state:{} county:*'.format(state)
@@ -72,16 +65,12 @@ else:
     sql_query_1='state:{} county:*'.format(state[0])
     sql_query_2='state:{} county:*'.format(state[1])
 
-
 # ### Creates filter function
 # Note - Memphis is different bc it's located in 2 states
-
-
 
 def filter_FIPS(df):
     if city_name != 'Memphis':
         df = df[df['county'].isin(FIPS)]
-
     else:
         fips_list = []
         for i in state:
@@ -91,10 +80,7 @@ def filter_FIPS(df):
         df = df[df['FIPS'].isin(fips_list)]
     return df
 
-
 # ### Download ACS 2017 5-Year Estimates
-
-
 
 df_vars_17=['B03002_001E',
             'B03002_003E',
@@ -131,11 +117,8 @@ for i in list(range(25,34))+list(range(36, 45))+list(range(47, 56))+list(range(5
     var_list.append(var_str+'_'+str(i).zfill(3)+'E')
 df_vars_17 = df_vars_17 + var_list
 
-
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-
-
 
 if city_name != 'Memphis':
     var_dict_acs5 = c.acs5.get(df_vars_17, geo = {'for': 'tract:*',
@@ -147,19 +130,13 @@ else:
                                  'in': sql_query_2}, year=2017))
     var_dict_acs5 = var_dict_1+var_dict_2
 
-
 # #### Converts variables into dataframe and filters only FIPS of interest
-
-
 
 df_vars_17 = pd.DataFrame.from_dict(var_dict_acs5)
 df_vars_17['FIPS']=df_vars_17['state']+df_vars_17['county']+df_vars_17['tract']
 df_vars_17 = filter_FIPS(df_vars_17)
 
-
 # #### Renames variables
-
-
 
 df_vars_17 = df_vars_17.rename(columns = {'B03002_001E':'pop_17',
                                           'B03002_003E':'white_17',
@@ -234,15 +211,12 @@ df_vars_17 = df_vars_17.rename(columns = {'B03002_001E':'pop_17',
                                           'B19001_016E':'I_200000_17',
                                           'B19001_017E':'I_201000_17'})
 
-
 # ### Download ACS 2012 5-Year Estimates
 
 # #### List variables of interest
 # 
 # H061A001 - median house value,
 # H043A001 - median rent
-
-
 
 df_vars_12=['B25077_001E',
             'B25077_001M',
@@ -290,8 +264,6 @@ df_vars_12=['B25077_001E',
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
 
-
-
 if city_name != 'Memphis':
     var_dict_acs5 = c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2012)
@@ -305,16 +277,11 @@ else:
 
 # #### Converts variables into dataframe and filters only FIPS of interest
 
-
-
 df_vars_12 = pd.DataFrame.from_dict(var_dict_acs5)
 df_vars_12['FIPS']=df_vars_12['state']+df_vars_12['county']+df_vars_12['tract']
 df_vars_12 = filter_FIPS(df_vars_12)
 
-
 # #### Renames variables
-
-
 
 df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
                                           'B25077_001M':'mhval_12_se',
@@ -358,10 +325,7 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
                                           'B07010_066E':'mov_fa_76000_more_12',
                                           'B06011_001E':'iinc_12'})
 
-
 # ### Download ACS 2010 5-Year Estimates
-
-
 
 # df_vars_10=[]
 
@@ -372,11 +336,8 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
 #     var_list.append(var_str+'_'+str(i).zfill(3)+'E')
 # df_vars_10 = df_vars_10 + var_list
 
-
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-
-
 
 # if city_name != 'Memphis':
 #     var_dict_acs5 = c.acs5.get(df_vars_10, geo = {'for': 'tract:*',
@@ -388,19 +349,13 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
 #                                  'in': sql_query_2}, year=2010))
 #     var_dict_acs5 = var_dict_1+var_dict_2
 
-
 # #### Converts variables into dataframe and filters only FIPS of interest
-
-
 
 # df_vars_10 = pd.DataFrame.from_dict(var_dict_acs5)
 # df_vars_10['FIPS']=df_vars_10['state']+df_vars_10['county']+df_vars_10['tract']
 # df_vars_10 = filter_FIPS(df_vars_10)
 
-
 # #### Renames variables
-
-
 
 # df_vars_10 = df_vars_10.rename(columns = {'B07010_025E':'mov_wc_w_income_10',
 #                                           'B07010_026E':'mov_wc_9000_10',
@@ -442,8 +397,6 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
 
 
 # ### Decennial Census 2000 Variables
-
-
 
 var_sf1=['P004001',
          'P004005',
@@ -500,10 +453,7 @@ else:
                                  'in': sql_query_2}, year=2000))
     var_dict_sf3 = var_dict_1+var_dict_2
 
-
 # #### Converts variables into dataframe and filters only FIPS of interest
-
-
 
 df_vars_sf1 = pd.DataFrame.from_dict(var_dict_sf1)
 df_vars_sf3 = pd.DataFrame.from_dict(var_dict_sf3)
@@ -512,10 +462,7 @@ df_vars_sf3['FIPS']=df_vars_sf3['state']+df_vars_sf3['county']+df_vars_sf3['trac
 df_vars_sf1 = filter_FIPS(df_vars_sf1)
 df_vars_sf3 = filter_FIPS(df_vars_sf3)
 
-
 # #### Renames variables
-
-
 
 df_vars_sf1 = df_vars_sf1.rename(columns = {'P004001':'pop_00',
                                             'P004005':'white_00',
@@ -553,15 +500,9 @@ df_vars_sf3 = df_vars_sf3.rename(columns = {'P037001':'total_25_00',
                                             'P052016':'I_200000_00',
                                             'P052017':'I_201000_00'})
 
-
-
-
 df_vars_00 = df_vars_sf1.merge(df_vars_sf3.drop(columns=['county', 'state', 'tract']), on = 'FIPS')
 
-
 # ### Download Decennial Census 1990 Variables
-
-
 
 var_sf3=['P0010001',
          'P0120001',
@@ -586,11 +527,8 @@ for i in range (1, 26):
 
 var_sf3 = var_sf3 + var_list
 
-
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-
-
 
 # SF1 - All of the variables are found in the SF3
 # SF3
@@ -604,19 +542,13 @@ else:
                                  'in': sql_query_2}, year=1990))
     var_dict_sf3 = var_dict_1+var_dict_2
 
-
 # #### Converts variables into dataframe and filters only FIPS of interest
-
-
 
 df_vars_90 = pd.DataFrame.from_dict(var_dict_sf3)
 df_vars_90['FIPS']=df_vars_90['state']+df_vars_90['county']+df_vars_90['tract']
 df_vars_90 = filter_FIPS(df_vars_90)
 
-
 # #### Renames variables
-
-
 
 df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
                                             'P0120001':'white_90',
@@ -658,7 +590,6 @@ df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
                                             'P0800023':'I_125000_90',
                                             'P0800024':'I_150000_90',
                                             'P0800025':'I_150001_90'})
-
 
 # ### Export files
 # 
@@ -719,36 +650,27 @@ xwalk_00_10 = pd.read_csv(input_path+'crosswalk_2000_2010.csv')
 if city_name == 'Chicago':
     state = '17'
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
-
 elif city_name == 'Atlanta':
     state = '13'
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
-# add an LA elif    
 elif city_name == 'Denver':
     state = '08'
-    FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']
-    
+    FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']    
 elif city_name == 'Memphis':
     state = ['28', '47']
-    FIPS = {'28':['033', '093'], '47': ['047', '157']}
-    
+    FIPS = {'28':['033', '093'], '47': ['047', '157']}   
 elif city_name == 'Los Angeles':
     state = '06'
     FIPS = ['037']
-
 else:
     print ('There is no information for the selected city')
-
 
 # ### Creates filter function
 # Note - Memphis is different bc it's located in 2 states
 
-
-
 def filter_FIPS(df):
     if city_name != 'Memphis':
         df = df[df['county'].isin(FIPS)].reset_index(drop = True)
-
     else:
         fips_list = []
         for i in state:
@@ -758,44 +680,26 @@ def filter_FIPS(df):
         df = df[df['FIPS'].isin(fips_list)].reset_index(drop = True)
     return df
 
-
 # ### Creates crosswalking function
 
-
-
 def crosswalk_files (df, xwalk, counts, medians, df_fips_base, xwalk_fips_base, xwalk_fips_horizon):
-
-    # merge dataframe with xwalk file
     df_merge = df.merge(xwalk[['weight', xwalk_fips_base, xwalk_fips_horizon]], left_on = df_fips_base, right_on = xwalk_fips_base, how='left')                             
-
     df = df_merge
-    
-    # apply interpolation weight
     new_var_list = list(counts)+(medians)
     for var in new_var_list:
         df[var] = df[var]*df['weight']
-
-    # aggregate by horizon census tracts fips
     df = df.groupby(xwalk_fips_horizon).sum().reset_index()
-    
-    # rename trtid10 to FIPS & FIPS to trtid_base
     df = df.rename(columns = {'FIPS':'trtid_base',
-                              'trtid10':'FIPS'})
-    
-    # fix state, county and fips code
+                              'trtid10':'FIPS'})  
     df ['state'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[0:2]
     df ['county'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[2:5]
     df ['tract'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[5:]
-    
-    # drop weight column
     df = df.drop(columns = ['weight'])
-    
     return df
 
+### Crosswalking
 
-# ### Crosswalking
-
-# ###### 1990 Census Data
+###### 1990 Census Data
 
 
 
@@ -919,37 +823,31 @@ if city_name == 'Chicago':
     state_init = ['IL']
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
     rail_agency = 'CTA'
-    zone = '16T'
-    
-# Add elif for your city here
+    zone = '16T'    
 elif city_name == 'Atlanta':
     state = '13'
     state_init = ['GA']
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
     rail_agency = 'MARTA'
     zone = '16S'
-    
 elif city_name == 'Denver':
     state = '08'
     state_init = ['CO']
     FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']
     rail_agency = 'RTD'
     zone = '13S'
-    
 elif city_name == 'Memphis':
     state = ['28', '47']
     state_init = ['MS', 'TN']
     FIPS = {'28':['033', '093'], '47': ['047', '157']}
     rail_agency = np.nan
-    zone = '15S'
-    
+    zone = '15S' 
 elif city_name == 'Los Angeles':
     state = '06'
     state_init = ['CA']
     FIPS = ['037']
     rail_agency = 'Metro'
     zone = '11S'
-    
 else:
     print ('There is no information for the selected city')
 
@@ -1001,53 +899,41 @@ print(rm_hinc_17, rm_hinc_00, rm_hinc_90, rm_iinc_17, rm_iinc_12)
 
 
 def income_interpolation (census, year, cutoff, mhinc, tot_var, var_suffix, out):
-    
     name = []
     for c in list(census.columns):
         if (c[0]==var_suffix):
             if c.split('_')[2]==year:
                 name.append(c)
     name.append('FIPS')
-    name.append(tot_var)
-    
+    name.append(tot_var)    
     income_cat = census[name]
     income_group = income_cat.drop(columns = ['FIPS', tot_var]).columns
     income_group = income_group.str.split('_')
     number = []
     for i in range (0, len(income_group)):
         number.append(income_group[i][1])
-
     column = []
     for i in number:
         column.append('prop_'+str(i))
-        income_cat['prop_'+str(i)] = income_cat[var_suffix+'_'+str(i)+'_'+year]/income_cat[tot_var]
-             
+        income_cat['prop_'+str(i)] = income_cat[var_suffix+'_'+str(i)+'_'+year]/income_cat[tot_var]             
     reg_median_cutoff = cutoff*mhinc
     cumulative = out+str(int(cutoff*100))+'_cumulative'
-    income = out+str(int(cutoff*100))+'_'+year
-    
+    income = out+str(int(cutoff*100))+'_'+year    
     df = income_cat
     df[cumulative] = 0
     df[income] = 0
-
     for i in range(0,(len(number)-1)):
         a = (number[i])
         b = float(number[i+1])-0.01
         prop = str(number[i+1])
-
         df[cumulative] = df[cumulative]+df['prop_'+a]
-
         if (reg_median_cutoff>=int(a))&(reg_median_cutoff<b):
-            df[income] = ((reg_median_cutoff - int(a))/(b-int(a)))*df['prop_'+prop] + df[cumulative]
-    
+            df[income] = ((reg_median_cutoff - int(a))/(b-int(a)))*df['prop_'+prop] + df[cumulative]    
     df = df.drop(columns = [cumulative])
     prop_col = df.columns[df.columns.str[0:4]=='prop'] 
     df = df.drop(columns = prop_col)     
-
     census = census.merge (df[['FIPS', income]], on = 'FIPS')
     return census
-
-
 
 
 census = income_interpolation (census, '17', 0.8, rm_hinc_17, 'hh_17', 'I', 'inc')
@@ -1065,56 +951,38 @@ census = census.drop(columns = income_col)
 
 
 def income_categories (df, year, mhinc, hinc):
-
     df['hinc_'+year] = np.where(df['hinc_'+year]<0, 0, df['hinc_'+year])
-    
     reg_med_inc80 = 0.8*mhinc
     reg_med_inc120 = 1.2*mhinc
-    
     low = 'low_80120_'+year 
     mod = 'mod_80120_'+year
     high = 'high_80120_'+year
-
     df[low] = df['inc80_'+year]
     df[mod] = df['inc120_'+year] - df['inc80_'+year]
     df[high] = 1 - df['inc120_'+year]
-    
-    ### Low income
     df['low_pdmt_medhhinc_'+year] = np.where((df['low_80120_'+year]>=0.55)&(df['mod_80120_'+year]<0.45)&(df['high_80120_'+year]<0.45),1,0)
-
-    ## High income
     df['high_pdmt_medhhinc_'+year] = np.where((df['low_80120_'+year]<0.45)&(df['mod_80120_'+year]<0.45)&(df['high_80120_'+year]>=0.55),1,0)
-
-    ### Moderate income
     df['mod_pdmt_medhhinc_'+year] = np.where((df['low_80120_'+year]<0.45)&(df['mod_80120_'+year]>=0.55)&(df['high_80120_'+year]<0.45),1,0)
-
-    ### Mixed-Low income
     df['mix_low_medhhinc_'+year] = np.where((df['low_pdmt_medhhinc_'+year]==0)&
                                                   (df['mod_pdmt_medhhinc_'+year]==0)&
                                                   (df['high_pdmt_medhhinc_'+year]==0)&
                                                   (df[hinc]<reg_med_inc80),1,0)
-
-    ### Mixed-Moderate income
     df['mix_mod_medhhinc_'+year] = np.where((df['low_pdmt_medhhinc_'+year]==0)&
                                                   (df['mod_pdmt_medhhinc_'+year]==0)&
                                                   (df['high_pdmt_medhhinc_'+year]==0)&
                                                   (df[hinc]>=reg_med_inc80)&
                                                   (df[hinc]<reg_med_inc120),1,0)
-
-    ### Mixed-High income
     df['mix_high_medhhinc_'+year] = np.where((df['low_pdmt_medhhinc_'+year]==0)&
                                                   (df['mod_pdmt_medhhinc_'+year]==0)&
                                                   (df['high_pdmt_medhhinc_'+year]==0)&
                                                   (df[hinc]>=reg_med_inc120),1,0)
-    
     df['inc_cat_medhhinc_'+year] = 0
     df.loc[df['low_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 1
     df.loc[df['mix_low_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 2
     df.loc[df['mod_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 3
     df.loc[df['mix_mod_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 4
     df.loc[df['mix_high_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 5
-    df.loc[df['high_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 6
-    
+    df.loc[df['high_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 6    
     df['inc_cat_medhhinc_encoded'+year] = 0
     df.loc[df['low_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'low_pdmt'
     df.loc[df['mix_low_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'mix_low'
@@ -1122,8 +990,6 @@ def income_categories (df, year, mhinc, hinc):
     df.loc[df['mix_mod_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'mix_mod'
     df.loc[df['mix_high_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'mix_high'
     df.loc[df['high_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'high_pdmt'
-
-    
     df.loc[df['hinc_'+year]==0, 'low_pdmt_medhhinc_'+year] = np.nan
     df.loc[df['hinc_'+year]==0, 'mix_low_medhhinc_'+year] = np.nan
     df.loc[df['hinc_'+year]==0, 'mod_pdmt_medhhinc_'+year] = np.nan
@@ -1131,11 +997,7 @@ def income_categories (df, year, mhinc, hinc):
     df.loc[df['hinc_'+year]==0, 'mix_high_medhhinc_'+year] = np.nan
     df.loc[df['hinc_'+year]==0, 'high_pdmt_medhhinc_'+year] = np.nan
     df.loc[df['hinc_'+year]==0, 'inc_cat_medhhinc_'+year] = np.nan
-    
     return census
-
-
-
 
 census = income_categories(census, '17', rm_hinc_17, 'hinc_17')
 census = income_categories(census, '00', rm_hinc_00, 'hinc_00')
@@ -1145,13 +1007,7 @@ census = income_categories(census, '00', rm_hinc_00, 'hinc_00')
 
 census.groupby('inc_cat_medhhinc_00').count()['FIPS']
 
-
-
-
 census.groupby('inc_cat_medhhinc_17').count()['FIPS']
-
-
-
 
 ### Percentage & total low-income households - under 80% AMI
 census ['per_all_li_90'] = census['inc80_90']
@@ -1268,24 +1124,16 @@ df['per_units_pre50_17'] = (df['units_40_49_built_17']+df['units_39_early_built_
 
 
 def income_interpolation_movein (census, year, cutoff, rm_iinc):
-    
-    # SUM EVERY CATEGORY BY INCOME
-
-    ### Filter only move-in variables
     name = []
     for c in list(census.columns):
         if (c[0:3] == 'mov') & (c[-2:]==year):
             name.append(c)
     name.append('FIPS')
     income_cat = census[name]
-
-    ### Pull income categories
     income_group = income_cat.drop(columns = ['FIPS']).columns
     number = []
     for c in name[:9]:
         number.append(c.split('_')[2])
-
-    ### Sum move-in in last 5 years by income category, including total w/ income
     column_name_totals = []
     for i in number:
         column_name = []
@@ -1296,62 +1144,42 @@ def income_interpolation_movein (census, year, cutoff, rm_iinc):
             i = 'w_income'
         income_cat['mov_tot_'+i+'_'+year] = income_cat[column_name].sum(axis = 1)
         column_name_totals.append('mov_tot_'+i+'_'+year)
-
-    # DO INCOME INTERPOLATION
     column = []
     number = [n for n in number if n != 'w'] ### drop total
     for i in number:
         column.append('prop_mov_'+i)
         income_cat['prop_mov_'+i] = income_cat['mov_tot_'+i+'_'+year]/income_cat['mov_tot_w_income_'+year]
-
-
     reg_median_cutoff = cutoff*rm_iinc
     cumulative = 'inc'+str(int(cutoff*100))+'_cumulative'
     per_limove = 'per_limove_'+year
-
     df = income_cat
     df[cumulative] = 0
     df[per_limove] = 0
-
     for i in range(0,(len(number)-1)):
         a = (number[i])
         b = float(number[i+1])-0.01
         prop = str(number[i+1])
-
         df[cumulative] = df[cumulative]+df['prop_mov_'+a]
-
         if (reg_median_cutoff>=int(a))&(reg_median_cutoff<b):
             df[per_limove] = ((reg_median_cutoff - int(a))/(b-int(a)))*df['prop_mov_'+prop] + df[cumulative]
-            
     df = df.drop(columns = [cumulative])
     prop_col = df.columns[df.columns.str[0:4]=='prop'] 
     df = df.drop(columns = prop_col)     
-
     col_list = [per_limove]+['mov_tot_w_income_'+year]
     census = census.merge (df[['FIPS'] + col_list], on = 'FIPS')
     return census
 
-
-
-
 census = income_interpolation_movein (census, '17', 0.8, rm_iinc_17)
 census = income_interpolation_movein (census, '12', 0.8, rm_iinc_12)
 
-
-
-
 len(census)
 
-
 # #### Housing Affordability
-
-
 
 def filter_PUMS(df, FIPS):
     if city_name != 'Memphis':
         FIPS = [int(x) for x in FIPS]
         df = df[(df['STATEA'] == int(state))&(df['COUNTYA'].isin(FIPS))].reset_index(drop = True)
-
     else:
         fips_list = []
         for i in state:
@@ -1362,16 +1190,10 @@ def filter_PUMS(df, FIPS):
         df = df[df['GISJOIN'].isin(fips_list)].reset_index(drop = True)
     return df
 
-
-
-
 pums = filter_PUMS(pums, FIPS)
 pums['FIPS'] = ((pums['STATEA'].astype(str).str.zfill(2))+
                 (pums['COUNTYA'].astype(str).str.zfill(3))+
                 (pums['TRACTA'].astype(str).str.zfill(6)))
-
-
-
 
 pums = pums.rename(columns = {"AH5QE002":"rhu_17_wcash",
                                 "AH5QE003":"R_100_17",
@@ -1417,9 +1239,6 @@ pums = pums.rename(columns = {"AH5QE002":"rhu_17_wcash",
                                 "AIMUE016":"O_3500_17",
                                 "AIMUE017":"O_4000_17",
                                 "AIMUE018":"O_4100_17"})
-
-
-
 
 aff_17 = rm_hinc_17*0.3/12
 pums = income_interpolation (pums, '17', 0.6, aff_17, 'rhu_17_wcash', 'R', 'rent')
@@ -1626,7 +1445,6 @@ def filter_ZILLOW(df, FIPS):
     if city_name != 'Memphis':
         FIPS_pre = [state+county for county in FIPS]
         df = df[(df['FIPS'].astype(str).str.zfill(11).str[:5].isin(FIPS_pre))].reset_index(drop = True)
-
     else:
         fips_list = []
         for i in state:
@@ -1653,7 +1471,9 @@ zillow = zillow[zillow['State'].isin(state_init)].reset_index(drop = True)
 ####### CHANGE HERE: original code commented out below; changed from outer to inner merge
 
 zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
+
 #zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
+
 zillow = zillow.rename(columns = {'TRACT':'FIPS'})
 
 # Filter only data of interest
@@ -2022,3 +1842,4 @@ census = census.merge(city_shp[['GEOID','geometry','rail', 'anchor_institution',
 
 
 census.to_csv(output_path+city_name+'_database.csv')
+# pq.write_table(output_path+city_name+'_database.parquet')

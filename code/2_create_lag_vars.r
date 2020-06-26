@@ -3,8 +3,10 @@
 # ==========================================================================
 
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(colorout, data.table, tigris, tidycensus, tidyverse, spdep)
+pacman::p_load(colorout, rgeos, rgdal, data.table, tigris, tidycensus, tidyverse, spdep)
 # options(width = Sys.getenv('COLUMNS'))
+
+# census_api_key("your_api_key_here", install = TRUE)
 
 # ==========================================================================
 # Pull in data
@@ -211,7 +213,7 @@ puma_df <-
 
 saveRDS(st_read("/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg") %>% 
     filter(STATEFP10 %in% c("13", "80", "17", "47")) %>% 
-    st_set_crs(102003) %>% 
+    st_transform(102003) %>% 
     st_transform(4269) %>% 
     mutate(sqmile = ALAND10/2589988), 
     "/Users/timothythomas/git/sparcc/data/inputs/nhgispuma.RDS"
@@ -229,7 +231,7 @@ puma <-
 stsf <- 
     stsp %>% 
     st_as_sf() %>% 
-    st_set_crs(4269) %>% 
+    st_transform(4269) %>% 
     st_centroid() %>%
     st_join(., puma) %>% 
     mutate(dense = case_when(puma_density >= 3000 ~ 1, TRUE ~ 0)) %>% 
