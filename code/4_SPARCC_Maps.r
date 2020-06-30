@@ -194,7 +194,7 @@ ct <-
               UDP Typology: ', Typology, '</b>',
             # Market
               '<br><br>',
-              '<b>Local Suggested Change<br>
+              '<b>Community Suggested Change<br>
               Site Notes</b>: <br>', CommunityComments,
               '<br><br>',
               '<b><i><u>Market Dynamics</u></i></b><br>',
@@ -456,10 +456,10 @@ map_it <- function(city_name, st){
         values = ~Typology, 
         group = "SPARCC Typology"
     ) %>% 
-# Community Suggestions
+# Community Input
     addPolygons(
         data = ct %>% filter(city == city_name, !is.na(cs)), 
-        group = "Community Suggestions", 
+        group = "Community Input", 
         label = ~cs,
         labelOptions = labelOptions(textsize = "12px"),
         fillOpacity = .1, 
@@ -478,7 +478,7 @@ map_it <- function(city_name, st){
     # addLegend(
     #     pal = "#ff4a4a", 
     #     values = ~cs, 
-    #     group = "Community Suggestions"
+    #     group = "Community Input"
     # ) %>% 
 # Opportunity Zones
     addPolygons(
@@ -638,10 +638,10 @@ map_it <- function(city_name, st){
 addPolylines(
         data = beltline, 
         group = "Beltline", 
-        color = ~road_pal(name), 
+        color = "#2ca25f",
         stroke = TRUE, 
-        weight = 1, 
-        opacity = .1    
+        weight = 5, 
+        # opacity = .1    
     )}  
 
 # Options
@@ -649,7 +649,7 @@ addPolylines(
  	map %>% 
   	addLayersControl(
          overlayGroups = 
-             c("Community Suggestions", 
+             c("Community Input", 
              	"Opportunity Zones",
                  "Redlined Areas", 
                  "Hospitals", 
@@ -662,7 +662,7 @@ addPolylines(
                  "SPARCC Typology"),
          options = layersControlOptions(collapsed = FALSE)) %>% 
      hideGroup(
-         c("Community Suggestions", 
+         c("Community Input", 
          	"Opportunity Zones",
          	"Redlined Areas", 
              "Hospitals", 
@@ -682,8 +682,8 @@ addPolylines(
 atlanta <- 
     map_it("Atlanta", 'GA') %>% 
     ind(st = "GA") %>% 
-    # belt() %>% # Can't get it to work
-    options() %>% 
+    belt() %>% # Can't get it to work
+    options(belt = "Beltline") %>% 
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
