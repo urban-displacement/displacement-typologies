@@ -152,7 +152,7 @@ df <-
     data.frame()
 
 # State codes for downloading tract polygons
-states <- c("17", "13", "08", "28", "47")
+states <- c("06", "17", "13", "08", "28", "47")
 
 # Download tracts in each of the shapes in sf (simple feature) class
 tracts <- 
@@ -462,54 +462,6 @@ map_it <- function(city_name, st){
         values = ~Typology, 
         group = "SPARCC Typology"
     ) %>% 
-# Community Input
-    addPolygons(
-        data = ct %>% filter(city == city_name, !is.na(cs)), 
-        group = "Community Input", 
-        label = ~cs,
-        labelOptions = labelOptions(textsize = "12px"),
-        fillOpacity = .1, 
-        color = "#ff4a4a", 
-        stroke = TRUE, 
-        weight = 1, 
-        opacity = .9, 
-        highlightOptions = highlightOptions(
-                          color = "#ff4a4a", 
-                          weight = 5,
-                              bringToFront = TRUE
-                              ), 
-        popup = ~popup_cs, 
-        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
-    ) %>%   
-    # addLegend(
-    #     pal = "#ff4a4a", 
-    #     values = ~cs, 
-    #     group = "Community Input"
-    # ) %>% 
-# Opportunity Zones
-    addPolygons(
-        data = ct %>% filter(city == city_name, !is.na(opp_zone)), 
-        group = "Opportunity Zones", 
-        label = ~opp_zone,
-        labelOptions = labelOptions(textsize = "12px"),
-        fillOpacity = .1, 
-        color = "#c51b8a", 
-        stroke = TRUE, 
-        weight = 1, 
-        opacity = .9, 
-        highlightOptions = highlightOptions(
-                          color = "#c51b8a", 
-                          weight = 5,
-                              bringToFront = FALSE
-                              ), 
-        popup = ~opp_zone, 
-        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
-    ) %>%   
-    # addLegend(
-    #     pal = "#c51b8a", 
-    #     values = ~opp_zone, 
-    #     group = "Opportunity Zones"
-    # ) %>% 
 # Redlined areas
     addPolygons(
         data = red %>% filter(city == city_name), 
@@ -556,7 +508,7 @@ map_it <- function(city_name, st){
     # ) %>%     
 # Public Housing
     addCircleMarkers(
-        data = hud %>% filter(state %in% st), 
+        data = hud %>% filter(state == "CA"), 
         radius = 5, 
         lng = ~longitude, 
         lat = ~latitude, 
@@ -609,8 +561,7 @@ map_it <- function(city_name, st){
         fillOpacity = .8, 
         stroke = TRUE, 
         weight = .6
-    ) 
-}
+    )}
 
  # Industrial
  ind <- function(st, map = .){
@@ -650,6 +601,62 @@ addPolylines(
         # opacity = .1    
     )}  
 
+# Community Input
+  ci <- function(map = ., city_name){
+    map %>% 
+    addPolygons(
+        data = ct %>% filter(city == city_name, !is.na(cs)), 
+        group = "Community Input", 
+        label = ~cs,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .1, 
+        color = "#ff4a4a", 
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .9, 
+        highlightOptions = highlightOptions(
+                          color = "#ff4a4a", 
+                          weight = 5,
+                              bringToFront = TRUE
+                              ), 
+        popup = ~popup_cs, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+    )
+    } 
+     # addLegend(
+         # pal = "#ff4a4a", 
+         # values = ~cs, 
+         # group = "Community Input"
+     # ) %>% 
+
+# Opportunity Zones
+  oz <- function(map = ., city_name){
+  map %>% 
+    addPolygons(
+        data = ct %>% filter(city == city_name, !is.na(opp_zone)), 
+        group = "Opportunity Zones", 
+        label = ~opp_zone,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .1, 
+        color = "#c51b8a", 
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .9, 
+        highlightOptions = highlightOptions(
+                          color = "#c51b8a", 
+                          weight = 5,
+                              bringToFront = FALSE
+                              ), 
+        popup = ~opp_zone, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+    ) 
+  }
+    # addLegend(
+    #     pal = "#c51b8a", 
+    #     values = ~opp_zone, 
+    #     group = "Opportunity Zones"
+    # ) %>% 
+
 # Options
  options <- function(map = ., belt = NULL){
  	map %>% 
@@ -688,7 +695,9 @@ addPolylines(
 atlanta <- 
     map_it("Atlanta", 'GA') %>% 
     ind(st = "GA") %>% 
-    belt() %>% # Can't get it to work
+    ci(city_name = "Atlanta") %>% 
+    oz(city_name = "Atlanta") %>% 
+    belt() %>% 
     options(belt = "Beltline") %>% 
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
@@ -723,9 +732,10 @@ htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis.html")
 
 # Los Angeles, CA
 losangeles <- 
-    map_it(la_df, "Los Angeles", c('CA')) %>% 
-    #set an appropriate view for LA
-    setView(lng = -117.7, lat = 33.6, zoom = 10)
+    map_it("Los Angeles", 'CA') %>% 
+    # ind(st = 'CA') %>% # change ind file to include LA if you want this. 
+    options() %>% 
+    setView(lng = -118.244, lat = 34.052, zoom = 10) #set an appropriate view for LA
 # # save map
 htmlwidgets::saveWidget(losangeles, file="~/git/sparcc/maps/losangeles_check.html")
 

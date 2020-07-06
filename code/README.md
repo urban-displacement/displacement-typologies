@@ -39,7 +39,7 @@ staticrypt ../maps/atlanta.html atlantasparcc -o ../maps/atlanta.html
 staticrypt ../maps/denver.html denversparcc -o ../maps/denver.html
 staticrypt ../maps/memphis.html memphissparcc -o ../maps/memphis.html
 staticrypt ../maps/chicago.html chicagosparcc -o ../maps/chicago.html
-staticrypt ../maps/losangeles.html chicagosparcc -o ../maps/losangeles.html
+staticrypt ../maps/losangeles_check.html lasparcc -o ../maps/losangeles_check.html
 ```
 
 ## Adding cities
