@@ -6,6 +6,8 @@ if(!require(pacman)) install.packages("pacman")
 pacman::p_load(data.table, tigris, tidycensus, tidyverse, spdep)
 # options(width = Sys.getenv('COLUMNS'))
 
+# census_api_key("your_api_key_here", install = TRUE)
+
 # ==========================================================================
 # Pull in data
 # ==========================================================================
@@ -238,7 +240,7 @@ puma <-
 stsf <- 
     stsp %>% 
     st_as_sf() %>% 
-    st_set_crs(4269) %>% 
+    st_transform(4269) %>% 
     st_centroid() %>%
     st_join(., puma) %>% 
     mutate(dense = case_when(puma_density >= 3000 ~ 1, TRUE ~ 0)) %>% 
