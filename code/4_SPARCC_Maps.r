@@ -658,32 +658,32 @@ addPolylines(
     # ) %>% 
 
 # Options
- options <- function(map = ., belt = NULL){
+ options <- function(map = ., belt = NULL, ci = NULL, oz = NULL, ph = NULL, is = NULL){
  	map %>% 
   	addLayersControl(
          overlayGroups = 
-             c("Community Input", 
-             	"Opportunity Zones",
+             c(ci, #
+             	oz,#
                  "Redlined Areas", 
                  "Hospitals", 
                  "Universities & Colleges", 
-                 "Public Housing", 
+                 ph, #?
                  "Transit Stations", 
-                 "Industrial Sites", 
+                 is, #
                  belt,
                  "Highways",
                  "SPARCC Typology"),
          options = layersControlOptions(collapsed = FALSE)) %>% 
      hideGroup(
-         c("Community Input", 
-         	"Opportunity Zones",
+         c(ci, 
+         	oz,
          	"Redlined Areas", 
              "Hospitals", 
              "Universities & Colleges", 
-             "Public Housing", 
+             ph, 
              "Transit Stations", 
              belt,
-             "Industrial Sites"))
+             is))
  }
 
 
@@ -698,7 +698,7 @@ atlanta <-
     ci(city_name = "Atlanta") %>% 
     oz(city_name = "Atlanta") %>% 
     belt() %>% 
-    options(belt = "Beltline") %>% 
+    options(belt = "Beltline",ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
@@ -708,7 +708,7 @@ htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta.html")
 chicago <- 
     map_it("Chicago", 'IL') %>% 
     ind(st = "IL") %>% 
-    options() %>% 
+    options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
 htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago.html")
@@ -716,7 +716,7 @@ htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago.html")
 # Denver, CO
 denver <- 
     map_it("Denver", 'CO') %>% 
-    options() %>% 
+    options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
 htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver.html")
@@ -725,7 +725,7 @@ htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver.html")
 memphis <- 
     map_it("Memphis", 'TN') %>% 
     ind(st = "TN") %>% 
-    options() %>% 
+    options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
 htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis.html")
