@@ -643,7 +643,7 @@ addPolylines(
     addPolygons(
         data = opp_zone %>% filter(city == city_name, !is.na(opp_zone)), 
         group = "Opportunity Zones", 
-        label = ~opp_zone,
+        label = "Opportunity Zone",
         labelOptions = labelOptions(textsize = "12px"),
         fillOpacity = .1, 
         color = "#c51b8a", 
@@ -655,7 +655,7 @@ addPolylines(
                           weight = 5,
                               bringToFront = FALSE
                               ), 
-        popup = ~opp_zone, 
+        # popup = ~opp_zone, 
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
     ) 
   }
@@ -703,7 +703,7 @@ addPolylines(
 atlanta <- 
     map_it("Atlanta", 'GA') %>% 
     ind(st = "GA") %>% 
-    # ci(city_name = "Atlanta") %>% 
+    ci(city_name = "Atlanta") %>% 
     oz(city_name = "Atlanta") %>% 
     belt() %>% 
     options(belt = "Beltline",ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
@@ -742,7 +742,8 @@ htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis.html")
 losangeles <- 
     map_it("Los Angeles", 'CA') %>% 
     # ind(st = 'CA') %>% # change ind file to include LA if you want this. 
-    options() %>% 
+    oz(city_name = "Los Angeles") %>% 
+    options(oz = "Opportunity Zones") %>% 
     setView(lng = -118.244, lat = 34.052, zoom = 10) #set an appropriate view for LA
 # # save map
 htmlwidgets::saveWidget(losangeles, file="~/git/sparcc/maps/losangeles_check.html")
