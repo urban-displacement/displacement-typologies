@@ -371,6 +371,14 @@ beltline <-
 	mutate(name = "Beltline", 
 		name2 = "Possible Gentrifier")
 
+### Opportunity Zones
+opp_zone <- 
+  st_read("~/git/sparcc/data/overlays/OpportunityZones/OpportunityZones.gpkg") %>%
+  st_transform(st_crs(ct)) %>% 
+  st_join(., df_sf %>% select(city), join = st_intersects) %>% 
+  filter(!is.na(city))
+
+
 # ==========================================================================
 # Maps
 # ==========================================================================
@@ -633,7 +641,7 @@ addPolylines(
   oz <- function(map = ., city_name){
   map %>% 
     addPolygons(
-        data = ct %>% filter(city == city_name, !is.na(opp_zone)), 
+        data = opp_zone %>% filter(city == city_name, !is.na(opp_zone)), 
         group = "Opportunity Zones", 
         label = ~opp_zone,
         labelOptions = labelOptions(textsize = "12px"),
@@ -695,7 +703,7 @@ addPolylines(
 atlanta <- 
     map_it("Atlanta", 'GA') %>% 
     ind(st = "GA") %>% 
-    ci(city_name = "Atlanta") %>% 
+    # ci(city_name = "Atlanta") %>% 
     oz(city_name = "Atlanta") %>% 
     belt() %>% 
     options(belt = "Beltline",ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
