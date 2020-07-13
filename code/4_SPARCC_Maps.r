@@ -45,7 +45,9 @@ data <-
         read_csv('~/git/sparcc/data/Memphis_typology_output.csv') %>% 
         mutate(city = 'Memphis'),
         read_csv('~/git/sparcc/data/Los Angeles_typology_output.csv') %>% 
-        mutate(city = 'Los Angeles')
+        mutate(city = 'Los Angeles'),
+        read_csv('~/git/sparcc/data/San Francisco_typology_output.csv') %>% 
+        mutate(city = 'San Francisco')
     ) %>% 
     left_join(., 
         read_csv('~/git/sparcc/data/overlays/oppzones.csv') %>% 
@@ -256,8 +258,8 @@ red <-
         mutate(city = 'Chicago'),
         geojson_sf('~/git/sparcc/data/overlays/TNMemphis19XX_1.geojson') %>% 
         mutate(city = 'Memphis'),
-        geojson_sf('~/git/sparcc/data/overlays/CALosAngeles1939.geojson') %>% 
-        mutate(city = 'Los Angeles')
+        geojson_sf('~/git/sparcc/data/overlays/CAOakland1937.geojson', '~/git/sparcc/data/overlays/CASacramento1937.geojson', '~/git/sparcc/data/overlays/CASanFrancisco1937.geojson', '~/git/sparcc/data/overlays/CASanJose1937.geojson', '~/git/sparcc/data/overlays/CAStockton1938.geojson') %>% 
+        mutate(city = 'San Francisco')
     ) %>% 
     mutate(
         Grade = 
@@ -747,4 +749,14 @@ losangeles <-
     setView(lng = -118.244, lat = 34.052, zoom = 10) #set an appropriate view for LA
 # # save map
 htmlwidgets::saveWidget(losangeles, file="~/git/sparcc/maps/losangeles_check.html")
+
+# San Francisco, CA
+losangeles <- 
+    map_it("San Francisco", 'CA') %>% 
+    # ind(st = 'CA') %>% # change ind file to include SF if you want this. 
+    oz(city_name = "San Francisco") %>% 
+    options(oz = "Opportunity Zones") %>% 
+    setView(lng = -122.443, lat = 37.756, zoom = 10) #set an appropriate view for LA
+# # save map
+htmlwidgets::saveWidget(sanfrancisco, file="~/git/sparcc/maps/sanfrancisco_check.html")
 

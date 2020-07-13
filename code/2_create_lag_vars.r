@@ -29,7 +29,10 @@ df <-
             mutate(city = "Memphis"),
             read_csv("~/git/sparcc/data/Los Angeles_database.csv") %>% 
             select(!X1) %>% 
-            mutate(city = "Los Angeles")
+            mutate(city = "Los Angeles"),
+            read_csv("~/git/sparcc/data/San Francisco_database.csv") %>% 
+            select(!X1) %>% 
+            mutate(city = "San Francisco")
     )
 
 # ==========================================================================

@@ -37,7 +37,7 @@ c = census.Census(key)
 # Example: python data.py Atlanta
 
 # city_name = str(sys.argv[1])
-city_name = 'Los Angeles'
+city_name = 'San Francisco'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -56,6 +56,9 @@ elif city_name == 'Memphis':
 elif city_name == 'Los Angeles':
     state = '06'
     FIPS = ['037', '059', '073']
+elif city_name == 'San Francisco':
+    state = '06'
+    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']    
 else:
     print ('There is not information for the selected city')
 
@@ -664,6 +667,9 @@ elif city_name == 'Memphis':
 elif city_name == 'Los Angeles':
     state = '06'
     FIPS = ['037', '059', '073']
+elif city_name == 'San Francisco':
+    state = '06'
+    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']
 else:
     print ('There is no information for the selected city')
 
@@ -817,6 +823,8 @@ elif city_name == 'Denver':
     shp_name = 'cb_2017_08_tract_500k.shp'
 elif city_name == 'Los Angeles':
     shp_name = 'cb_2017_06_tract_500k.shp'
+elif city_name == 'San Francisco':
+    shp_name = 'cb_2017_06_tract_500k.shp'
 
 city_shp = gpd.read_file(shp_folder+shp_name)
 
@@ -849,12 +857,12 @@ elif city_name == 'Memphis':
     FIPS = {'28':['033', '093'], '47': ['047', '157']}
     rail_agency = np.nan
     zone = '15S'
-elif city_name == 'Los Angeles':
+elif city_name == 'San Francisco':
     state = '06'
     state_init = ['CA']
-    FIPS = ['037', '059', '073']
-    rail_agency = 'Metro'
-    zone = '11S'
+    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']
+    rail_agency = 'BART'
+    zone = '10S'
 else:
     print ('There is no information for the selected city')
 
