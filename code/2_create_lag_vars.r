@@ -11,7 +11,7 @@ pacman::p_load(data.table, tigris, tidycensus, tidyverse, spdep)
 # ==========================================================================
 # Pull in data
 # ==========================================================================
-# Note: Adjust the cities below if there are additional cities. 
+# Note: Adjust the cities below if there are additional cities - add your city here
 
 df <- 
     bind_rows(
@@ -43,7 +43,7 @@ df <-
 # Memphis and Chicago, TN, MO, MS, and AL are within close proximity of 
 # Memphis and IN is within close proximity of Chicago. 
 
-### Tract data extraction function
+### Tract data extraction function: add your state here
 st <- c("IL","GA","AR","TN","CO","MS","AL","KY","MO","IN", "CA")
 
 tr_rent <- function(year, state){
@@ -111,6 +111,7 @@ tr_rents <-
     ungroup()
 
 # Pull in state tracts shapefile and merge them - this is a rough way to do it. 
+    #Add your state here
 states <- 
     raster::union(
     raster::union(
@@ -220,7 +221,7 @@ puma_df <-
         wide = TRUE
 )
 
-saveRDS(st_read("/Volumes/GoogleDrive/My Drive/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg") %>% 
+saveRDS(st_read("/Volumes/GoogleDrive/My Drive/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg") %>% #add your state here
     filter(STATEFP10 %in% c("13", "80", "17", "47", "06")) %>% 
     st_set_crs(102003) %>% 
     st_transform(4269) %>% 

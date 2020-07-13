@@ -31,7 +31,7 @@ options(tigris_use_cache = TRUE)
 # ==========================================================================
 
 #
-# Pull in data (change this when there's new data): added LA
+# Pull in data (change this when there's new data): add your city here
 # --------------------------------------------------------------------------
 
 data <- 
@@ -151,7 +151,7 @@ df <-
     ungroup() %>% 
     data.frame()
 
-# State codes for downloading tract polygons
+# State codes for downloading tract polygons; add your state here
 states <- c("06", "17", "13", "08", "28", "47")
 
 # Download tracts in each of the shapes in sf (simple feature) class
@@ -245,7 +245,7 @@ ct <-
 
 ### Redlining
 
-    ###added one for LA
+    ###add your city here
 red <- 
     rbind(
         geojson_sf('~/git/sparcc/data/overlays/CODenver1938_1.geojson') %>% 
@@ -347,7 +347,7 @@ university <-
     ) %>% 
     filter(!is.na(city))
 
-### Road map
+### Road map; add your state here
 states <- 
     c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'CA')
 
@@ -508,7 +508,7 @@ map_it <- function(city_name, st){
     # ) %>%     
 # Public Housing
     addCircleMarkers(
-        data = hud %>% filter(state == "CA"), 
+        data = hud %>% filter(state == "CA"), #add your state here
         radius = 5, 
         lng = ~longitude, 
         lat = ~latitude, 
@@ -688,7 +688,7 @@ addPolylines(
 
 
 #
-# City specific SPARCC map
+# City specific SPARCC map; add your city here
 # --------------------------------------------------------------------------
 
 # Atlanta, GA
