@@ -822,7 +822,7 @@ city_shp = gpd.read_file(shp_folder+shp_name)
 
 
 # ### Choose city and define city specific variables
-
+# Add elif for your city here
 
 
 if city_name == 'Chicago':
@@ -831,7 +831,6 @@ if city_name == 'Chicago':
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
     rail_agency = 'CTA'
     zone = '16T'  
-# Add elif for your city here
 elif city_name == 'Atlanta':
     state = '13'
     state_init = ['GA']
