@@ -58,13 +58,22 @@ elif city_name == 'Los Angeles':
     FIPS = ['037', '059', '073']
 elif city_name == 'San Francisco':
     state = '06'
-    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']    
+    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']  
+elif city_name == 'Seattle':
+    state = '53'
+    FIPS = ['033', '053', '061']
+elif city_name == 'Cleveland':
+    state = '39'
+    FIPS = ['035', '055', '085', '093', '103']
+elif city_name == 'Boston':
+      state = ['25', '33']
+      FIPS = {'25': ['009'. '017', '021', '023', '025'], '33': ['015', '017']}
 else:
     print ('There is not information for the selected city')
 
 
 
-if city_name != 'Memphis':
+if (city_name != 'Memphis' & city_name != 'Boston'):
     sql_query='state:{} county:*'.format(state)
 else:
     sql_query_1='state:{} county:*'.format(state[0])
@@ -72,9 +81,10 @@ else:
 
 # ### Creates filter function
 # Note - Memphis is different bc it's located in 2 states
+# Same for Boston
 
 def filter_FIPS(df):
-    if city_name != 'Memphis':
+    if (city_name != 'Memphis' & city_name != 'Boston'):
         df = df[df['county'].isin(FIPS)]
     else:
         fips_list = []
@@ -268,8 +278,9 @@ df_vars_12=['B25077_001E',
 
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
+# same for Boston
 
-if city_name != 'Memphis':
+if (city_name != 'Memphis' & city_name != 'Boston'):
     var_dict_acs5 = c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2012)
 else:
@@ -433,11 +444,12 @@ var_sf3 = var_sf3 + var_list
 
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
+# same for Boston
 
 
 
 # SF1
-if city_name != 'Memphis':
+if (city_name != 'Memphis' & city_name != 'Boston'):
     var_dict_sf1 = c.sf1.get(var_sf1, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2000)
 else:
@@ -448,7 +460,7 @@ else:
     var_dict_sf1 = var_dict_1+var_dict_2
     
 # SF3
-if city_name != 'Memphis':
+if (city_name != 'Memphis' & city_name != 'Boston'):
     var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2000)
 else:
@@ -534,10 +546,11 @@ var_sf3 = var_sf3 + var_list
 
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
+# Same for Boston
 
 # SF1 - All of the variables are found in the SF3
 # SF3
-if city_name != 'Memphis':
+if (city_name != 'Memphis' & city_name != 'Boston'):
     var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=1990)
 else:
@@ -670,14 +683,23 @@ elif city_name == 'Los Angeles':
 elif city_name == 'San Francisco':
     state = '06'
     FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']
+elif city_name == 'Seattle':
+    state = '53'
+    FIPS = ['033', '053', '061']
+elif city_name == 'Cleveland':
+    state = '39'
+    FIPS = ['035', '055', '085', '093', '103']
+elif city_name == 'Boston':
+      state = ['25', '33']
+      FIPS = {'25': ['009'. '017', '021', '023', '025'], '33': ['015', '017']}
 else:
     print ('There is no information for the selected city')
 
 # ### Creates filter function
-# Note - Memphis is different bc it's located in 2 states
+# Note - Memphis is different bc it's located in 2 states; same for Boston
 
 def filter_FIPS(df):
-    if city_name != 'Memphis':
+    if (city_name != 'Memphis' & city_name != 'Boston'):
         df = df[df['county'].isin(FIPS)].reset_index(drop = True)
     else:
         fips_list = []
@@ -825,6 +847,12 @@ elif city_name == 'Los Angeles':
     shp_name = 'cb_2017_06_tract_500k.shp'
 elif city_name == 'San Francisco':
     shp_name = 'cb_2017_06_tract_500k.shp'
+elif city_name == 'Seattle':
+    shp_name = 'cb_2017_53_tract_500k.shp'
+elif city_name == 'Cleveland':
+    shp_name = 'cb_2017_39_tract_500k.shp'
+elif city_name == 'Boston':
+    shp_name = 'cb_2017_25_tract_500k.shp'
 
 city_shp = gpd.read_file(shp_folder+shp_name)
 
@@ -861,8 +889,26 @@ elif city_name == 'San Francisco':
     state = '06'
     state_init = ['CA']
     FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']
-    rail_agency = 'BART'
+    rail_agency = ['ACE', 'BART', 'Caltrain', 'Capitol Corridor Joint Powers Authority', 'ACE, Capitol Corridor Joint Powers Authority', 'RT', 'San Francisco Municipal Transportation Agency', 'VTA', 'Alameda/Oakland Ferry', 'Blue & Gold Fleet', 'Golden Gate Ferry', 'Harbor Bay Ferry', 'Baylink']
     zone = '10S'
+elif city_name == 'Seattle':
+    state = '53'
+    state_init = ['WA']
+    FIPS = ['033', '053', '061']
+    rail_agency = ['City of Seattle', 'Sound Transit', 'Washington State Ferries', 'King County Marine Division']
+    zone = '10T'
+elif city_name == 'Cleveland':
+    state = '39'
+    state_init = ['OH']
+    FIPS = ['035', '055', '085', '093', '103']
+    rail_agency = 'GCRTA'
+    zone = '17T'
+elif city_name == 'Boston':
+    state = ['25', '33']
+    state_init = ['MA', 'NH']
+    FIPS = {'25': ['009'. '017', '021', '023', '025'], '33': ['015', '017']}
+    rail_agency = ['MBTA', 'Amtrak', 'Salem Ferry', 'Boston Harbor Islands Ferries']
+    zone = '19T'
 else:
     print ('There is no information for the selected city')
 

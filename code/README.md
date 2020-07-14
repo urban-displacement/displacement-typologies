@@ -8,6 +8,10 @@ Currently, the SPARCC typology is set up for:
 * Memphis
 * Los Angeles
 * San Francisco (in progress)
+* Seattle (in progress)
+* Cleveland (in progress)
+* Boston (in progress)
+
 
 Each of the files are named in order of operation. To run the code, do the following in a terminal window. 
 
@@ -19,6 +23,9 @@ python 1_data.py Denver
 python 1_data.py Memphis
 python 1_data.py 'Los Angeles'
 python 1_data.py 'San Francisco'
+python 1_data.py Seattle
+python 1_data.py Cleveland
+python 1_data.py Boston
 
 # 2. create lag variables
 Rscript 2_create_lag_vars.r
@@ -30,6 +37,9 @@ python 3_typology.py Denver
 python 3_typology.py Memphis
 python 3_typology.py 'Los Angeles'
 python 3_typology.py 'San Francisco'
+python 3_typology.py Seattle
+python 3_typology.py Cleveland
+python 3_typology.py Boston
 
 # 4. create maps
 Rscript 4_SPARCC_Maps.r
@@ -44,6 +54,9 @@ staticrypt ../maps/memphis.html memphissparcc -o ../maps/memphis.html
 staticrypt ../maps/chicago.html chicagosparcc -o ../maps/chicago.html
 staticrypt ../maps/losangeles_check.html lasparcc -o ../maps/losangeles_check.html
 staticrypt ../maps/sanfrancisco_check.html sfsparcc -o ../maps/sanfrancisco_check.html
+staticrypt ../maps/seattle_check.html seattlesparcc -o ../maps/seattle_check.html
+staticrypt ../maps/cleveland_check.html clevelandsparcc -o ../maps/cleveland_check.html
+staticrypt ../maps/boston_check.html bostonsparcc -o ../maps/boston_check.html
 ```
 
 ## Adding cities

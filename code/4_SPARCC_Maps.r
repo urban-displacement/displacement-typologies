@@ -47,7 +47,13 @@ data <-
         read_csv('~/git/sparcc/data/Los Angeles_typology_output.csv') %>% 
         mutate(city = 'Los Angeles'),
         read_csv('~/git/sparcc/data/San Francisco_typology_output.csv') %>% 
-        mutate(city = 'San Francisco')
+        mutate(city = 'San Francisco'),
+        read_csv('~/git/sparcc/data/Seattle_typology_output.csv') %>% 
+        mutate(city = 'Seattle'),
+        read_csv('~/git/sparcc/data/Cleveland_typology_output.csv') %>% 
+        mutate(city = 'Cleveland'),
+        read_csv('~/git/sparcc/data/Boston_typology_output.csv') %>% 
+        mutate(city = 'Boston')                      
     ) %>% 
     left_join(., 
         read_csv('~/git/sparcc/data/overlays/oppzones.csv') %>% 
@@ -154,7 +160,7 @@ df <-
     data.frame()
 
 # State codes for downloading tract polygons; add your state here
-states <- c("06", "17", "13", "08", "28", "47")
+states <- c("06", "17", "13", "08", "28", "47", "53", "39", "25", "33")
 
 # Download tracts in each of the shapes in sf (simple feature) class
 tracts <- 
@@ -259,7 +265,13 @@ red <-
         geojson_sf('~/git/sparcc/data/overlays/TNMemphis19XX_1.geojson') %>% 
         mutate(city = 'Memphis'),
         geojson_sf('~/git/sparcc/data/overlays/CAOakland1937.geojson', '~/git/sparcc/data/overlays/CASacramento1937.geojson', '~/git/sparcc/data/overlays/CASanFrancisco1937.geojson', '~/git/sparcc/data/overlays/CASanJose1937.geojson', '~/git/sparcc/data/overlays/CAStockton1938.geojson') %>% 
-        mutate(city = 'San Francisco')
+        mutate(city = 'San Francisco'),
+        geojson_sf('~/git/sparcc/data/overlays/WASeattle1936.geojson', '~/git/sparcc/data/overlays/WATacoma1937.geojson') %>% 
+        mutate(city = 'Seattle'),
+        geojson_sf('~/git/sparcc/data/overlays/OHCleveland1939.geojson', '~/git/sparcc/data/overlays/OHLorain1937.geojson') %>% 
+        mutate(city = 'Cleveland'),
+        geojson_sf('~/git/sparcc/data/overlays/MAArlington1939.geojson', '~/git/sparcc/data/overlays/MABelmont1939.geojson', '~/git/sparcc/data/overlays/MABoston1938.geojson','~/git/sparcc/data/overlays/MABraintree1939.geojson','~/git/sparcc/data/overlays/MABrockton1937.geojson','~/git/sparcc/data/overlays/MABrookline1939.geojson','~/git/sparcc/data/overlays/MACambridge1939.geojson','~/git/sparcc/data/overlays/MAChelsea1939.geojson','~/git/sparcc/data/overlays/MADedham1939.geojson','~/git/sparcc/data/overlays/MAEverett19XX.geojson','~/git/sparcc/data/overlays/MAHaverhill1937.geojson','~/git/sparcc/data/overlays/MALexington19XX.geojson','~/git/sparcc/data/overlays/MAMalden19XX.geojson','~/git/sparcc/data/overlays/MAMedford19XX.geojson','~/git/sparcc/data/overlays/MAMelrose1939.geojson','~/git/sparcc/data/overlays/MAMilton1939.geojson','~/git/sparcc/data/overlays/MANeedham1939.geojson','~/git/sparcc/data/overlays/MANewton1937.geojson','~/git/sparcc/data/overlays/MAQuincy1939.geojson','~/git/sparcc/data/overlays/MARevere19XX.geojson','~/git/sparcc/data/overlays/MASaugus19XX.geojson','~/git/sparcc/data/overlays/MASomerville1939.geojson','~/git/sparcc/data/overlays/MAWaltham1939.geojson','~/git/sparcc/data/overlays/MAWatertown1939.geojson','~/git/sparcc/data/overlays/MAWinchester1939.geojson','~/git/sparcc/data/overlays/MAWinthrop1939.geojson.geojson') %>% 
+        mutate(city = 'Boston')
     ) %>% 
     mutate(
         Grade = 
@@ -751,12 +763,41 @@ losangeles <-
 htmlwidgets::saveWidget(losangeles, file="~/git/sparcc/maps/losangeles_check.html")
 
 # San Francisco, CA
-losangeles <- 
+sanfrancisco <- 
     map_it("San Francisco", 'CA') %>% 
     # ind(st = 'CA') %>% # change ind file to include SF if you want this. 
     oz(city_name = "San Francisco") %>% 
     options(oz = "Opportunity Zones") %>% 
-    setView(lng = -122.443, lat = 37.756, zoom = 10) #set an appropriate view for LA
+    setView(lng = -122.443, lat = 37.756, zoom = 10) #set an appropriate view for SF
 # # save map
 htmlwidgets::saveWidget(sanfrancisco, file="~/git/sparcc/maps/sanfrancisco_check.html")
 
+# Seattle, WA
+seattle <- 
+    map_it("Seattle", 'WA') %>% 
+    # ind(st = 'WA') %>% 
+    oz(city_name = "Seattle") %>% 
+    options(oz = "Opportunity Zones") %>% 
+    setView(lng = -122.334, lat = 47.605, zoom = 10) #set an appropriate view for Seattle
+# # save map
+htmlwidgets::saveWidget(seattle, file="~/git/sparcc/maps/seattle_check.html")
+
+# Cleveland, OH
+cleveland <- 
+    map_it("Cleveland", 'OH') %>% 
+    # ind(st = 'OH') %>% 
+    oz(city_name = "Cleveland") %>% 
+    options(oz = "Opportunity Zones") %>% 
+    setView(lng = -81.686, lat = 41.504, zoom = 10) #set an appropriate view for Cleveland
+# # save map
+htmlwidgets::saveWidget(cleveland, file="~/git/sparcc/maps/cleveland_check.html")
+
+# Boston, MA
+boston <- 
+    map_it("Boston", 'MA') %>% 
+    # ind(st = 'MA') %>% 
+    oz(city_name = "Boston") %>% 
+    options(oz = "Opportunity Zones") %>% 
+    setView(lng = -71.060, lat = 42.360, zoom = 10) #set an appropriate view for Boston
+# # save map
+htmlwidgets::saveWidget(boston, file="~/git/sparcc/maps/boston_check.html")

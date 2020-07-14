@@ -32,7 +32,16 @@ df <-
             mutate(city = "Los Angeles"),
             read_csv("~/git/sparcc/data/San Francisco_database.csv") %>% 
             select(!X1) %>% 
-            mutate(city = "San Francisco")
+            mutate(city = "San Francisco"),
+            read_csv("~/git/sparcc/data/Seattle_database.csv") %>% 
+            select(!X1) %>% 
+            mutate(city = "Seattle"),
+            read_csv("~/git/sparcc/data/Cleveland_database.csv") %>% 
+            select(!X1) %>% 
+            mutate(city = "Cleveland"),
+            read_csv("~/git/sparcc/data/Boston_database.csv") %>% 
+            select(!X1) %>% 
+            mutate(city = "Boston")
     )
 
 # ==========================================================================
@@ -47,7 +56,7 @@ df <-
 # Memphis and IN is within close proximity of Chicago. 
 
 ### Tract data extraction function: add your state here
-st <- c("IL","GA","AR","TN","CO","MS","AL","KY","MO","IN", "CA")
+st <- c("IL","GA","AR","TN","CO","MS","AL","KY","MO","IN", "CA", "WA", "OH", "MA", "NH")
 
 tr_rent <- function(year, state){
     get_acs(
@@ -136,8 +145,11 @@ states <-
         tracts("KY", cb = TRUE)), 
         tracts("MO", cb = TRUE)), 
         tracts("IN", cb = TRUE)), 
-        tracts("CA", cb = TRUE))
-    
+        tracts("CA", cb = TRUE)),
+        tracts("WA", cb = TRUE)),   
+        tracts("OH", cb = TRUE)),    
+        tracts("MA", cb = TRUE)),
+        tracts("NH", cb = TRUE))
 stsp <- states
 
 # join data to these tracts
@@ -223,18 +235,18 @@ puma_df <-
         year = 2017, 
         wide = TRUE
 )
-
+#add your state FIPS here
 saveRDS(st_read("/Volumes/GoogleDrive/My Drive/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg") %>% #add your state here
-    filter(STATEFP10 %in% c("13", "80", "17", "47", "06")) %>% 
+    filter(STATEFP10 %in% c("13", "80", "17", "47", "06", "53", "39", "25", "33")) %>% 
     st_set_crs(102003) %>% 
     st_transform(4269) %>% 
     mutate(sqmile = ALAND10/2589988), 
-    "/Users/annadriscoll/git/sparcc/data/inputs/nhgispuma.RDS"
+    "~/git/sparcc/data/inputs/nhgispuma.RDS"
 )
 
 puma <-  
     left_join(
-        readRDS("/Users/annadriscoll/git/sparcc/data/inputs/nhgispuma.RDS"), 
+        readRDS("~/git/sparcc/data/inputs/nhgispuma.RDS"), 
         puma_df %>%
             mutate(GEOID10 = as.factor(GEOID))
     ) %>% 
