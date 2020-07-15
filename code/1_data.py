@@ -66,14 +66,14 @@ elif city_name == 'Cleveland':
     state = '39'
     FIPS = ['035', '055', '085', '093', '103']
 elif city_name == 'Boston':
-      state = ['25', '33']
-      FIPS = {'25': ['009'. '017', '021', '023', '025'], '33': ['015', '017']}
+    state = ['25', '33']
+    FIPS = {'25': ['009', '017', '021', '023', '025'], '33': ['015', '017']}
 else:
     print ('There is not information for the selected city')
 
 
 
-if (city_name != 'Memphis' & city_name != 'Boston'):
+if (city_name not in ('Memphis', 'Boston')):
     sql_query='state:{} county:*'.format(state)
 else:
     sql_query_1='state:{} county:*'.format(state[0])
@@ -84,7 +84,7 @@ else:
 # Same for Boston
 
 def filter_FIPS(df):
-    if (city_name != 'Memphis' & city_name != 'Boston'):
+    if (city_name not in ('Memphis', 'Boston')):
         df = df[df['county'].isin(FIPS)]
     else:
         fips_list = []
@@ -280,7 +280,7 @@ df_vars_12=['B25077_001E',
 # NOTE: Memphis is located in two states so the query looks different
 # same for Boston
 
-if (city_name != 'Memphis' & city_name != 'Boston'):
+if (city_name not in ('Memphis','Boston')):
     var_dict_acs5 = c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2012)
 else:
@@ -449,7 +449,7 @@ var_sf3 = var_sf3 + var_list
 
 
 # SF1
-if (city_name != 'Memphis' & city_name != 'Boston'):
+if (city_name not in ('Memphis', 'Boston')):
     var_dict_sf1 = c.sf1.get(var_sf1, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2000)
 else:
@@ -460,7 +460,7 @@ else:
     var_dict_sf1 = var_dict_1+var_dict_2
     
 # SF3
-if (city_name != 'Memphis' & city_name != 'Boston'):
+if (city_name not in ('Memphis', 'Boston')):
     var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2000)
 else:
@@ -550,7 +550,7 @@ var_sf3 = var_sf3 + var_list
 
 # SF1 - All of the variables are found in the SF3
 # SF3
-if (city_name != 'Memphis' & city_name != 'Boston'):
+if (city_name not in ('Memphis', 'Boston')):
     var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=1990)
 else:
@@ -691,7 +691,7 @@ elif city_name == 'Cleveland':
     FIPS = ['035', '055', '085', '093', '103']
 elif city_name == 'Boston':
       state = ['25', '33']
-      FIPS = {'25': ['009'. '017', '021', '023', '025'], '33': ['015', '017']}
+      FIPS = {'25': ['009', '017', '021', '023', '025'], '33': ['015', '017']}
 else:
     print ('There is no information for the selected city')
 
@@ -699,7 +699,7 @@ else:
 # Note - Memphis is different bc it's located in 2 states; same for Boston
 
 def filter_FIPS(df):
-    if (city_name != 'Memphis' & city_name != 'Boston'):
+    if (city_name not in ('Memphis', 'Boston')):
         df = df[df['county'].isin(FIPS)].reset_index(drop = True)
     else:
         fips_list = []
@@ -906,7 +906,7 @@ elif city_name == 'Cleveland':
 elif city_name == 'Boston':
     state = ['25', '33']
     state_init = ['MA', 'NH']
-    FIPS = {'25': ['009'. '017', '021', '023', '025'], '33': ['015', '017']}
+    FIPS = {'25': ['009', '017', '021', '023', '025'], '33': ['015', '017']}
     rail_agency = ['MBTA', 'Amtrak', 'Salem Ferry', 'Boston Harbor Islands Ferries']
     zone = '19T'
 else:
@@ -1508,12 +1508,12 @@ census.groupby(['change_flag_category', 'lmh_flag_category']).count()['FIPS']
 len(census)
 
 
-# ###### Load Zillow data
+# ###### Load Zillow data: note change for Memphis/Boston
 
 
 
 def filter_ZILLOW(df, FIPS):
-    if city_name != 'Memphis':
+    if (city_name not in ('Memphis', 'Boston')):
         FIPS_pre = [state+county for county in FIPS]
         df = df[(df['FIPS'].astype(str).str.zfill(11).str[:5].isin(FIPS_pre))].reset_index(drop = True)
     else:
