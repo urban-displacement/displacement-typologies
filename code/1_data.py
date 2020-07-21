@@ -36,8 +36,8 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-# city_name = str(sys.argv[1])
-city_name = 'San Francisco'
+city_name = str(sys.argv[1])
+# city_name = 'San Francisco'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -586,7 +586,7 @@ df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
                                             'P0800002':'I_10000_90',
                                             'P0800003':'I_12500_90',
                                             'P0800004':'I_15000_90',
-                                            'P0800005':'I17500_90',
+                                            'P0800005':'I_17500_90',
                                             'P0800006':'I_20000_90',
                                             'P0800007':'I_22500_90',
                                             'P0800008':'I_25000_90',
@@ -850,37 +850,38 @@ city_shp = gpd.read_file(shp_folder+shp_name)
 
 # ### Choose city and define city specific variables
 # Add elif for your city here
+# 2020.07.20 change: make rail agencies a list for calls later in the code
 
 
 if city_name == 'Chicago':
     state = '17'
     state_init = ['IL']
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
-    rail_agency = 'CTA'
+    rail_agency = ['CTA']
     zone = '16T'  
 elif city_name == 'Atlanta':
     state = '13'
     state_init = ['GA']
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
-    rail_agency = 'MARTA'
+    rail_agency = ['MARTA']
     zone = '16S' 
 elif city_name == 'Denver':
     state = '08'
     state_init = ['CO']
     FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']
-    rail_agency = 'RTD'
+    rail_agency = ['RTD']
     zone = '13S'
 elif city_name == 'Memphis':
     state = ['28', '47']
     state_init = ['MS', 'TN']
     FIPS = {'28':['033', '093'], '47': ['047', '157']}
-    rail_agency = np.nan
+    rail_agency = [np.nan]
     zone = '15S'
 elif city_name == 'San Francisco':
     state = '06'
     state_init = ['CA']
     FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']
-    rail_agency = ['ACE', 'BART', 'Caltrain', 'Capitol Corridor Joint Powers Authority', 'ACE, Capitol Corridor Joint Powers Authority', 'RT', 'San Francisco Municipal Transportation Agency', 'VTA', 'Alameda/Oakland Ferry', 'Blue & Gold Fleet', 'Golden Gate Ferry', 'Harbor Bay Ferry', 'Baylink']
+    rail_agency = ['ACE ', 'ACE , Capitol Corridor Joint Powers Authority', 'BART', 'Caltrain', 'Capitol Corridor Joint Powers Authority', 'RT', 'San Francisco Municipal Transportation Agency', 'VTA', 'Alameda/Oakland Ferry', 'Blue & Gold Fleet', 'Golden Gate Ferry', 'Harbor Bay Ferry', 'Baylink']
     zone = '10S'
 elif city_name == 'Seattle':
     state = '53'
@@ -892,7 +893,7 @@ elif city_name == 'Cleveland':
     state = '39'
     state_init = ['OH']
     FIPS = ['035', '055', '085', '093', '103']
-    rail_agency = 'GCRTA'
+    rail_agency = ['GCRTA']
     zone = '17T'
 elif city_name == 'Boston':
     state = ['25', '33']
@@ -986,11 +987,10 @@ def income_interpolation (census, year, cutoff, mhinc, tot_var, var_suffix, out)
     census = census.merge (df[['FIPS', income]], on = 'FIPS')
     return census
 
-
 census = income_interpolation (census, '18', 0.8, rm_hinc_18, 'hh_18', 'I', 'inc')
-census =income_interpolation (census, '18', 1.2, rm_hinc_18, 'hh_18', 'I', 'inc')
+census = income_interpolation (census, '18', 1.2, rm_hinc_18, 'hh_18', 'I', 'inc')
 census = income_interpolation (census, '00', 0.8, rm_hinc_00, 'hh_00', 'I', 'inc')
-census =income_interpolation (census, '00', 1.2, rm_hinc_00, 'hh_00', 'I', 'inc')
+census = income_interpolation (census, '00', 1.2, rm_hinc_00, 'hh_00', 'I', 'inc')
 census = income_interpolation (census, '90', 0.8, rm_hinc_90, 'hh_00', 'I', 'inc')
 
 income_col = census.columns[census.columns.str[0:2]=='I_'] 
@@ -1308,8 +1308,6 @@ pums = income_interpolation (pums, '18', 1.2, aff_18, 'rhu_18_wcash', 'R', 'rent
 
 pums = income_interpolation (pums, '18', 0.6, aff_18, 'ohu_tot_18', 'O', 'own')
 pums = income_interpolation (pums, '18', 1.2, aff_18, 'ohu_tot_18', 'O', 'own')
-
-
 
 
 pums['FIPS'] = pums['FIPS'].astype(float).astype('int64')
@@ -1705,9 +1703,9 @@ census_tract_list.describe()
 
 ### Filter only existing rail
 rail = rail[rail['Year Opened']=='Pre-2000'].reset_index(drop = True)
-
+# rail.Agency.unique()
 ### Filter by city
-rail = rail[rail['Agency'] == rail_agency].reset_index(drop = True)
+rail = rail[rail['Agency'].isin(rail_agency)].reset_index(drop = True)
 rail = gpd.GeoDataFrame(rail, geometry=[Point(xy) for xy in zip (rail['Longitude'], rail['Latitude'])])
 
 
