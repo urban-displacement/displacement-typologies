@@ -133,8 +133,9 @@ df_vars_18 = df_vars_18 + var_list
 
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
+# same for Boston
 
-if city_name != 'Memphis':
+if (city_name not in ('Memphis', 'Boston')):
     var_dict_acs5 = c.acs5.get(df_vars_18, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2018)
 else:
@@ -1236,10 +1237,10 @@ census = income_interpolation_movein (census, '12', 0.8, rm_iinc_12)
 
 len(census)
 
-# #### Housing Affordability
+# #### Housing Affordability: note exceptions for Memphis & Boston that have 2 states
 
 def filter_PUMS(df, FIPS):
-    if city_name != 'Memphis':
+    if (city_name not in ('Memphis', 'Boston')):
         FIPS = [int(x) for x in FIPS]
         df = df[(df['STATEA'] == int(state))&(df['COUNTYA'].isin(FIPS))].reset_index(drop = True)
     else:
