@@ -6,7 +6,7 @@ if(!require(pacman)) install.packages("pacman")
 pacman::p_load(data.table, tigris, tidycensus, tidyverse, spdep)
 # options(width = Sys.getenv('COLUMNS'))
 
-# census_api_key("your_api_key_here", install = TRUE)
+census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
 
 # ==========================================================================
 # Pull in data
@@ -21,13 +21,13 @@ df <-
             read_csv("~/git/sparcc/data/Denver_database.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Denver"),
-            read_csv("~/git/sparcc/data/Chicago_database.csv") %>% 
+            read_csv("~/git/sparcc/data/Chicago_database.csv") %>%  
             select(!X1) %>% 
             mutate(city = "Chicago"),
             read_csv("~/git/sparcc/data/Memphis_database.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Memphis"),
-            read_csv("~/git/sparcc/data/Los Angeles_database.csv") %>% 
+            read_csv("~/git/sparcc/data/Los Angeles_database.csv") %>% glimpse()
             select(!X1) %>% 
             mutate(city = "Los Angeles"),
             read_csv("~/git/sparcc/data/San Francisco_database.csv") %>% 
