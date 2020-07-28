@@ -10,23 +10,22 @@
 # coding: utf-8
 
 # ### Import libraries
-
-
-
 import census
 import pandas as pd
 import numpy as np
 import sys
-import pyarrow.parquet as pq
+# import pyarrow.parquet as pq
+from pathlib import Path
+import geopandas as gpd
+from shapely.geometry import Point
+from pyproj import Proj
+import matplotlib.pyplot as plt
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 pd.options.display.float_format = '{:.2f}'.format # avoid scientific notation
 
 # ### Set API key
-
-
-
 key = '4c26aa6ebbaef54a55d3903212eabbb506ade381'
 c = census.Census(key)
 
@@ -37,7 +36,7 @@ c = census.Census(key)
 # Example: python data.py Atlanta
 
 city_name = str(sys.argv[1])
-# city_name = 'San Francisco'
+# city_name = "Atlanta"
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -623,7 +622,7 @@ df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
 # df_vars_summ = df_vars_18.merge(df_vars_10, on = 'FIPS').merge(df_vars_12, on ='FIPS')
 df_vars_summ = df_vars_18.merge(df_vars_12, on ='FIPS')
 
-from pathlib import Path
+
 
 home = str(Path.home())
 
@@ -772,11 +771,6 @@ census_00_filtered.to_csv(home+'/git/sparcc/data/'+city_name+'census_00_10.csv')
 # ==========================================================================
 # ==========================================================================
 # ==========================================================================
-
-import geopandas as gpd
-from shapely.geometry import Point
-from pyproj import Proj
-import matplotlib.pyplot as plt
 
 # Below is the Google File Drive Stream pathway for a mac. 
 # input_path = home+'/git/sparcc/data/inputs/'
