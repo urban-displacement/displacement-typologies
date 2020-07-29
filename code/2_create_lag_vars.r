@@ -126,20 +126,22 @@ tr_rents <-
     #Add your state here
 
 states <- 
-    raster::union(tracts("IL", cb = TRUE, class = 'sp'), tracts("GA", cb = TRUE, class = 'sp')) %>%
-    raster::union(., tracts("AR", cb = TRUE, class = 'sp')), 
-        tracts("TN", cb = TRUE, class = 'sp'), 
-        tracts("CO", cb = TRUE, class = 'sp'), 
-        tracts("MS", cb = TRUE, class = 'sp'), 
-        tracts("AL", cb = TRUE, class = 'sp'), 
-        tracts("KY", cb = TRUE, class = 'sp'), 
-        tracts("MO", cb = TRUE, class = 'sp'), 
-        tracts("IN", cb = TRUE, class = 'sp'), 
-        tracts("CA", cb = TRUE, class = 'sp'),
-        tracts("WA", cb = TRUE, class = 'sp'),   
-        tracts("OH", cb = TRUE, class = 'sp'),    
-        tracts("MA", cb = TRUE, class = 'sp'),
-        tracts("NH", cb = TRUE, class = 'sp'))
+    raster::union(
+        tracts("IL", cb = TRUE, class = 'sp'), 
+        tracts("GA", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("AR", cb = TRUE, class = 'sp')) %>%  
+    raster::union(tracts("TN", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("CO", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("MS", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("AL", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("KY", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("MO", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("IN", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("CA", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("WA", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("OH", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("MA", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("NH", cb = TRUE, class = 'sp'))
 states <- 
     raster::union(
     raster::union(
@@ -170,6 +172,7 @@ states <-
         tracts("OH", cb = TRUE)),    
         tracts("MA", cb = TRUE)),
         tracts("NH", cb = TRUE))
+
 stsp <- states
 
 # join data to these tracts
@@ -177,7 +180,6 @@ stsp@data <-
     left_join(
         stsp@data %>% 
         mutate(GEOID = case_when(
-            !is.na(GEOID) ~ GEOID,
             !is.na(GEOID.1) ~ GEOID.1, 
             !is.na(GEOID.2) ~ GEOID.2, 
             !is.na(GEOID.1.1) ~ GEOID.1.1, 
@@ -189,8 +191,6 @@ stsp@data <-
         tr_rents, 
         by = "GEOID") %>% 
     select(GEOID:rm_medrent12)
-
-
 
 #
 # Create neighbor matrix
