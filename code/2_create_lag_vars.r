@@ -142,36 +142,6 @@ states <-
     raster::union(tracts("OH", cb = TRUE, class = 'sp')) %>%
     raster::union(tracts("MA", cb = TRUE, class = 'sp')) %>%
     raster::union(tracts("NH", cb = TRUE, class = 'sp'))
-states <- 
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-        tracts("IL", cb = TRUE), 
-        tracts("GA", cb = TRUE)), 
-        tracts("AR", cb = TRUE)), 
-        tracts("TN", cb = TRUE)), 
-        tracts("CO", cb = TRUE)), 
-        tracts("MS", cb = TRUE)), 
-        tracts("AL", cb = TRUE)), 
-        tracts("KY", cb = TRUE)), 
-        tracts("MO", cb = TRUE)), 
-        tracts("IN", cb = TRUE)), 
-        tracts("CA", cb = TRUE)),
-        tracts("WA", cb = TRUE)),   
-        tracts("OH", cb = TRUE)),    
-        tracts("MA", cb = TRUE)),
-        tracts("NH", cb = TRUE))
 
 stsp <- states
 
@@ -217,7 +187,7 @@ stsp@data <-
 
     stsp$tr_pchrent.lag <- lag.listw(lw_dist_idwW,stsp$tr_pchrent)
     stsp$tr_chrent.lag <- lag.listw(lw_dist_idwW,stsp$tr_chrent)
-    stsp$tr_medrent17.lag <- lag.listw(lw_dist_idwW,stsp$tr_medrent17)
+    stsp$tr_medrent18.lag <- lag.listw(lw_dist_idwW,stsp$tr_medrent18)
 
 # ==========================================================================
 # Join lag vars with df
@@ -228,16 +198,16 @@ lag <-
         df, 
         stsp@data %>% 
             mutate(GEOID = as.numeric(GEOID)) %>%
-            select(GEOID, tr_medrent17:tr_medrent17.lag)) %>%
+            select(GEOID, tr_medrent18:tr_medrent18.lag)) %>%
     mutate(
-        tr_rent_gap = tr_medrent17.lag - tr_medrent17, 
-        tr_rent_gapprop = tr_rent_gap/((tr_medrent17 + tr_medrent17.lag)/2),
+        tr_rent_gap = tr_medrent18.lag - tr_medrent18, 
+        tr_rent_gapprop = tr_rent_gap/((tr_medrent18 + tr_medrent18.lag)/2),
         rm_rent_gap = median(tr_rent_gap, na.rm = TRUE), 
         rm_rent_gapprop = median(tr_rent_gapprop, na.rm = TRUE), 
         rm_pchrent = median(tr_pchrent, na.rm = TRUE),
         rm_pchrent.lag = median(tr_pchrent.lag, na.rm = TRUE),
         rm_chrent.lag = median(tr_chrent.lag, na.rm = TRUE),
-        rm_medrent17.lag = median(tr_medrent17.lag, na.rm = TRUE), 
+        rm_medrent17.lag = median(tr_medrent18.lag, na.rm = TRUE), 
         dp_PChRent = case_when(tr_pchrent > 0 & 
                                tr_pchrent > rm_pchrent ~ 1, # ∆ within tract
                                tr_pchrent.lag > rm_pchrent.lag ~ 1, # ∆ nearby tracts
@@ -254,13 +224,13 @@ puma_df <-
     get_acs(
         geography = "public use microdata area", 
         variable = "B05006_001", 
-        year = 2017, 
+        year = 2018, 
         wide = TRUE
 )
 #add your state FIPS here
-saveRDS(st_read("/Volumes/GoogleDrive/My Drive/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg") %>% #add your state here
-    filter(STATEFP10 %in% c("13", "80", "17", "47", "06", "53", "39", "25", "33")) %>% 
-    st_set_crs(102003) %>% 
+saveRDS(st_read("/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg") %>% #add your state here
+    filter(STATEFP10 %in% c( '17', '13', '08', '28', '47', '06', '53', '39', '25', '33')) %>% 
+    # st_set_crs(102003) %>% 
     st_transform(4269) %>% 
     mutate(sqmile = ALAND10/2589988), 
     "~/git/sparcc/data/inputs/nhgispuma.RDS"
