@@ -876,7 +876,7 @@ elif city_name == 'Los Angeles':
     state = '06'
     state_init = ['CA']
     FIPS = ['037', '059', '073']
-    rail_agency = ['Metro']
+    rail_agency = ['Metro', 'MTS', 'Metrolink']
     zone = '11S'
 elif city_name == 'San Francisco':
     state = '06'
