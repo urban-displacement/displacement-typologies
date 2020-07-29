@@ -872,6 +872,11 @@ elif city_name == 'Memphis':
     FIPS = {'28':['033', '093'], '47': ['047', '157']}
     rail_agency = [np.nan]
     zone = '15S'
+elif city_name == 'Los Angeles':
+    state = '06'
+    FIPS = ['037', '059', '073']
+    rail_agency = 'Metro'
+    zone = '11S'
 elif city_name == 'San Francisco':
     state = '06'
     state_init = ['CA']
