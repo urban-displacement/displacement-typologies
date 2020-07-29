@@ -36,7 +36,7 @@ c = census.Census(key)
 # Example: python data.py Atlanta
 
 city_name = str(sys.argv[1])
-# city_name = "Atlanta"
+# city_name = "Los Angeles"
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -874,8 +874,9 @@ elif city_name == 'Memphis':
     zone = '15S'
 elif city_name == 'Los Angeles':
     state = '06'
+    state_init = ['CA']
     FIPS = ['037', '059', '073']
-    rail_agency = 'Metro'
+    rail_agency = ['Metro']
     zone = '11S'
 elif city_name == 'San Francisco':
     state = '06'
@@ -907,8 +908,6 @@ else:
 
 # ### Merge census data in single file
 
-
-
 census = acs_data.merge(data_2000, on = 'FIPS', how = 'outer').merge(data_1990, on = 'FIPS', how = 'outer')
 
 
@@ -918,13 +917,13 @@ census = acs_data.merge(data_2000, on = 'FIPS', how = 'outer').merge(data_1990, 
 
 
 
-### This is based on the yearly CPI average
-CPI_89_18 = 1.977
-CPI_99_18 = 1.472
-CPI_12_18 = 1.02
+### This is based on the yearly CPI average - see https://www.bls.gov/data/inflation_calculator.htm for updates. 
+CPI_89_18 = 2.04
+CPI_99_18 = 1.51
+CPI_12_18 = 1.09
 
 ### This is used for the Zillow data, where january values are compared
-CPI_0115_0119 = 1.077
+CPI_0115_0119 = 1.06
 
 
 # #### Income
@@ -1075,11 +1074,7 @@ census['all_li_count_90'] = census['per_all_li_90']*census['hh_90']
 census['all_li_count_00'] = census['per_all_li_00']*census['hh_00']
 census['all_li_count_18'] = census['per_all_li_18']*census['hh_18']
 
-
-
-
 len(census)
-
 
 # #### Index all values to 2018
 
