@@ -34,11 +34,11 @@ df <-
             select(!X1) %>% 
             mutate(city = "San Francisco"),
             read_csv("~/git/sparcc/data/Seattle_database.csv") %>% 
-            select(!X1) # %>% 
-            # mutate(city = "Seattle"),
-            # read_csv("~/git/sparcc/data/Cleveland_database.csv") %>% 
-            # select(!X1) %>% 
-            # mutate(city = "Cleveland"),
+            select(!X1) %>% 
+            mutate(city = "Seattle"),
+            read_csv("~/git/sparcc/data/Cleveland_database.csv") %>% 
+            select(!X1) %>% 
+            mutate(city = "Cleveland")# ,
             # read_csv("~/git/sparcc/data/Boston_database.csv") %>% 
             # select(!X1) %>% 
             # mutate(city = "Boston")
@@ -80,9 +80,9 @@ tr_rent <- function(year, state){
 }
 
 ### Loop (map) across different states
-tr_rents17 <- 
+tr_rents18 <- 
     map_dfr(st, function(state){
-        tr_rent(year = 2017, state) %>% 
+        tr_rent(year = 2018, state) %>% 
         mutate(COUNTY = substr(GEOID, 1, 5))
     })
 
@@ -96,27 +96,27 @@ tr_rents12 <-
 
 
 tr_rents <- 
-    bind_rows(tr_rents17, tr_rents12) %>% 
+    bind_rows(tr_rents18, tr_rents12) %>% 
     unite("variable", c(variable,year), sep = "") %>% 
     group_by(variable) %>% 
     spread(variable, medrent) %>% 
     group_by(COUNTY) %>%
     mutate(
-        tr_medrent17 = 
+        tr_medrent18 = 
             case_when(
-                is.na(medrent17) ~ median(medrent17, na.rm = TRUE),
-                TRUE ~ medrent17
+                is.na(medrent18) ~ median(medrent18, na.rm = TRUE),
+                TRUE ~ medrent18
             ),
         tr_medrent12 = 
             case_when(
                 is.na(medrent12) ~ median(medrent12, na.rm = TRUE),
                 TRUE ~ medrent12),
-        tr_chrent = tr_medrent17 - tr_medrent12,
-        tr_pchrent = (tr_medrent17 - tr_medrent12)/tr_medrent12, 
+        tr_chrent = tr_medrent18 - tr_medrent12,
+        tr_pchrent = (tr_medrent18 - tr_medrent12)/tr_medrent12, 
 ### CHANGE THIS TO INCLUDE RM of region rather than county
-        rm_medrent17 = median(tr_medrent17, na.rm = TRUE), 
+        rm_medrent18 = median(tr_medrent18, na.rm = TRUE), 
         rm_medrent12 = median(tr_medrent12, na.rm = TRUE)) %>% 
-    select(-medrent12, -medrent17) %>% 
+    select(-medrent12, -medrent18) %>% 
     distinct() %>% 
     group_by(GEOID) %>% 
     filter(row_number()==1) %>% 
@@ -124,6 +124,22 @@ tr_rents <-
 
 # Pull in state tracts shapefile and merge them - this is a rough way to do it. 
     #Add your state here
+
+states <- 
+    raster::union(tracts("IL", cb = TRUE, class = 'sp'), tracts("GA", cb = TRUE, class = 'sp')) %>%
+    raster::union(., tracts("AR", cb = TRUE, class = 'sp')), 
+        tracts("TN", cb = TRUE, class = 'sp'), 
+        tracts("CO", cb = TRUE, class = 'sp'), 
+        tracts("MS", cb = TRUE, class = 'sp'), 
+        tracts("AL", cb = TRUE, class = 'sp'), 
+        tracts("KY", cb = TRUE, class = 'sp'), 
+        tracts("MO", cb = TRUE, class = 'sp'), 
+        tracts("IN", cb = TRUE, class = 'sp'), 
+        tracts("CA", cb = TRUE, class = 'sp'),
+        tracts("WA", cb = TRUE, class = 'sp'),   
+        tracts("OH", cb = TRUE, class = 'sp'),    
+        tracts("MA", cb = TRUE, class = 'sp'),
+        tracts("NH", cb = TRUE, class = 'sp'))
 states <- 
     raster::union(
     raster::union(
@@ -135,8 +151,12 @@ states <-
     raster::union(
     raster::union(
     raster::union(
+    raster::union(
+    raster::union(
+    raster::union(
+    raster::union(
         tracts("IL", cb = TRUE), 
-            tracts("GA", cb = TRUE)), 
+        tracts("GA", cb = TRUE)), 
         tracts("AR", cb = TRUE)), 
         tracts("TN", cb = TRUE)), 
         tracts("CO", cb = TRUE)), 
@@ -162,7 +182,9 @@ stsp@data <-
             !is.na(GEOID.2) ~ GEOID.2, 
             !is.na(GEOID.1.1) ~ GEOID.1.1, 
             !is.na(GEOID.1.2) ~ GEOID.1.2, 
-            !is.na(GEOID.1.3) ~ GEOID.1.3), 
+            !is.na(GEOID.1.3) ~ GEOID.1.3, 
+            !is.na(GEOID.1.4) ~ GEOID.1.4, 
+            !is.na(GEOID.1.5) ~ GEOID.1.5), 
     ), 
         tr_rents, 
         by = "GEOID") %>% 

@@ -23,9 +23,11 @@ python 1_data.py Denver
 python 1_data.py Memphis
 python 1_data.py 'Los Angeles'
 python 1_data.py 'San Francisco'
+<!-- on hold below -->
 python 1_data.py Seattle
 python 1_data.py Cleveland
-python 1_data.py Boston
+python 1_data.py Boston 
+* notes: Boston Geometry is not running
 
 # 2. create lag variables
 Rscript 2_create_lag_vars.r
