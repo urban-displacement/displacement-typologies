@@ -51,9 +51,9 @@ data <-
         read_csv('~/git/sparcc/data/Seattle_typology_output.csv') %>% 
         mutate(city = 'Seattle'),
         read_csv('~/git/sparcc/data/Cleveland_typology_output.csv') %>% 
-        mutate(city = 'Cleveland'),
-        read_csv('~/git/sparcc/data/Boston_typology_output.csv') %>% 
-        mutate(city = 'Boston')                      
+        mutate(city = 'Cleveland')#,
+        # read_csv('~/git/sparcc/data/Boston_typology_output.csv') %>% 
+        # mutate(city = 'Boston')                      
     ) %>% 
     left_join(., 
         read_csv('~/git/sparcc/data/overlays/oppzones.csv') %>% 
@@ -62,7 +62,8 @@ data <-
         	opp_zone = tract_type
         	) %>%
         mutate(GEOID = as.numeric(GEOID)) 
-    )
+    ) %>% 
+    select(!X1)
 
 #
 # Prep dataframe for mapping
@@ -99,19 +100,19 @@ df <-
                         'Insufficient Data'
                     )
             ), 
-        real_mhval_17 = case_when(real_mhval_17 > 0 ~ real_mhval_17),
-        real_mrent_17 = case_when(real_mrent_17 > 0 ~ real_mrent_17)
+        real_mhval_18 = case_when(real_mhval_18 > 0 ~ real_mhval_18),
+        real_mrent_18 = case_when(real_mrent_18 > 0 ~ real_mrent_18)
     ) %>% 
     group_by(city) %>% 
     mutate(
-        rm_real_mhval_17 = median(real_mhval_17, na.rm = TRUE), 
-        rm_real_mrent_17 = median(real_mrent_17, na.rm = TRUE), 
-        rm_per_nonwhite_17 = median(per_nonwhite_17, na.rm = TRUE), 
-        rm_per_col_17 = median(per_col_17, na.rm = TRUE)
+        rm_real_mhval_18 = median(real_mhval_18, na.rm = TRUE), 
+        rm_real_mrent_18 = median(real_mrent_18, na.rm = TRUE), 
+        rm_per_nonwhite_18 = median(per_nonwhite_18, na.rm = TRUE), 
+        rm_per_col_18 = median(per_col_18, na.rm = TRUE)
     ) %>% 
     group_by(GEOID) %>% 
     mutate(
-        per_ch_li = (all_li_count_17-all_li_count_00)/all_li_count_00,
+        per_ch_li = (all_li_count_18-all_li_count_00)/all_li_count_00,
         popup = # What to include in the popup 
           str_c(
               '<b>Tract: ', GEOID, '<br>', 
@@ -119,41 +120,41 @@ df <-
             # Market
               '<br><br>',
               '<b><i><u>Market Dynamics</u></i></b><br>',
-              'Tract median home value: ', case_when(!is.na(real_mhval_17) ~ dollar(real_mhval_17), TRUE ~ 'No data'), '<br>',
-              'Tract home value change from 2000 to 2017: ', case_when(is.na(real_mhval_17) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_17)),'<br>',
-              'Regional median home value: ', dollar(rm_real_mhval_17), '<br>',
+              'Tract median home value: ', case_when(!is.na(real_mhval_18) ~ dollar(real_mhval_18), TRUE ~ 'No data'), '<br>',
+              'Tract home value change from 2000 to 2018: ', case_when(is.na(real_mhval_18) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_18)),'<br>',
+              'Regional median home value: ', dollar(rm_real_mhval_18), '<br>',
               '<br>',
-              'Tract median rent: ', case_when(!is.na(real_mrent_17) ~ dollar(real_mrent_17), TRUE ~ 'No data'), '<br>', 
-              'Regional median rent: ', case_when(is.na(real_mrent_17) ~ 'No data', TRUE ~ dollar(rm_real_mrent_17)), '<br>', 
-              'Tract rent change from 2012 to 2017: ', percent(pctch_real_mrent_12_17), '<br>',
+              'Tract median rent: ', case_when(!is.na(real_mrent_18) ~ dollar(real_mrent_18), TRUE ~ 'No data'), '<br>', 
+              'Regional median rent: ', case_when(is.na(real_mrent_18) ~ 'No data', TRUE ~ dollar(rm_real_mrent_18)), '<br>', 
+              'Tract rent change from 2012 to 2018: ', percent(pctch_real_mrent_12_18), '<br>',
               '<br>',
               'Rent gap (nearby - local): ', dollar(tr_rent_gap), '<br>',
               'Regional median rent gap: ', dollar(rm_rent_gap), '<br>',
               '<br>',
             # demographics
              '<b><i><u>Demographics</u></i></b><br>', 
-             'Tract population: ', comma(pop_17), '<br>', 
-             'Tract household count: ', comma(hh_17), '<br>', 
-             'Tract median income: ', dollar(real_hinc_17), '<br>', 
-             'Percent low income hh: ', percent(per_all_li_17), '<br>', 
+             'Tract population: ', comma(pop_18), '<br>', 
+             'Tract household count: ', comma(hh_18), '<br>', 
+             'Tract median income: ', dollar(real_hinc_18), '<br>', 
+             'Percent low income hh: ', percent(per_all_li_18), '<br>', 
              'Percent change in LI: ', percent(per_ch_li), '<br>',
              '<br>',
-             'Percent non-White: ', percent(per_nonwhite_17), '<br>',
-             'Regional median non-White: ', percent(rm_per_nonwhite_17), '<br>',
+             'Percent non-White: ', percent(per_nonwhite_18), '<br>',
+             'Regional median non-White: ', percent(rm_per_nonwhite_18), '<br>',
              '<br>',
-             'Percent college educated: ', percent(per_col_17), '<br>',
-             'Regional median educated: ', percent(rm_per_col_17), '<br>',
+             'Percent college educated: ', percent(per_col_18), '<br>',
+             'Regional median educated: ', percent(rm_per_col_18), '<br>',
             '<br>',
             # risk factors
              '<b><i><u>Risk Factors</u></i></b><br>', 
-             'Mostly low income: ', case_when(low_pdmt_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Mix low income: ', case_when(mix_low_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Mostly low income: ', case_when(low_pdmt_medhhinc_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Mix low income: ', case_when(mix_low_medhhinc_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Rent change: ', case_when(dp_PChRent == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Rent gap: ', case_when(dp_RentGap == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Hot Market: ', case_when(hotmarket_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
+             'Hot Market: ', case_when(hotmarket_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Vulnerable to gentrification: ', case_when(vul_gent_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
              'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 | gent_90_00_urban == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
-             'Gentrified from 2000 to 2017: ', case_when(gent_00_17 == 1 | gent_00_17_urban == 1 ~ 'Yes', TRUE ~ 'No')
+             'Gentrified from 2000 to 2018: ', case_when(gent_00_18 == 1 | gent_00_18_urban == 1 ~ 'Yes', TRUE ~ 'No')
           )
     ) %>% 
     ungroup() %>% 
@@ -171,7 +172,7 @@ tracts <-
                 variables = "B01003_001", 
                 state = x, 
                 geometry = TRUE, 
-                year = 2017)
+                year = 2018)
         ), 
         rbind # bind each of the dataframes together
     ) %>% 
