@@ -55,7 +55,7 @@ data = geo_typology_input.copy(deep=True)
 
 
 
-data.groupby('inc_cat_medhhinc_17').count()['FIPS']
+data.groupby('inc_cat_medhhinc_18').count()['FIPS']
 
 
 
@@ -71,7 +71,7 @@ data.groupby('inc_cat_medhhinc_00').count()['FIPS']
 
 
 
-### The input file has a flag for 2017 population, but this step will generate the same flag for 2000
+### The input file has a flag for 2018 population, but this step will generate the same flag for 2000
 data['pop00flag'] = np.where((data['pop_00'] >500), 1, 0)
 
 
@@ -107,13 +107,13 @@ data['vul_gent_00'] = np.where(((data['aboverm_real_mrent_00']==0)|(data['abover
                                    data['aboverm_per_rent_00']+
                                    (1-data['aboverm_per_col_00']))>2), 1, 0)
 
-# ### ***** 2017 *****
+# ### ***** 2018 *****
 # ### 3/4 Criteria that needs to be met
-data['vul_gent_17'] = np.where(((data['aboverm_real_mrent_17']==0)|(data['aboverm_real_mhval_17']==0))&
-                                 ((data['aboverm_per_all_li_17']+
-                                   data['aboverm_per_nonwhite_17']+
-                                   data['aboverm_per_rent_17']+
-                                   (1-data['aboverm_per_col_17']))>2), 1, 0)
+data['vul_gent_18'] = np.where(((data['aboverm_real_mrent_18']==0)|(data['aboverm_real_mhval_18']==0))&
+                                 ((data['aboverm_per_all_li_18']+
+                                   data['aboverm_per_nonwhite_18']+
+                                   data['aboverm_per_rent_18']+
+                                   (1-data['aboverm_per_col_18']))>2), 1, 0)
 
 
 
@@ -138,12 +138,12 @@ data['vul_gent_17'] = np.where(((data['aboverm_real_mrent_17']==0)|(data['abover
 
 
 
-# print('VULNERABLE IN 2017')
+# print('VULNERABLE IN 2018')
 # ax = data.plot(color = 'grey')
-# ax = data[~data['vul_gent_17'].isna()].plot(ax = ax, column = 'vul_gent_17', legend = True)
+# ax = data[~data['vul_gent_18'].isna()].plot(ax = ax, column = 'vul_gent_18', legend = True)
 # plt.show()
-# print('There are ', data['vul_gent_17'].isna().sum(), 'census tract with NaN as data')
-# print('There are ', (data['vul_gent_17']==1).sum(), 'census tracts vulnerable in 2017')
+# print('There are ', data['vul_gent_18'].isna().sum(), 'census tract with NaN as data')
+# print('There are ', (data['vul_gent_18']==1).sum(), 'census tracts vulnerable in 2018')
 
 
 # ###### Out of curiosity
@@ -168,29 +168,29 @@ data['vul_gent_17'] = np.where(((data['aboverm_real_mrent_17']==0)|(data['abover
 
 
 
-### Hot market in '00 and '17 - make it a flag:
+### Hot market in '00 and '18 - make it a flag:
 ### Using old methodology for now, will update later
-### New methodology would be rapid increase (2013-2017)
+### New methodology would be rapid increase (2013-2018)
 
 data['hotmarket_00'] = np.where((data['aboverm_pctch_real_mhval_90_00']==1)|
                                   (data['aboverm_pctch_real_mrent_90_00']==1), 1, 0)
 data['hotmarket_00'] = np.where((data['aboverm_pctch_real_mhval_90_00'].isna())|
                                   (data['aboverm_pctch_real_mrent_90_00'].isna()), np.nan, data['hotmarket_00'])
 
-data['hotmarket_17'] = np.where((data['aboverm_pctch_real_mhval_00_17']==1)|
-                                  (data['aboverm_pctch_real_mrent_12_17']==1), 1, 0)
-data['hotmarket_17'] = np.where((data['aboverm_pctch_real_mhval_00_17'].isna())|
-                                  (data['aboverm_pctch_real_mrent_12_17'].isna()), np.nan, data['hotmarket_17'])
+data['hotmarket_18'] = np.where((data['aboverm_pctch_real_mhval_00_18']==1)|
+                                  (data['aboverm_pctch_real_mrent_12_18']==1), 1, 0)
+data['hotmarket_18'] = np.where((data['aboverm_pctch_real_mhval_00_18'].isna())|
+                                  (data['aboverm_pctch_real_mrent_12_18'].isna()), np.nan, data['hotmarket_18'])
 
 
 
 
-# print('HOT MARKET 2017')
+# print('HOT MARKET 2018')
 # ax = data.plot(color = 'white')
-# ax = data[~data['hotmarket_17'].isna()].plot(ax = ax, column = 'hotmarket_17', legend = True)
+# ax = data[~data['hotmarket_18'].isna()].plot(ax = ax, column = 'hotmarket_18', legend = True)
 # plt.show()
-# print('There are ', data['hotmarket_17'].isna().sum(), 'census tract with NaN as data')
-# print('There are ', (data['hotmarket_17']==1).sum(), 'census tracts with hot market in 2017')
+# print('There are ', data['hotmarket_18'].isna().sum(), 'census tract with NaN as data')
+# print('There are ', (data['hotmarket_18']==1).sum(), 'census tracts with hot market in 2018')
 
 
 
@@ -215,13 +215,13 @@ data['hotmarket_17'] = np.where((data['aboverm_pctch_real_mhval_00_17'].isna())|
 #                                 data['lostli_00'])>1)&
 #                                 (data['hotmarket_00']==1), 1, 0)
 
-# # 2000 - 2017
-# data['gent_00_17'] = np.where((data['vul_gent_00']==1)&
-#                                 ((data['aboverm_ch_per_col_00_17']+
-#                                 data['aboverm_pctch_real_hinc_00_17']+
-#                                 data['lostli_17'])>1)&
-#                                 (data['ch_per_limove_12_17']<0)&
-#                                 (data['hotmarket_17']==1), 1, 0)
+# # 2000 - 2018
+# data['gent_00_18'] = np.where((data['vul_gent_00']==1)&
+#                                 ((data['aboverm_ch_per_col_00_18']+
+#                                 data['aboverm_pctch_real_hinc_00_18']+
+#                                 data['lostli_18'])>1)&
+#                                 (data['ch_per_limove_12_18']<0)&
+#                                 (data['hotmarket_18']==1), 1, 0)
 
 
 ### all required
@@ -239,20 +239,20 @@ data['gent_90_00_urban'] = np.where((data['vul_gent_90']==1)&
                                 (data['hotmarket_00']==1), 1, 0)
 
 
-# # 2000 - 2017
-data['gent_00_17'] = np.where((data['vul_gent_00']==1)&
-                                (data['aboverm_ch_per_col_00_17']==1)&
-                                (data['aboverm_pctch_real_hinc_00_17']==1)&
-                                (data['lostli_17']==1)&
-                                # (data['ch_per_limove_12_17']<0)&
-                                (data['hotmarket_17']==1), 1, 0)
+# # 2000 - 2018
+data['gent_00_18'] = np.where((data['vul_gent_00']==1)&
+                                (data['aboverm_ch_per_col_00_18']==1)&
+                                (data['aboverm_pctch_real_hinc_00_18']==1)&
+                                (data['lostli_18']==1)&
+                                # (data['ch_per_limove_12_18']<0)&
+                                (data['hotmarket_18']==1), 1, 0)
 
-data['gent_00_17_urban'] = np.where((data['vul_gent_00']==1)&
-                                (data['aboverm_ch_per_col_00_17']==1)&
-                                (data['aboverm_pctch_real_hinc_00_17']==1)&
-                                # (data['lostli_17']==1)&
-                                # (data['ch_per_limove_12_17']<0)&
-                                (data['hotmarket_17']==1), 1, 0)
+data['gent_00_18_urban'] = np.where((data['vul_gent_00']==1)&
+                                (data['aboverm_ch_per_col_00_18']==1)&
+                                (data['aboverm_pctch_real_hinc_00_18']==1)&
+                                # (data['lostli_18']==1)&
+                                # (data['ch_per_limove_12_18']<0)&
+                                (data['hotmarket_18']==1), 1, 0)
 
 
 # Add lag variables
@@ -268,17 +268,17 @@ data = pd.merge(data,lag[['dp_PChRent','dp_RentGap','GEOID', 'tr_rent_gap', 'rm_
 
 
 
-# print('GENTRIFICATION 2000 - 2017')
+# print('GENTRIFICATION 2000 - 2018')
 # ax = data.plot(color = 'white')
-# ax = data[~data['gent_00_17'].isna()].plot(ax = ax, column = 'gent_00_17', legend = True)
+# ax = data[~data['gent_00_18'].isna()].plot(ax = ax, column = 'gent_00_18', legend = True)
 # plt.show()
-# print('There are ', data['gent_00_17'].isna().sum(), 'census tract with NaN as data')
-# print(str((data['gent_00_17']==1).sum()), 'census tracts were gentrified 2000-2017')
+# print('There are ', data['gent_00_18'].isna().sum(), 'census tract with NaN as data')
+# print(str((data['gent_00_18']==1).sum()), 'census tracts were gentrified 2000-2018')
 
 
 
 
-(data['gent_00_17']*data['gent_90_00']).sum()
+(data['gent_00_18']*data['gent_90_00']).sum()
 
 
 # ### Typology definitions
@@ -295,14 +295,14 @@ df = data
 df['SAE'] = 0
 df['SAE'] = np.where((df['pop00flag']==1)&
                      (df['high_pdmt_medhhinc_00'] == 1)&
-                     (df['high_pdmt_medhhinc_17'] == 1)&                 
+                     (df['high_pdmt_medhhinc_18'] == 1)&                 
                      (df['lmh_flag_encoded'] == 3)&
                      ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2)|
                      (df['change_flag_encoded'] == 3)), 1, 0)
 
 df['SAE'] = np.where((df['pop00flag'].isna())|
                      (df['high_pdmt_medhhinc_00'].isna())|
-                     (df['high_pdmt_medhhinc_17'].isna())|
+                     (df['high_pdmt_medhhinc_18'].isna())|
                      (df['lmh_flag_encoded'].isna())|
                      (df['change_flag_encoded'].isna()), np.nan, df['SAE'])
 
@@ -344,34 +344,34 @@ proximity = df[df.geometry.touches(exclusive.unary_union)]
 # df = data
 df['AdvG'] = 0
 df['AdvG'] = np.where((df['pop00flag']==1)&
-                    ((df['mod_pdmt_medhhinc_17'] == 1)|(df['mix_mod_medhhinc_17'] == 1)|
-                     (df['mix_high_medhhinc_17'] == 1)|(df['high_pdmt_medhhinc_17'] == 1))&                    
+                    ((df['mod_pdmt_medhhinc_18'] == 1)|(df['mix_mod_medhhinc_18'] == 1)|
+                     (df['mix_high_medhhinc_18'] == 1)|(df['high_pdmt_medhhinc_18'] == 1))&                    
                     ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
                      (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
                     ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2))&
-                    ((df['pctch_real_mhval_00_17'] > 0) | (df['pctch_real_mrent_12_17'] > 0)) & 
+                    ((df['pctch_real_mhval_00_18'] > 0) | (df['pctch_real_mrent_12_18'] > 0)) & 
                      (
                         # (df['gent_90_00']==1)|
-                        # (df['gent_00_17']==1)
+                        # (df['gent_00_18']==1)
                         ((df['dense'] == 0) & (df['gent_90_00'] == 1))|
-                        ((df['dense'] == 0) & (df['gent_00_17'] == 1))|
+                        ((df['dense'] == 0) & (df['gent_00_18'] == 1))|
                         ((df['dense'] == 1) & (df['gent_90_00_urban'] == 1))|
-                        ((df['dense'] == 1) & (df['gent_00_17_urban'] == 1))
+                        ((df['dense'] == 1) & (df['gent_00_18_urban'] == 1))
                     ), 1, 0)
 
 df['AdvG'] = np.where((df['pop00flag'].isna())|
-                     (df['mod_pdmt_medhhinc_17'].isna())|
-                     (df['mix_mod_medhhinc_17'].isna())|
-                     (df['mix_high_medhhinc_17'].isna())|
-                     (df['high_pdmt_medhhinc_17'].isna())|
+                     (df['mod_pdmt_medhhinc_18'].isna())|
+                     (df['mix_mod_medhhinc_18'].isna())|
+                     (df['mix_high_medhhinc_18'].isna())|
+                     (df['high_pdmt_medhhinc_18'].isna())|
                      (df['lmh_flag_encoded'].isna())|
                      (df['change_flag_encoded'].isna())|
                      (df['gent_90_00'].isna())|
                      (df['gent_90_00_urban'].isna())|
-                     (df['gent_00_17_urban'].isna())|
-                     (df['pctch_real_mhval_00_17'].isna())|
-                     (df['pctch_real_mrent_12_17'].isna())|
-                     (df['gent_00_17'].isna()), np.nan, df['AdvG'])
+                     (df['gent_00_18_urban'].isna())|
+                     (df['pctch_real_mhval_00_18'].isna())|
+                     (df['pctch_real_mrent_12_18'].isna())|
+                     (df['gent_00_18'].isna()), np.nan, df['AdvG'])
 
 df['AdvG'] = np.where((df['AdvG'] == 1)&(df['SAE']==1), 0, df['AdvG']) ### This is to account for double classification
 
@@ -393,17 +393,17 @@ df['AdvG'] = np.where((df['AdvG'] == 1)&(df['SAE']==1), 0, df['AdvG']) ### This 
 # df = data
 df['ARE'] = 0
 df['ARE'] = np.where((df['pop00flag']==1)&
-                    ((df['mod_pdmt_medhhinc_17'] == 1)|(df['mix_mod_medhhinc_17'] == 1)|
-                     (df['mix_high_medhhinc_17'] == 1)|(df['high_pdmt_medhhinc_17'] == 1))&                    
+                    ((df['mod_pdmt_medhhinc_18'] == 1)|(df['mix_mod_medhhinc_18'] == 1)|
+                     (df['mix_high_medhhinc_18'] == 1)|(df['high_pdmt_medhhinc_18'] == 1))&                    
                     ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
                      (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
                     ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2)), 1, 0)
 
 df['ARE'] = np.where((df['pop00flag'].isna())|
-                     (df['mod_pdmt_medhhinc_17'].isna())|
-                     (df['mix_mod_medhhinc_17'].isna())|
-                     (df['mix_high_medhhinc_17'].isna())|
-                     (df['high_pdmt_medhhinc_17'].isna())|
+                     (df['mod_pdmt_medhhinc_18'].isna())|
+                     (df['mix_mod_medhhinc_18'].isna())|
+                     (df['mix_high_medhhinc_18'].isna())|
+                     (df['high_pdmt_medhhinc_18'].isna())|
                      (df['lmh_flag_encoded'].isna())|
                      (df['change_flag_encoded'].isna()), np.nan, df['ARE'])
 
@@ -428,26 +428,26 @@ df['ARE'] = np.where((df['ARE'] == 1)&(df['SAE']==1), 0, df['ARE']) ### This is 
 ### *********** Becoming exclusive *************
 df['BE'] = 0
 df['BE'] = np.where((df['pop00flag']==1)&
-                    ((df['mod_pdmt_medhhinc_17'] == 1)|(df['mix_mod_medhhinc_17'] == 1)|
-                     (df['mix_high_medhhinc_17'] == 1)|(df['high_pdmt_medhhinc_17'] == 1))&
+                    ((df['mod_pdmt_medhhinc_18'] == 1)|(df['mix_mod_medhhinc_18'] == 1)|
+                     (df['mix_high_medhhinc_18'] == 1)|(df['high_pdmt_medhhinc_18'] == 1))&
                     ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
                      (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
                      (df['change_flag_encoded'] == 3)&
-                     (df['lostli_17']==1)&
-                     (df['per_limove_17']<df['per_limove_12'])&
-                     (df['real_hinc_17']>df['real_hinc_00']), 1, 0)
+                     (df['lostli_18']==1)&
+                     (df['per_limove_18']<df['per_limove_12'])&
+                     (df['real_hinc_18']>df['real_hinc_00']), 1, 0)
 
 df['BE'] = np.where((df['pop00flag'].isna())|
-                     (df['mod_pdmt_medhhinc_17'].isna())|
-                     (df['mix_mod_medhhinc_17'].isna())|
-                     (df['mix_high_medhhinc_17'].isna())|
-                     (df['high_pdmt_medhhinc_17'].isna())|
+                     (df['mod_pdmt_medhhinc_18'].isna())|
+                     (df['mix_mod_medhhinc_18'].isna())|
+                     (df['mix_high_medhhinc_18'].isna())|
+                     (df['high_pdmt_medhhinc_18'].isna())|
                      (df['lmh_flag_encoded'].isna())|
                      (df['change_flag_encoded'].isna())|
-                     (df['lostli_17'].isna())|
-                     (df['per_limove_17'].isna())|
+                     (df['lostli_18'].isna())|
+                     (df['per_limove_18'].isna())|
                      (df['per_limove_12'].isna())|
-                     (df['real_hinc_17'].isna())|
+                     (df['real_hinc_18'].isna())|
                      (df['real_hinc_00'].isna()), np.nan, df['BE'])
 
 df['BE'] = np.where((df['BE'] == 1)&(df['SAE']==1), 0, df['BE']) ### This is to account for double classification
@@ -469,15 +469,15 @@ df['BE'] = np.where((df['BE'] == 1)&(df['SAE']==1), 0, df['BE']) ### This is to 
 
 df['SMMI'] = 0
 df['SMMI'] = np.where((df['pop00flag']==1)&
-                     ((df['mod_pdmt_medhhinc_17'] == 1)|(df['mix_mod_medhhinc_17'] == 1)|
-                      (df['mix_high_medhhinc_17'] == 1)|(df['high_pdmt_medhhinc_17'] == 1))&             
+                     ((df['mod_pdmt_medhhinc_18'] == 1)|(df['mix_mod_medhhinc_18'] == 1)|
+                      (df['mix_high_medhhinc_18'] == 1)|(df['high_pdmt_medhhinc_18'] == 1))&             
                      (df['ARE']==0)&(df['BE']==0)&(df['SAE']==0)&(df['AdvG']==0), 1, 0)
 
 df['SMMI'] = np.where((df['pop00flag'].isna())|
-                      (df['mod_pdmt_medhhinc_17'].isna())|
-                      (df['mix_mod_medhhinc_17'].isna())|
-                      (df['mix_high_medhhinc_17'].isna())|
-                      (df['high_pdmt_medhhinc_17'].isna()), np.nan, df['SMMI'])
+                      (df['mod_pdmt_medhhinc_18'].isna())|
+                      (df['mix_mod_medhhinc_18'].isna())|
+                      (df['mix_high_medhhinc_18'].isna())|
+                      (df['high_pdmt_medhhinc_18'].isna()), np.nan, df['SMMI'])
 
 
 
@@ -496,24 +496,24 @@ df['SMMI'] = np.where((df['pop00flag'].isna())|
 ### ****ARG ****
 df['ARG'] = 0
 df['ARG'] = np.where((df['pop00flag']==1)&
-                    ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))&
+                    ((df['low_pdmt_medhhinc_18']==1)|(df['mix_low_medhhinc_18']==1))&
                     ((df['lmh_flag_encoded']==1)|(df['lmh_flag_encoded']==4))&
                     ((df['change_flag_encoded'] == 1)|(df['ab_90percentile_ch']==1)|(df['rent_90percentile_ch']==1))&
                     (df['gent_90_00']==0)&
                     ((df['dp_PChRent'] == 1)|(df['dp_RentGap'] == 1)) &
-                    (df['vul_gent_17']==1)&
-                    (df['gent_00_17']==0), 1, 0)
+                    (df['vul_gent_18']==1)&
+                    (df['gent_00_18']==0), 1, 0)
 
 df['ARG'] = np.where((df['pop00flag'].isna())|
-                     (df['low_pdmt_medhhinc_17'].isna())|
-                     (df['mix_low_medhhinc_17'].isna())|
+                     (df['low_pdmt_medhhinc_18'].isna())|
+                     (df['mix_low_medhhinc_18'].isna())|
                      (df['lmh_flag_encoded'].isna())|
                      (df['change_flag_encoded'].isna())|
                      (df['gent_90_00'].isna())|
                      (df['vul_gent_00'].isna())|
                      (df['dp_PChRent'].isna())|
                      (df['dp_RentGap'].isna())|
-                     (df['gent_00_17'].isna()), np.nan, df['ARG'])
+                     (df['gent_00_18'].isna()), np.nan, df['ARG'])
 
 
 
@@ -534,8 +534,8 @@ df['ARG'] = np.where((df['pop00flag'].isna())|
 ### ****EOG ****
 df['EOG'] = 0
 df['EOG'] = np.where((df['pop00flag']==1)& # pop > 500
-                    ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))& # low and mix low income households. 
-                     # (df['ch_per_limove_12_17']<0)& # percent change in low income movers              
+                    ((df['low_pdmt_medhhinc_18']==1)|(df['mix_low_medhhinc_18']==1))& # low and mix low income households. 
+                     # (df['ch_per_limove_12_18']<0)& # percent change in low income movers              
                     ( 
                         # (df['lmh_flag_encoded'] == 1)| # affordable to low income households
                         (df['lmh_flag_encoded'] == 2)| # predominantly middle income
@@ -552,23 +552,23 @@ df['EOG'] = np.where((df['pop00flag']==1)& # pop > 500
                         )&
                      (
                         # (df['gent_90_00']==1)|
-                        # (df['gent_00_17']==1)
+                        # (df['gent_00_18']==1)
                         ((df['dense'] == 0) & (df['gent_90_00'] == 1))|
-                        ((df['dense'] == 0) & (df['gent_00_17'] == 1))|
+                        ((df['dense'] == 0) & (df['gent_00_18'] == 1))|
                         ((df['dense'] == 1) & (df['gent_90_00_urban'] == 1))|
-                        ((df['dense'] == 1) & (df['gent_00_17_urban'] == 1))
+                        ((df['dense'] == 1) & (df['gent_00_18_urban'] == 1))
                     ), 1, 0) # gentrified (includes hotmarket)
 
 df['EOG'] = np.where((df['pop00flag'].isna())|
-                     (df['low_pdmt_medhhinc_17'].isna())|
-                     (df['mix_low_medhhinc_17'].isna())|
-                     (df['ch_per_limove_12_17'].isna())|
+                     (df['low_pdmt_medhhinc_18'].isna())|
+                     (df['mix_low_medhhinc_18'].isna())|
+                     (df['ch_per_limove_12_18'].isna())|
                      (df['lmh_flag_encoded'].isna())|
                      (df['change_flag_encoded'].isna())|
                      (df['gent_90_00'].isna())|
-                     (df['gent_00_17'].isna())|                     
+                     (df['gent_00_18'].isna())|                     
                      (df['gent_90_00_urban'].isna())|
-                     (df['gent_00_17_urban'].isna())|
+                     (df['gent_00_18_urban'].isna())|
                      (df['ab_50pct_ch'].isna())|
                      (df['hv_abrm_ch'].isna())|
                      (df['rent_abrm_ch'].isna())|
@@ -593,13 +593,13 @@ df['EOG'] = np.where((df['pop00flag'].isna())|
 
 df['OD'] = 0
 df['OD'] = np.where((df['pop00flag']==1)&
-                          ((df['low_pdmt_medhhinc_17']==1)|(df['mix_low_medhhinc_17']==1))&
-                          (df['lostli_17']==1), 1, 0)
+                          ((df['low_pdmt_medhhinc_18']==1)|(df['mix_low_medhhinc_18']==1))&
+                          (df['lostli_18']==1), 1, 0)
 
 df['OD_loss'] = np.where((df['pop00flag'].isna())|
-                    (df['low_pdmt_medhhinc_17'].isna())|
-                    (df['mix_low_medhhinc_17'].isna())|
-                    (df['lostli_17'].isna()), np.nan, df['OD'])
+                    (df['low_pdmt_medhhinc_18'].isna())|
+                    (df['mix_low_medhhinc_18'].isna())|
+                    (df['lostli_18'].isna()), np.nan, df['OD'])
 
 df['OD'] = np.where((df['OD'] == 1)&(df['ARG']==1), 0, df['OD']) ### This is to account for double classification
 df['OD'] = np.where((df['OD'] == 1)&(df['EOG']==1), 0, df['OD']) ### This is to account for double classification
@@ -621,7 +621,7 @@ df['OD'] = np.where((df['OD'] == 1)&(df['EOG']==1), 0, df['OD']) ### This is to 
 
 df['SLI'] = 0
 df['SLI'] = np.where((df['pop00flag'] == 1)&
-                     ((df['low_pdmt_medhhinc_17'] == 1)|(df['mix_low_medhhinc_17'] == 1))&
+                     ((df['low_pdmt_medhhinc_18'] == 1)|(df['mix_low_medhhinc_18'] == 1))&
                      (df['OD']!=1) & (df['ARG']!=1) & (df['EOG']!=1), 1, 0)
 
 
