@@ -45,15 +45,7 @@ data <-
         read_csv('~/git/sparcc/data/Memphis_typology_output.csv') %>% 
         mutate(city = 'Memphis'),
         read_csv('~/git/sparcc/data/Los Angeles_typology_output.csv') %>% 
-        mutate(city = 'Los Angeles'),
-        read_csv('~/git/sparcc/data/San Francisco_typology_output.csv') %>% 
-        mutate(city = 'San Francisco'),
-        read_csv('~/git/sparcc/data/Seattle_typology_output.csv') %>% 
-        mutate(city = 'Seattle'),
-        read_csv('~/git/sparcc/data/Cleveland_typology_output.csv') %>% 
-        mutate(city = 'Cleveland')#,
-        # read_csv('~/git/sparcc/data/Boston_typology_output.csv') %>% 
-        # mutate(city = 'Boston')                      
+        mutate(city = 'Los Angeles')
     ) %>% 
     left_join(., 
         read_csv('~/git/sparcc/data/overlays/oppzones.csv') %>% 
@@ -62,8 +54,7 @@ data <-
         	opp_zone = tract_type
         	) %>%
         mutate(GEOID = as.numeric(GEOID)) 
-    ) %>% 
-    select(!X1)
+    )
 
 #
 # Prep dataframe for mapping
@@ -100,19 +91,19 @@ df <-
                         'Insufficient Data'
                     )
             ), 
-        real_mhval_18 = case_when(real_mhval_18 > 0 ~ real_mhval_18),
-        real_mrent_18 = case_when(real_mrent_18 > 0 ~ real_mrent_18)
+        real_mhval_17 = case_when(real_mhval_17 > 0 ~ real_mhval_17),
+        real_mrent_17 = case_when(real_mrent_17 > 0 ~ real_mrent_17)
     ) %>% 
     group_by(city) %>% 
     mutate(
-        rm_real_mhval_18 = median(real_mhval_18, na.rm = TRUE), 
-        rm_real_mrent_18 = median(real_mrent_18, na.rm = TRUE), 
-        rm_per_nonwhite_18 = median(per_nonwhite_18, na.rm = TRUE), 
-        rm_per_col_18 = median(per_col_18, na.rm = TRUE)
+        rm_real_mhval_17 = median(real_mhval_17, na.rm = TRUE), 
+        rm_real_mrent_17 = median(real_mrent_17, na.rm = TRUE), 
+        rm_per_nonwhite_17 = median(per_nonwhite_17, na.rm = TRUE), 
+        rm_per_col_17 = median(per_col_17, na.rm = TRUE)
     ) %>% 
     group_by(GEOID) %>% 
     mutate(
-        per_ch_li = (all_li_count_18-all_li_count_00)/all_li_count_00,
+        per_ch_li = (all_li_count_17-all_li_count_00)/all_li_count_00,
         popup = # What to include in the popup 
           str_c(
               '<b>Tract: ', GEOID, '<br>', 
@@ -120,48 +111,48 @@ df <-
             # Market
               '<br><br>',
               '<b><i><u>Market Dynamics</u></i></b><br>',
-              'Tract median home value: ', case_when(!is.na(real_mhval_18) ~ dollar(real_mhval_18), TRUE ~ 'No data'), '<br>',
-              'Tract home value change from 2000 to 2018: ', case_when(is.na(real_mhval_18) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_18)),'<br>',
-              'Regional median home value: ', dollar(rm_real_mhval_18), '<br>',
+              'Tract median home value: ', case_when(!is.na(real_mhval_17) ~ dollar(real_mhval_17), TRUE ~ 'No data'), '<br>',
+              'Tract home value change from 2000 to 2017: ', case_when(is.na(real_mhval_17) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_17)),'<br>',
+              'Regional median home value: ', dollar(rm_real_mhval_17), '<br>',
               '<br>',
-              'Tract median rent: ', case_when(!is.na(real_mrent_18) ~ dollar(real_mrent_18), TRUE ~ 'No data'), '<br>', 
-              'Regional median rent: ', case_when(is.na(real_mrent_18) ~ 'No data', TRUE ~ dollar(rm_real_mrent_18)), '<br>', 
-              'Tract rent change from 2012 to 2018: ', percent(pctch_real_mrent_12_18), '<br>',
+              'Tract median rent: ', case_when(!is.na(real_mrent_17) ~ dollar(real_mrent_17), TRUE ~ 'No data'), '<br>', 
+              'Regional median rent: ', case_when(is.na(real_mrent_17) ~ 'No data', TRUE ~ dollar(rm_real_mrent_17)), '<br>', 
+              'Tract rent change from 2012 to 2017: ', percent(pctch_real_mrent_12_17), '<br>',
               '<br>',
               'Rent gap (nearby - local): ', dollar(tr_rent_gap), '<br>',
               'Regional median rent gap: ', dollar(rm_rent_gap), '<br>',
               '<br>',
             # demographics
              '<b><i><u>Demographics</u></i></b><br>', 
-             'Tract population: ', comma(pop_18), '<br>', 
-             'Tract household count: ', comma(hh_18), '<br>', 
-             'Tract median income: ', dollar(real_hinc_18), '<br>', 
-             'Percent low income hh: ', percent(per_all_li_18), '<br>', 
+             'Tract population: ', comma(pop_17), '<br>', 
+             'Tract household count: ', comma(hh_17), '<br>', 
+             'Tract median income: ', dollar(real_hinc_17), '<br>', 
+             'Percent low income hh: ', percent(per_all_li_17), '<br>', 
              'Percent change in LI: ', percent(per_ch_li), '<br>',
              '<br>',
-             'Percent non-White: ', percent(per_nonwhite_18), '<br>',
-             'Regional median non-White: ', percent(rm_per_nonwhite_18), '<br>',
+             'Percent non-White: ', percent(per_nonwhite_17), '<br>',
+             'Regional median non-White: ', percent(rm_per_nonwhite_17), '<br>',
              '<br>',
-             'Percent college educated: ', percent(per_col_18), '<br>',
-             'Regional median educated: ', percent(rm_per_col_18), '<br>',
+             'Percent college educated: ', percent(per_col_17), '<br>',
+             'Regional median educated: ', percent(rm_per_col_17), '<br>',
             '<br>',
             # risk factors
              '<b><i><u>Risk Factors</u></i></b><br>', 
-             'Mostly low income: ', case_when(low_pdmt_medhhinc_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Mix low income: ', case_when(mix_low_medhhinc_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Mostly low income: ', case_when(low_pdmt_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Mix low income: ', case_when(mix_low_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Rent change: ', case_when(dp_PChRent == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Rent gap: ', case_when(dp_RentGap == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Hot Market: ', case_when(hotmarket_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Vulnerable to gentrification: ', case_when(vul_gent_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
+             'Hot Market: ', case_when(hotmarket_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
              'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 | gent_90_00_urban == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
-             'Gentrified from 2000 to 2018: ', case_when(gent_00_18 == 1 | gent_00_18_urban == 1 ~ 'Yes', TRUE ~ 'No')
+             'Gentrified from 2000 to 2017: ', case_when(gent_00_17 == 1 | gent_00_17_urban == 1 ~ 'Yes', TRUE ~ 'No')
           )
     ) %>% 
     ungroup() %>% 
     data.frame()
 
 # State codes for downloading tract polygons; add your state here
-states <- c("06", "17", "13", "08", "28", "47", "53", "39", "25", "33")
+states <- c("06", "17", "13", "08", "28", "47")
 
 # Download tracts in each of the shapes in sf (simple feature) class
 tracts <- 
@@ -172,7 +163,7 @@ tracts <-
                 variables = "B01003_001", 
                 state = x, 
                 geometry = TRUE, 
-                year = 2018)
+                year = 2017)
         ), 
         rbind # bind each of the dataframes together
     ) %>% 
@@ -191,7 +182,7 @@ df_sf <-
 
 
 ct <- 
-    fread('~/git/sparcc/data/inputs/sparcc_community_tracts.csv') %>% 
+    fread('~/git/sparcc/data/sparcc_community_tracts.csv') %>% 
     rename(city = City) %>% 
     mutate(GEOID = as.numeric(GEOID), 
     	cs = "Community Suggested Change") %>% 
@@ -209,41 +200,41 @@ ct <-
               Site Notes</b>: <br>', CommunityComments,
               '<br><br>',
               '<b><i><u>Market Dynamics</u></i></b><br>',
-              'Tract median home value: ', case_when(!is.na(real_mhval_18) ~ dollar(real_mhval_18), TRUE ~ 'No data'), '<br>',
-              'Tract home value change from 2000 to 2018: ', case_when(is.na(real_mhval_18) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_18)),'<br>',
-              'Regional median home value: ', dollar(rm_real_mhval_18), '<br>',
+              'Tract median home value: ', case_when(!is.na(real_mhval_17) ~ dollar(real_mhval_17), TRUE ~ 'No data'), '<br>',
+              'Tract home value change from 2000 to 2017: ', case_when(is.na(real_mhval_17) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_17)),'<br>',
+              'Regional median home value: ', dollar(rm_real_mhval_17), '<br>',
               '<br>',
-              'Tract median rent: ', case_when(!is.na(real_mrent_18) ~ dollar(real_mrent_18), TRUE ~ 'No data'), '<br>', 
-              'Regional median rent: ', case_when(is.na(real_mrent_18) ~ 'No data', TRUE ~ dollar(rm_real_mrent_18)), '<br>', 
-              'Tract rent change from 2012 to 2018: ', percent(pctch_real_mrent_12_18), '<br>',
+              'Tract median rent: ', case_when(!is.na(real_mrent_17) ~ dollar(real_mrent_17), TRUE ~ 'No data'), '<br>', 
+              'Regional median rent: ', case_when(is.na(real_mrent_17) ~ 'No data', TRUE ~ dollar(rm_real_mrent_17)), '<br>', 
+              'Tract rent change from 2012 to 2017: ', percent(pctch_real_mrent_12_17), '<br>',
               '<br>',
               'Rent gap (nearby - local): ', dollar(tr_rent_gap), '<br>',
               'Regional median rent gap: ', dollar(rm_rent_gap), '<br>',
               '<br>',
             # demographics
              '<b><i><u>Demographics</u></i></b><br>', 
-             'Tract population: ', comma(pop_18), '<br>', 
-             'Tract household count: ', comma(hh_18), '<br>', 
-             'Tract median income: ', dollar(real_hinc_18), '<br>', 
-             'Percent low income hh: ', percent(per_all_li_18), '<br>', 
+             'Tract population: ', comma(pop_17), '<br>', 
+             'Tract household count: ', comma(hh_17), '<br>', 
+             'Tract median income: ', dollar(real_hinc_17), '<br>', 
+             'Percent low income hh: ', percent(per_all_li_17), '<br>', 
              'Percent change in LI: ', percent(per_ch_li), '<br>',
              '<br>',
-             'Percent non-White: ', percent(per_nonwhite_18), '<br>',
-             'Regional median non-White: ', percent(rm_per_nonwhite_18), '<br>',
+             'Percent non-White: ', percent(per_nonwhite_17), '<br>',
+             'Regional median non-White: ', percent(rm_per_nonwhite_17), '<br>',
              '<br>',
-             'Percent college educated: ', percent(per_col_18), '<br>',
-             'Regional median educated: ', percent(rm_per_col_18), '<br>',
+             'Percent college educated: ', percent(per_col_17), '<br>',
+             'Regional median educated: ', percent(rm_per_col_17), '<br>',
             '<br>',
             # risk factors
              '<b><i><u>Risk Factors</u></i></b><br>', 
-             'Mostly low income: ', case_when(low_pdmt_medhhinc_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Mix low income: ', case_when(mix_low_medhhinc_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Mostly low income: ', case_when(low_pdmt_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Mix low income: ', case_when(mix_low_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Rent change: ', case_when(dp_PChRent == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Rent gap: ', case_when(dp_RentGap == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Hot Market: ', case_when(hotmarket_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Vulnerable to gentrification: ', case_when(vul_gent_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
+             'Hot Market: ', case_when(hotmarket_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
              'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 | gent_90_00_urban == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
-             'Gentrified from 2000 to 2018: ', case_when(gent_00_18 == 1 | gent_00_18_urban == 1 ~ 'Yes', TRUE ~ 'No')
+             'Gentrified from 2000 to 2017: ', case_when(gent_00_17 == 1 | gent_00_17_urban == 1 ~ 'Yes', TRUE ~ 'No')
           )
     ) 
     
@@ -258,83 +249,15 @@ ct <-
 red <- 
     rbind(
         geojson_sf('~/git/sparcc/data/overlays/CODenver1938_1.geojson') %>% 
-            mutate(city = 'Denver'),
-        geojson_sf('~/git/sparcc/data/overlays/GAAtlanta1938_1.geojson') %>%  
-            mutate(city = 'Atlanta'),
+        mutate(city = 'Denver'),
+        geojson_sf('~/git/sparcc/data/overlays/GAAtlanta1938_1.geojson') %>% 
+        mutate(city = 'Atlanta'),
         geojson_sf('~/git/sparcc/data/overlays/ILChicago1940_1.geojson') %>% 
-            mutate(city = 'Chicago'),
+        mutate(city = 'Chicago'),
         geojson_sf('~/git/sparcc/data/overlays/TNMemphis19XX_1.geojson') %>% 
-            mutate(city = 'Memphis'),
-        geojson_sf('~/git/sparcc/data/overlays/CAOakland1937.geojson') %>% 
-            mutate(city = 'Bay Area'), 
-        geojson_sf('~/git/sparcc/data/overlays/CASacramento1937.geojson') %>% 
-            mutate(city = 'Bay Area'), 
-        geojson_sf('~/git/sparcc/data/overlays/CASanFrancisco1937.geojson') %>% 
-            mutate(city = 'Bay Area'), 
-        geojson_sf('~/git/sparcc/data/overlays/CASanJose1937.geojson') %>%
-            mutate(city = 'Bay Area'),
-        geojson_sf('~/git/sparcc/data/overlays/CAStockton1938.geojson') %>% 
-            mutate(city = 'Bay Area'),
-        geojson_sf('~/git/sparcc/data/overlays/WASeattle1936.geojson') %>% 
-            mutate(city = 'Puget Sound'), 
-        geojson_sf('~/git/sparcc/data/overlays/WATacoma1937.geojson') %>% 
-            mutate(city = 'Puget Sound'),
-        geojson_sf('~/git/sparcc/data/overlays/OHCleveland1939.geojson') %>% 
-            mutate(city = 'Cleveland'), 
-        geojson_sf('~/git/sparcc/data/overlays/OHLorain1937.geojson') %>% 
-            mutate(city = 'Cleveland'),
-        geojson_sf('~/git/sparcc/data/overlays/MAArlington1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MABelmont1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MABoston1938.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MABraintree1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MABrockton1937.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MABrookline1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MACambridge1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MAChelsea1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MADedham1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MAEverett19XX.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MAHaverhill1937.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MALexington19XX.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MAMalden19XX.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MAMedford19XX.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MAMelrose1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MAMilton1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MANeedham1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MANewton1937.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MAQuincy1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MARevere19XX.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MASaugus19XX.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MASomerville1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MAWaltham1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MAWatertown1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MAWinchester1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MAWinthrop1939.geojson') %>%  
-            mutate(city = 'Major Boston Area')
+        mutate(city = 'Memphis'),
+        geojson_sf('~/git/sparcc/data/overlays/CALosAngeles1939.geojson') %>% 
+        mutate(city = 'Los Angeles')
     ) %>% 
     mutate(
         Grade = 
@@ -787,7 +710,7 @@ atlanta <-
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_2018.html")
+htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta.html")
 
 # Chicago, IL
 chicago <- 
@@ -796,7 +719,7 @@ chicago <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_2018.html")
+htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago.html")
 
 # Denver, CO
 denver <- 
@@ -804,7 +727,7 @@ denver <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_2018.html")
+htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver.html")
 
 # Memphis, TN
 memphis <- 
@@ -813,7 +736,7 @@ memphis <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis_2018.html")
+htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis.html")
 
 # Los Angeles, CA
 losangeles <- 
@@ -823,44 +746,5 @@ losangeles <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -118.244, lat = 34.052, zoom = 10) #set an appropriate view for LA
 # # save map
-htmlwidgets::saveWidget(losangeles, file="~/git/sparcc/maps/losangeles_2018.html")
+htmlwidgets::saveWidget(losangeles, file="~/git/sparcc/maps/losangeles_check.html")
 
-# San Francisco, CA
-sanfrancisco <- 
-    map_it("San Francisco", 'CA') %>% 
-    # ind(st = 'CA') %>% # change ind file to include SF if you want this. 
-    oz(city_name = "San Francisco") %>% 
-    options(oz = "Opportunity Zones") %>% 
-    setView(lng = -122.443, lat = 37.756, zoom = 10) #set an appropriate view for SF
-# # save map
-htmlwidgets::saveWidget(sanfrancisco, file="~/git/sparcc/maps/sanfrancisco_2018.html")
-
-# Seattle, WA
-seattle <- 
-    map_it("Seattle", 'WA') %>% 
-    # ind(st = 'WA') %>% 
-    oz(city_name = "Seattle") %>% 
-    options(oz = "Opportunity Zones") %>% 
-    setView(lng = -122.334, lat = 47.605, zoom = 10) #set an appropriate view for Seattle
-# # save map
-htmlwidgets::saveWidget(seattle, file="~/git/sparcc/maps/seattle_2018.html")
-
-# Cleveland, OH
-cleveland <- 
-    map_it("Cleveland", 'OH') %>% 
-    # ind(st = 'OH') %>% 
-    oz(city_name = "Cleveland") %>% 
-    options(oz = "Opportunity Zones") %>% 
-    setView(lng = -81.686, lat = 41.504, zoom = 10) #set an appropriate view for Cleveland
-# # save map
-htmlwidgets::saveWidget(cleveland, file="~/git/sparcc/maps/cleveland_2018.html")
-
-# Boston, MA
-boston <- 
-    map_it("Boston", 'MA') %>% 
-    # ind(st = 'MA') %>% 
-    oz(city_name = "Boston") %>% 
-    options(oz = "Opportunity Zones") %>% 
-    setView(lng = -71.060, lat = 42.360, zoom = 10) #set an appropriate view for Boston
-# # save map
-htmlwidgets::saveWidget(boston, file="~/git/sparcc/maps/boston_2018.html")

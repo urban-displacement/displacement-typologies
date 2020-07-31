@@ -10,22 +10,23 @@
 # coding: utf-8
 
 # ### Import libraries
+
+
+
 import census
 import pandas as pd
 import numpy as np
 import sys
-# import pyarrow.parquet as pq
-from pathlib import Path
-import geopandas as gpd
-from shapely.geometry import Point
-from pyproj import Proj
-import matplotlib.pyplot as plt
+import pyarrow.parquet as pq
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 pd.options.display.float_format = '{:.2f}'.format # avoid scientific notation
 
 # ### Set API key
+
+
+
 key = '4c26aa6ebbaef54a55d3903212eabbb506ade381'
 c = census.Census(key)
 
@@ -36,7 +37,7 @@ c = census.Census(key)
 # Example: python data.py Atlanta
 
 # city_name = str(sys.argv[1])
-city_name = "Boston"
+city_name = 'Los Angeles'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -55,23 +56,12 @@ elif city_name == 'Memphis':
 elif city_name == 'Los Angeles':
     state = '06'
     FIPS = ['037', '059', '073']
-elif city_name == 'San Francisco':
-    state = '06'
-    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']  
-elif city_name == 'Seattle':
-    state = '53'
-    FIPS = ['033', '053', '061']
-elif city_name == 'Cleveland':
-    state = '39'
-    FIPS = ['035', '055', '085', '093', '103']
-elif city_name == 'Boston':
-    state = ['25', '33']
-    FIPS = {'25': ['009', '017', '021', '023', '025'], '33': ['015', '017']}
 else:
     print ('There is not information for the selected city')
 
 
-if (city_name not in ('Memphis', 'Boston')):
+
+if city_name != 'Memphis':
     sql_query='state:{} county:*'.format(state)
 else:
     sql_query_1='state:{} county:*'.format(state[0])
@@ -79,10 +69,9 @@ else:
 
 # ### Creates filter function
 # Note - Memphis is different bc it's located in 2 states
-# Same for Boston
 
 def filter_FIPS(df):
-    if (city_name not in ('Memphis', 'Boston')):
+    if city_name != 'Memphis':
         df = df[df['county'].isin(FIPS)]
     else:
         fips_list = []
@@ -93,9 +82,9 @@ def filter_FIPS(df):
         df = df[df['FIPS'].isin(fips_list)]
     return df
 
-# ### Download ACS 2018 5-Year Estimates
+# ### Download ACS 2017 5-Year Estimates
 
-df_vars_18=['B03002_001E',
+df_vars_17=['B03002_001E',
             'B03002_003E',
             'B19001_001E',
             'B19013_001E',
@@ -121,109 +110,108 @@ var_str = 'B19001'
 var_list = []
 for i in range (1, 18):
     var_list.append(var_str+'_'+str(i).zfill(3)+'E')
-df_vars_18 = df_vars_18 + var_list
+df_vars_17 = df_vars_17 + var_list
 
 # Migration - see notes
 var_str = 'B07010'
 var_list = []
 for i in list(range(25,34))+list(range(36, 45))+list(range(47, 56))+list(range(58, 67)):
     var_list.append(var_str+'_'+str(i).zfill(3)+'E')
-df_vars_18 = df_vars_18 + var_list
+df_vars_17 = df_vars_17 + var_list
 
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-# same for Boston
 
-if (city_name not in ('Memphis', 'Boston')):
-    var_dict_acs5 = c.acs5.get(df_vars_18, geo = {'for': 'tract:*',
-                                 'in': sql_query}, year=2018)
+if city_name != 'Memphis':
+    var_dict_acs5 = c.acs5.get(df_vars_17, geo = {'for': 'tract:*',
+                                 'in': sql_query}, year=2017)
 else:
-    var_dict_1 = c.acs5.get(df_vars_18, geo = {'for': 'tract:*',
-                                 'in': sql_query_1} , year=2018)
-    var_dict_2 = (c.acs5.get(df_vars_18, geo = {'for': 'tract:*',
-                                 'in': sql_query_2}, year=2018))
+    var_dict_1 = c.acs5.get(df_vars_17, geo = {'for': 'tract:*',
+                                 'in': sql_query_1} , year=2017)
+    var_dict_2 = (c.acs5.get(df_vars_17, geo = {'for': 'tract:*',
+                                 'in': sql_query_2}, year=2017))
     var_dict_acs5 = var_dict_1+var_dict_2
 
 # #### Converts variables into dataframe and filters only FIPS of interest
 
-df_vars_18 = pd.DataFrame.from_dict(var_dict_acs5)
-df_vars_18['FIPS']=df_vars_18['state']+df_vars_18['county']+df_vars_18['tract']
-df_vars_18 = filter_FIPS(df_vars_18)
+df_vars_17 = pd.DataFrame.from_dict(var_dict_acs5)
+df_vars_17['FIPS']=df_vars_17['state']+df_vars_17['county']+df_vars_17['tract']
+df_vars_17 = filter_FIPS(df_vars_17)
 
 # #### Renames variables
 
-df_vars_18 = df_vars_18.rename(columns = {'B03002_001E':'pop_18',
-                                          'B03002_003E':'white_18',
-                                          'B19001_001E':'hh_18',
-                                          'B19013_001E':'hinc_18',
-                                          'B25077_001E':'mhval_18',
-                                          'B25077_001M':'mhval_18_se',
-                                          'B25064_001E':'mrent_18',
-                                          'B25064_001M':'mrent_18_se',
-                                          'B25003_002E':'ohu_18',
-                                          'B25003_003E':'rhu_18',
-                                          'B25105_001E':'mmhcosts_18',
-                                          'B15003_001E':'total_25_18',
-                                          'B15003_022E':'total_25_col_bd_18',
-                                          'B15003_023E':'total_25_col_md_18',
-                                          'B15003_024E':'total_25_col_pd_18',
-                                          'B15003_025E':'total_25_col_phd_18',
-                                          'B25034_001E':'tot_units_built_18',
-                                          'B25034_010E':'units_40_49_built_18',
-                                          'B25034_011E':'units_39_early_built_18',
-                                          'B07010_025E':'mov_wc_w_income_18',
-                                          'B07010_026E':'mov_wc_9000_18',
-                                          'B07010_027E':'mov_wc_15000_18',
-                                          'B07010_028E':'mov_wc_25000_18',
-                                          'B07010_029E':'mov_wc_35000_18',
-                                          'B07010_030E':'mov_wc_50000_18',
-                                          'B07010_031E':'mov_wc_65000_18',
-                                          'B07010_032E':'mov_wc_75000_18',
-                                          'B07010_033E':'mov_wc_76000_more_18',
-                                          'B07010_036E':'mov_oc_w_income_18',
-                                          'B07010_037E':'mov_oc_9000_18',
-                                          'B07010_038E':'mov_oc_15000_18',
-                                          'B07010_039E':'mov_oc_25000_18',
-                                          'B07010_040E':'mov_oc_35000_18',
-                                          'B07010_041E':'mov_oc_50000_18',
-                                          'B07010_042E':'mov_oc_65000_18',
-                                          'B07010_043E':'mov_oc_75000_18',
-                                          'B07010_044E':'mov_oc_76000_more_18',
-                                          'B07010_047E':'mov_os_w_income_18',
-                                          'B07010_048E':'mov_os_9000_18',
-                                          'B07010_049E':'mov_os_15000_18',
-                                          'B07010_050E':'mov_os_25000_18',
-                                          'B07010_051E':'mov_os_35000_18',
-                                          'B07010_052E':'mov_os_50000_18',
-                                          'B07010_053E':'mov_os_65000_18',
-                                          'B07010_054E':'mov_os_75000_18',
-                                          'B07010_055E':'mov_os_76000_more_18',
-                                          'B07010_058E':'mov_fa_w_income_18',
-                                          'B07010_059E':'mov_fa_9000_18',
-                                          'B07010_060E':'mov_fa_15000_18',
-                                          'B07010_061E':'mov_fa_25000_18',
-                                          'B07010_062E':'mov_fa_35000_18',
-                                          'B07010_063E':'mov_fa_50000_18',
-                                          'B07010_064E':'mov_fa_65000_18',
-                                          'B07010_065E':'mov_fa_75000_18',
-                                          'B07010_066E':'mov_fa_76000_more_18',
-                                          'B06011_001E':'iinc_18',
-                                          'B19001_002E':'I_10000_18',
-                                          'B19001_003E':'I_15000_18',
-                                          'B19001_004E':'I_20000_18',
-                                          'B19001_005E':'I_25000_18',
-                                          'B19001_006E':'I_30000_18',
-                                          'B19001_007E':'I_35000_18',
-                                          'B19001_008E':'I_40000_18',
-                                          'B19001_009E':'I_45000_18',
-                                          'B19001_010E':'I_50000_18',
-                                          'B19001_011E':'I_60000_18',
-                                          'B19001_012E':'I_75000_18',
-                                          'B19001_013E':'I_100000_18',
-                                          'B19001_014E':'I_125000_18',
-                                          'B19001_015E':'I_150000_18',
-                                          'B19001_016E':'I_200000_18',
-                                          'B19001_017E':'I_201000_18'})
+df_vars_17 = df_vars_17.rename(columns = {'B03002_001E':'pop_17',
+                                          'B03002_003E':'white_17',
+                                          'B19001_001E':'hh_17',
+                                          'B19013_001E':'hinc_17',
+                                          'B25077_001E':'mhval_17',
+                                          'B25077_001M':'mhval_17_se',
+                                          'B25064_001E':'mrent_17',
+                                          'B25064_001M':'mrent_17_se',
+                                          'B25003_002E':'ohu_17',
+                                          'B25003_003E':'rhu_17',
+                                          'B25105_001E':'mmhcosts_17',
+                                          'B15003_001E':'total_25_17',
+                                          'B15003_022E':'total_25_col_bd_17',
+                                          'B15003_023E':'total_25_col_md_17',
+                                          'B15003_024E':'total_25_col_pd_17',
+                                          'B15003_025E':'total_25_col_phd_17',
+                                          'B25034_001E':'tot_units_built_17',
+                                          'B25034_010E':'units_40_49_built_17',
+                                          'B25034_011E':'units_39_early_built_17',
+                                          'B07010_025E':'mov_wc_w_income_17',
+                                          'B07010_026E':'mov_wc_9000_17',
+                                          'B07010_027E':'mov_wc_15000_17',
+                                          'B07010_028E':'mov_wc_25000_17',
+                                          'B07010_029E':'mov_wc_35000_17',
+                                          'B07010_030E':'mov_wc_50000_17',
+                                          'B07010_031E':'mov_wc_65000_17',
+                                          'B07010_032E':'mov_wc_75000_17',
+                                          'B07010_033E':'mov_wc_76000_more_17',
+                                          'B07010_036E':'mov_oc_w_income_17',
+                                          'B07010_037E':'mov_oc_9000_17',
+                                          'B07010_038E':'mov_oc_15000_17',
+                                          'B07010_039E':'mov_oc_25000_17',
+                                          'B07010_040E':'mov_oc_35000_17',
+                                          'B07010_041E':'mov_oc_50000_17',
+                                          'B07010_042E':'mov_oc_65000_17',
+                                          'B07010_043E':'mov_oc_75000_17',
+                                          'B07010_044E':'mov_oc_76000_more_17',
+                                          'B07010_047E':'mov_os_w_income_17',
+                                          'B07010_048E':'mov_os_9000_17',
+                                          'B07010_049E':'mov_os_15000_17',
+                                          'B07010_050E':'mov_os_25000_17',
+                                          'B07010_051E':'mov_os_35000_17',
+                                          'B07010_052E':'mov_os_50000_17',
+                                          'B07010_053E':'mov_os_65000_17',
+                                          'B07010_054E':'mov_os_75000_17',
+                                          'B07010_055E':'mov_os_76000_more_17',
+                                          'B07010_058E':'mov_fa_w_income_17',
+                                          'B07010_059E':'mov_fa_9000_17',
+                                          'B07010_060E':'mov_fa_15000_17',
+                                          'B07010_061E':'mov_fa_25000_17',
+                                          'B07010_062E':'mov_fa_35000_17',
+                                          'B07010_063E':'mov_fa_50000_17',
+                                          'B07010_064E':'mov_fa_65000_17',
+                                          'B07010_065E':'mov_fa_75000_17',
+                                          'B07010_066E':'mov_fa_76000_more_17',
+                                          'B06011_001E':'iinc_17',
+                                          'B19001_002E':'I_10000_17',
+                                          'B19001_003E':'I_15000_17',
+                                          'B19001_004E':'I_20000_17',
+                                          'B19001_005E':'I_25000_17',
+                                          'B19001_006E':'I_30000_17',
+                                          'B19001_007E':'I_35000_17',
+                                          'B19001_008E':'I_40000_17',
+                                          'B19001_009E':'I_45000_17',
+                                          'B19001_010E':'I_50000_17',
+                                          'B19001_011E':'I_60000_17',
+                                          'B19001_012E':'I_75000_17',
+                                          'B19001_013E':'I_100000_17',
+                                          'B19001_014E':'I_125000_17',
+                                          'B19001_015E':'I_150000_17',
+                                          'B19001_016E':'I_200000_17',
+                                          'B19001_017E':'I_201000_17'})
 
 # ### Download ACS 2012 5-Year Estimates
 
@@ -277,9 +265,8 @@ df_vars_12=['B25077_001E',
 
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-# same for Boston
 
-if (city_name not in ('Memphis','Boston')):
+if city_name != 'Memphis':
     var_dict_acs5 = c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2012)
 else:
@@ -443,12 +430,11 @@ var_sf3 = var_sf3 + var_list
 
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-# same for Boston
 
 
 
 # SF1
-if (city_name not in ('Memphis', 'Boston')):
+if city_name != 'Memphis':
     var_dict_sf1 = c.sf1.get(var_sf1, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2000)
 else:
@@ -459,7 +445,7 @@ else:
     var_dict_sf1 = var_dict_1+var_dict_2
     
 # SF3
-if (city_name not in ('Memphis', 'Boston')):
+if city_name != 'Memphis':
     var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2000)
 else:
@@ -545,11 +531,10 @@ var_sf3 = var_sf3 + var_list
 
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-# Same for Boston
 
 # SF1 - All of the variables are found in the SF3
 # SF3
-if (city_name not in ('Memphis', 'Boston')):
+if city_name != 'Memphis':
     var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=1990)
 else:
@@ -618,18 +603,18 @@ df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
 
 
 
-# Merge 2010 & 2018 files - same geometry
-# df_vars_summ = df_vars_18.merge(df_vars_10, on = 'FIPS').merge(df_vars_12, on ='FIPS')
-df_vars_summ = df_vars_18.merge(df_vars_12, on ='FIPS')
+# Merge 2010 & 2017 files - same geometry
+# df_vars_summ = df_vars_17.merge(df_vars_10, on = 'FIPS').merge(df_vars_12, on ='FIPS')
+df_vars_summ = df_vars_17.merge(df_vars_12, on ='FIPS')
 
-
+from pathlib import Path
 
 home = str(Path.home())
 
 #Export files to CSV
-df_vars_summ.to_csv('~/git/sparcc/data/'+city_name+'census_summ.csv')
-df_vars_90.to_csv('~/git/sparcc/data/'+city_name+'census_90.csv')
-df_vars_00.to_csv('~/git/sparcc/data/'+city_name+'census_00.csv')
+df_vars_summ.to_csv(home+'/git/sparcc/data/'+city_name+'census_summ.csv')
+df_vars_90.to_csv(home+'/git/sparcc/data/'+city_name+'census_90.csv')
+df_vars_00.to_csv(home+'/git/sparcc/data/'+city_name+'census_00.csv')
 
 
 # ==========================================================================
@@ -647,8 +632,8 @@ df_vars_00.to_csv('~/git/sparcc/data/'+city_name+'census_00.csv')
 # Data files
 
 # Google File Drive Stream pathway for a mac. 
-input_path = '~/git/sparcc/data/inputs/'
-output_path = '~/git/sparcc/data/'
+input_path = home+'/git/sparcc/data/inputs/'
+output_path = home+'/git/sparcc/data/'
 
 census_90 = pd.read_csv(output_path+city_name+'census_90.csv', index_col = 0)
 census_00 = pd.read_csv(output_path+city_name+'census_00.csv', index_col = 0)
@@ -679,26 +664,14 @@ elif city_name == 'Memphis':
 elif city_name == 'Los Angeles':
     state = '06'
     FIPS = ['037', '059', '073']
-elif city_name == 'San Francisco':
-    state = '06'
-    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']
-elif city_name == 'Seattle':
-    state = '53'
-    FIPS = ['033', '053', '061']
-elif city_name == 'Cleveland':
-    state = '39'
-    FIPS = ['035', '055', '085', '093', '103']
-elif city_name == 'Boston':
-      state = ['25', '33']
-      FIPS = {'25': ['009', '017', '021', '023', '025'], '33': ['015', '017']}
 else:
     print ('There is no information for the selected city')
 
 # ### Creates filter function
-# Note - Memphis is different bc it's located in 2 states; same for Boston
+# Note - Memphis is different bc it's located in 2 states
 
 def filter_FIPS(df):
-    if (city_name not in ('Memphis', 'Boston')):
+    if city_name != 'Memphis':
         df = df[df['county'].isin(FIPS)].reset_index(drop = True)
     else:
         fips_list = []
@@ -712,18 +685,24 @@ def filter_FIPS(df):
 # ### Creates crosswalking function
 
 def crosswalk_files (df, xwalk, counts, medians, df_fips_base, xwalk_fips_base, xwalk_fips_horizon):
-    df_merge = df.merge(xwalk[['weight', xwalk_fips_base, xwalk_fips_horizon]], left_on = df_fips_base, right_on = xwalk_fips_base, how='left') # merge dataframe with xwalk file
+    # merge dataframe with xwalk file
+    df_merge = df.merge(xwalk[['weight', xwalk_fips_base, xwalk_fips_horizon]], left_on = df_fips_base, right_on = xwalk_fips_base, how='left')                             
     df = df_merge
-    new_var_list = list(counts)+(medians)     # apply interpolation weight
+    # apply interpolation weight
+    new_var_list = list(counts)+(medians)
     for var in new_var_list:
         df[var] = df[var]*df['weight']
-    df = df.groupby(xwalk_fips_horizon).sum().reset_index() # aggregate by horizon census tracts fips
+    # aggregate by horizon census tracts fips
+    df = df.groupby(xwalk_fips_horizon).sum().reset_index()
+    # rename trtid10 to FIPS & FIPS to trtid_base
     df = df.rename(columns = {'FIPS':'trtid_base',
-                              'trtid10':'FIPS'})      # rename trtid10 to FIPS & FIPS to trtid_base
-    df ['state'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[0:2]     # fix state, county and fips code
+                              'trtid10':'FIPS'})  
+    # fix state, county and fips code
+    df ['state'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[0:2]
     df ['county'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[2:5]
-    df ['tract'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[5:] 
-    df = df.drop(columns = ['weight'])     # drop weight column
+    df ['tract'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[5:]
+    # drop weight column
+    df = df.drop(columns = ['weight'])
     return df
 
 ### Crosswalking
@@ -741,6 +720,8 @@ census_90_xwalked = crosswalk_files (census_90, xwalk_90_10,  counts, medians, d
 
 
 # ###### 2000 Census Data
+
+
 
 counts = census_00.columns.drop(['county', 'state', 'tract', 'mrent_00', 'mhval_00', 'hinc_00', 'FIPS'])
 medians = ['mrent_00', 'mhval_00', 'hinc_00']
@@ -760,8 +741,8 @@ census_00_filtered = filter_FIPS(census_00_xwalked)
 
 
 
-census_90_filtered.to_csv('~/git/sparcc/data/'+city_name+'census_90_10.csv')
-census_00_filtered.to_csv('~/git/sparcc/data/'+city_name+'census_00_10.csv')
+census_90_filtered.to_csv(home+'/git/sparcc/data/'+city_name+'census_90_10.csv')
+census_00_filtered.to_csv(home+'/git/sparcc/data/'+city_name+'census_00_10.csv')
 
 
 # ==========================================================================
@@ -772,9 +753,14 @@ census_00_filtered.to_csv('~/git/sparcc/data/'+city_name+'census_00_10.csv')
 # ==========================================================================
 # ==========================================================================
 
+import geopandas as gpd
+from shapely.geometry import Point
+from pyproj import Proj
+import matplotlib.pyplot as plt
+
 # Below is the Google File Drive Stream pathway for a mac. 
-# input_path = '~/git/sparcc/data/inputs/'
-# output_path = '~/git/sparcc/data/'
+# input_path = home+'/git/sparcc/data/inputs/'
+# output_path = home+'/git/sparcc/data/'
 shp_folder = input_path+'shp/'+city_name+'/'
 data_1990 = pd.read_csv(output_path+city_name+'census_90_10.csv', index_col = 0) 
 data_2000 = pd.read_csv(output_path+city_name+'census_00_10.csv', index_col = 0)
@@ -820,93 +806,62 @@ pub_hous = pd.read_csv(input_path+'Public_Housing_Buildings.csv.gz')
 ### SHP data
 #add elif for your city here
 #Pull cartographic boundary files from here: 
-#https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.2018.html
+#https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.2017.html
 if city_name == 'Memphis':
-    shp_name = 'cb_2018_47_tract_500k.shp'
+    shp_name = 'cb_2017_47_tract_500k.shp'
 elif city_name == 'Chicago':
-    shp_name = 'cb_2018_17_tract_500k.shp'
+    shp_name = 'cb_2017_17_tract_500k.shp'
 elif city_name == 'Atlanta':
-    shp_name = 'cb_2018_13_tract_500k.shp'
+    shp_name = 'cb_2017_13_tract_500k.shp'
 elif city_name == 'Denver':
-    shp_name = 'cb_2018_08_tract_500k.shp'
+    shp_name = 'cb_2017_08_tract_500k.shp'
 elif city_name == 'Los Angeles':
-    shp_name = 'cb_2018_06_tract_500k.shp'
-elif city_name == 'San Francisco':
-    shp_name = 'cb_2018_06_tract_500k.shp'
-elif city_name == 'Seattle':
-    shp_name = 'cb_2018_53_tract_500k.shp'
-elif city_name == 'Cleveland':
-    shp_name = 'cb_2018_39_tract_500k.shp'
-elif city_name == 'Boston':
-    shp_name = 'cb_2018_25_tract_500k.shp'
+    shp_name = 'cb_2017_06_tract_500k.shp'
 
 city_shp = gpd.read_file(shp_folder+shp_name)
 
 
 # ### Choose city and define city specific variables
 # Add elif for your city here
-# 2020.07.20 change: make rail agencies a list for calls later in the code
 
 
 if city_name == 'Chicago':
     state = '17'
     state_init = ['IL']
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
-    rail_agency = ['CTA']
+    rail_agency = 'CTA'
     zone = '16T'  
 elif city_name == 'Atlanta':
     state = '13'
     state_init = ['GA']
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
-    rail_agency = ['MARTA']
+    rail_agency = 'MARTA'
     zone = '16S' 
 elif city_name == 'Denver':
     state = '08'
     state_init = ['CO']
     FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']
-    rail_agency = ['RTD']
+    rail_agency = 'RTD'
     zone = '13S'
 elif city_name == 'Memphis':
     state = ['28', '47']
     state_init = ['MS', 'TN']
     FIPS = {'28':['033', '093'], '47': ['047', '157']}
-    rail_agency = [np.nan]
+    rail_agency = np.nan
     zone = '15S'
 elif city_name == 'Los Angeles':
     state = '06'
     state_init = ['CA']
     FIPS = ['037', '059', '073']
-    rail_agency = ['Metro', 'MTS', 'Metrolink']
+    rail_agency = 'Metro'
     zone = '11S'
-elif city_name == 'San Francisco':
-    state = '06'
-    state_init = ['CA']
-    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']
-    rail_agency = ['ACE ', 'ACE , Capitol Corridor Joint Powers Authority', 'BART', 'Caltrain', 'Capitol Corridor Joint Powers Authority', 'RT', 'San Francisco Municipal Transportation Agency', 'VTA', 'Alameda/Oakland Ferry', 'Blue & Gold Fleet', 'Golden Gate Ferry', 'Harbor Bay Ferry', 'Baylink']
-    zone = '10S'
-elif city_name == 'Seattle':
-    state = '53'
-    state_init = ['WA']
-    FIPS = ['033', '053', '061']
-    rail_agency = ['City of Seattle', 'Sound Transit', 'Washington State Ferries', 'King County Marine Division']
-    zone = '10T'
-elif city_name == 'Cleveland':
-    state = '39'
-    state_init = ['OH']
-    FIPS = ['035', '055', '085', '093', '103']
-    rail_agency = ['GCRTA']
-    zone = '17T'
-elif city_name == 'Boston':
-    state = ['25', '33']
-    state_init = ['MA', 'NH']
-    FIPS = {'25': ['009', '017', '021', '023', '025'], '33': ['015', '017']}
-    rail_agency = ['MBTA', 'Amtrak', 'Salem Ferry', 'Boston Harbor Islands Ferries']
-    zone = '19T'
 else:
     print ('There is no information for the selected city')
 
 
 # ### Merge census data in single file
+
+
 
 census = acs_data.merge(data_2000, on = 'FIPS', how = 'outer').merge(data_1990, on = 'FIPS', how = 'outer')
 
@@ -917,20 +872,20 @@ census = acs_data.merge(data_2000, on = 'FIPS', how = 'outer').merge(data_1990, 
 
 
 
-### This is based on the yearly CPI average - see https://www.bls.gov/data/inflation_calculator.htm for updates. 
-CPI_89_18 = 2.04
-CPI_99_18 = 1.51
-CPI_12_18 = 1.09
+### This is based on the yearly CPI average
+CPI_89_17 = 1.977
+CPI_99_17 = 1.472
+CPI_12_17 = 1.02
 
 ### This is used for the Zillow data, where january values are compared
-CPI_0115_0119 = 1.06
+CPI_0115_0119 = 1.077
 
 
 # #### Income
 
 
 
-census['hinc_18'][census['hinc_18']<0]=np.nan
+census['hinc_17'][census['hinc_17']<0]=np.nan
 census['hinc_00'][census['hinc_00']<0]=np.nan
 census['hinc_90'][census['hinc_90']<0]=np.nan
 
@@ -938,13 +893,13 @@ census['hinc_90'][census['hinc_90']<0]=np.nan
 
 
 ### These are not indexed
-rm_hinc_18 = np.nanmedian(census['hinc_18'])
+rm_hinc_17 = np.nanmedian(census['hinc_17'])
 rm_hinc_00 = np.nanmedian(census['hinc_00'])
 rm_hinc_90 = np.nanmedian(census['hinc_90'])
-rm_iinc_18 = np.nanmedian(census['iinc_18'])
+rm_iinc_17 = np.nanmedian(census['iinc_17'])
 rm_iinc_12 = np.nanmedian(census['iinc_12'])
 
-print(rm_hinc_18, rm_hinc_00, rm_hinc_90, rm_iinc_18, rm_iinc_12)
+print(rm_hinc_17, rm_hinc_00, rm_hinc_90, rm_iinc_17, rm_iinc_12)
 
 
 
@@ -986,10 +941,11 @@ def income_interpolation (census, year, cutoff, mhinc, tot_var, var_suffix, out)
     census = census.merge (df[['FIPS', income]], on = 'FIPS')
     return census
 
-census = income_interpolation (census, '18', 0.8, rm_hinc_18, 'hh_18', 'I', 'inc')
-census = income_interpolation (census, '18', 1.2, rm_hinc_18, 'hh_18', 'I', 'inc')
+
+census = income_interpolation (census, '17', 0.8, rm_hinc_17, 'hh_17', 'I', 'inc')
+census =income_interpolation (census, '17', 1.2, rm_hinc_17, 'hh_17', 'I', 'inc')
 census = income_interpolation (census, '00', 0.8, rm_hinc_00, 'hh_00', 'I', 'inc')
-census = income_interpolation (census, '00', 1.2, rm_hinc_00, 'hh_00', 'I', 'inc')
+census =income_interpolation (census, '00', 1.2, rm_hinc_00, 'hh_00', 'I', 'inc')
 census = income_interpolation (census, '90', 0.8, rm_hinc_90, 'hh_00', 'I', 'inc')
 
 income_col = census.columns[census.columns.str[0:2]=='I_'] 
@@ -1055,7 +1011,7 @@ def income_categories (df, year, mhinc, hinc):
     df.loc[df['hinc_'+year]==0, 'inc_cat_medhhinc_'+year] = np.nan
     return census
 
-census = income_categories(census, '18', rm_hinc_18, 'hinc_18')
+census = income_categories(census, '17', rm_hinc_17, 'hinc_17')
 census = income_categories(census, '00', rm_hinc_00, 'hinc_00')
 
 
@@ -1063,20 +1019,24 @@ census = income_categories(census, '00', rm_hinc_00, 'hinc_00')
 
 census.groupby('inc_cat_medhhinc_00').count()['FIPS']
 
-census.groupby('inc_cat_medhhinc_18').count()['FIPS']
+census.groupby('inc_cat_medhhinc_17').count()['FIPS']
 
 ### Percentage & total low-income households - under 80% AMI
 census ['per_all_li_90'] = census['inc80_90']
 census ['per_all_li_00'] = census['inc80_00']
-census ['per_all_li_18'] = census['inc80_18']
+census ['per_all_li_17'] = census['inc80_17']
 
 census['all_li_count_90'] = census['per_all_li_90']*census['hh_90']
 census['all_li_count_00'] = census['per_all_li_00']*census['hh_00']
-census['all_li_count_18'] = census['per_all_li_18']*census['hh_18']
+census['all_li_count_17'] = census['per_all_li_17']*census['hh_17']
+
+
+
 
 len(census)
 
-# #### Index all values to 2018
+
+# #### Index all values to 2017
 
 # ==========================================================================
 # change: 
@@ -1084,21 +1044,21 @@ len(census)
 # start change
 # ==========================================================================
 
-census['real_mhval_90'] = census['mhval_90']*CPI_89_18
-census['real_mrent_90'] = census['mrent_90']*CPI_89_18
-census['real_hinc_90'] = census['hinc_90']*CPI_89_18
+census['real_mhval_90'] = census['mhval_90']*CPI_89_17
+census['real_mrent_90'] = census['mrent_90']*CPI_89_17
+census['real_hinc_90'] = census['hinc_90']*CPI_89_17
 
-census['real_mhval_00'] = census['mhval_00']*CPI_99_18
-census['real_mrent_00'] = census['mrent_00']*CPI_99_18
-census['real_hinc_00'] = census['hinc_00']*CPI_99_18
+census['real_mhval_00'] = census['mhval_00']*CPI_99_17
+census['real_mrent_00'] = census['mrent_00']*CPI_99_17
+census['real_hinc_00'] = census['hinc_00']*CPI_99_17
 
-census['real_mhval_12'] = census['mhval_12']*CPI_12_18
-census['real_mrent_12'] = census['mrent_12']*CPI_12_18
-# census['real_hinc_12'] = census['hinc_12']*CPI_12_18 # this isn't calculated yet (2020.03.29)
+census['real_mhval_12'] = census['mhval_12']*CPI_12_17
+census['real_mrent_12'] = census['mrent_12']*CPI_12_17
+# census['real_hinc_12'] = census['hinc_12']*CPI_12_17 # this isn't calculated yet (2020.03.29)
 
-census['real_mhval_18'] = census['mhval_18']
-census['real_mrent_18'] = census['mrent_18']
-census['real_hinc_18'] = census['hinc_18']
+census['real_mhval_17'] = census['mhval_17']
+census['real_mrent_17'] = census['mrent_17']
+census['real_hinc_17'] = census['hinc_17']
 
 # end change
 # ==========================================================================
@@ -1114,7 +1074,7 @@ df = census
 ### % of non-white
 
 ###
-df['per_nonwhite_18'] = 1 - df['white_18']/df['pop_18']
+df['per_nonwhite_17'] = 1 - df['white_17']/df['pop_17']
 
 ### 1990
 df['per_nonwhite_90'] = 1 - df['white_90']/df['pop_90']
@@ -1131,9 +1091,9 @@ df['per_rent_90'] = df['rhu_90']/df['hu_90']
 ### 2000
 df['per_rent_00'] = df['rhu_00']/df['hu_00']
 
-### 2018
-df['hu_18'] = df['ohu_18']+df['rhu_18']
-df['per_rent_18'] = df['rhu_18']/df['hu_18']
+### 2017
+df['hu_17'] = df['ohu_17']+df['rhu_17']
+df['per_rent_17'] = df['rhu_17']/df['hu_17']
 
 
 ### % of college educated
@@ -1161,14 +1121,14 @@ df['female_25_col_00'] = (df['female_25_col_bd_00']+
 df['total_25_col_00'] = df['male_25_col_00']+df['female_25_col_00']
 df['per_col_00'] = df['total_25_col_00']/df['total_25_00']
 
-### 2018
-df['per_col_18'] = (df['total_25_col_bd_18']+
-                    df['total_25_col_md_18']+
-                    df['total_25_col_pd_18']+
-                    df['total_25_col_phd_18'])/df['total_25_18']
+### 2017
+df['per_col_17'] = (df['total_25_col_bd_17']+
+                    df['total_25_col_md_17']+
+                    df['total_25_col_pd_17']+
+                    df['total_25_col_phd_17'])/df['total_25_17']
 
 ### Housing units built
-df['per_units_pre50_18'] = (df['units_40_49_built_18']+df['units_39_early_built_18'])/df['tot_units_built_18']
+df['per_units_pre50_17'] = (df['units_40_49_built_17']+df['units_39_early_built_17'])/df['tot_units_built_17']
 
 
 # #### Percent of people who have moved who are low-income
@@ -1226,15 +1186,15 @@ def income_interpolation_movein (census, year, cutoff, rm_iinc):
     census = census.merge (df[['FIPS'] + col_list], on = 'FIPS')
     return census
 
-census = income_interpolation_movein (census, '18', 0.8, rm_iinc_18)
+census = income_interpolation_movein (census, '17', 0.8, rm_iinc_17)
 census = income_interpolation_movein (census, '12', 0.8, rm_iinc_12)
 
 len(census)
 
-# #### Housing Affordability: note exceptions for Memphis & Boston that have 2 states
+# #### Housing Affordability
 
 def filter_PUMS(df, FIPS):
-    if (city_name not in ('Memphis', 'Boston')):
+    if city_name != 'Memphis':
         FIPS = [int(x) for x in FIPS]
         df = df[(df['STATEA'] == int(state))&(df['COUNTYA'].isin(FIPS))].reset_index(drop = True)
     else:
@@ -1252,114 +1212,116 @@ pums['FIPS'] = ((pums['STATEA'].astype(str).str.zfill(2))+
                 (pums['COUNTYA'].astype(str).str.zfill(3))+
                 (pums['TRACTA'].astype(str).str.zfill(6)))
 
-pums = pums.rename(columns = {"AH5QE002":"rhu_18_wcash",
-                                "AH5QE003":"R_100_18",
-                                "AH5QE004":"R_150_18",
-                                "AH5QE005":"R_200_18",
-                                "AH5QE006":"R_250_18",
-                                "AH5QE007":"R_300_18",
-                                "AH5QE008":"R_350_18",
-                                "AH5QE009":"R_400_18",
-                                "AH5QE010":"R_450_18",
-                                "AH5QE011":"R_500_18",
-                                "AH5QE012":"R_550_18",
-                                "AH5QE013":"R_600_18",
-                                "AH5QE014":"R_650_18",
-                                "AH5QE015":"R_700_18",
-                                "AH5QE016":"R_750_18",
-                                "AH5QE017":"R_800_18",
-                                "AH5QE018":"R_900_18",
-                                "AH5QE019":"R_1000_18",
-                                "AH5QE020":"R_1250_18",
-                                "AH5QE021":"R_1500_18",
-                                "AH5QE022":"R_2000_18",
-                                "AH5QE023":"R_2500_18",
-                                "AH5QE024":"R_3000_18",
-                                "AH5QE025":"R_3500_18",
-                                "AH5QE026":"R_3600_18",
-                                "AH5QE027":"rhu_18_wocash",
-                                "AIMUE001":"ohu_tot_18",
-                                "AIMUE002":"O_200_18",
-                                "AIMUE003":"O_300_18",
-                                "AIMUE004":"O_400_18",
-                                "AIMUE005":"O_500_18",
-                                "AIMUE006":"O_600_18",
-                                "AIMUE007":"O_700_18",
-                                "AIMUE008":"O_800_18",
-                                "AIMUE009":"O_900_18",
-                                "AIMUE010":"O_1000_18",
-                                "AIMUE011":"O_1250_18",
-                                "AIMUE012":"O_1500_18",
-                                "AIMUE013":"O_2000_18",
-                                "AIMUE014":"O_2500_18",
-                                "AIMUE015":"O_3000_18",
-                                "AIMUE016":"O_3500_18",
-                                "AIMUE017":"O_4000_18",
-                                "AIMUE018":"O_4100_18"})
+pums = pums.rename(columns = {"AH5QE002":"rhu_17_wcash",
+                                "AH5QE003":"R_100_17",
+                                "AH5QE004":"R_150_17",
+                                "AH5QE005":"R_200_17",
+                                "AH5QE006":"R_250_17",
+                                "AH5QE007":"R_300_17",
+                                "AH5QE008":"R_350_17",
+                                "AH5QE009":"R_400_17",
+                                "AH5QE010":"R_450_17",
+                                "AH5QE011":"R_500_17",
+                                "AH5QE012":"R_550_17",
+                                "AH5QE013":"R_600_17",
+                                "AH5QE014":"R_650_17",
+                                "AH5QE015":"R_700_17",
+                                "AH5QE016":"R_750_17",
+                                "AH5QE017":"R_800_17",
+                                "AH5QE018":"R_900_17",
+                                "AH5QE019":"R_1000_17",
+                                "AH5QE020":"R_1250_17",
+                                "AH5QE021":"R_1500_17",
+                                "AH5QE022":"R_2000_17",
+                                "AH5QE023":"R_2500_17",
+                                "AH5QE024":"R_3000_17",
+                                "AH5QE025":"R_3500_17",
+                                "AH5QE026":"R_3600_17",
+                                "AH5QE027":"rhu_17_wocash",
+                                "AIMUE001":"ohu_tot_17",
+                                "AIMUE002":"O_200_17",
+                                "AIMUE003":"O_300_17",
+                                "AIMUE004":"O_400_17",
+                                "AIMUE005":"O_500_17",
+                                "AIMUE006":"O_600_17",
+                                "AIMUE007":"O_700_17",
+                                "AIMUE008":"O_800_17",
+                                "AIMUE009":"O_900_17",
+                                "AIMUE010":"O_1000_17",
+                                "AIMUE011":"O_1250_17",
+                                "AIMUE012":"O_1500_17",
+                                "AIMUE013":"O_2000_17",
+                                "AIMUE014":"O_2500_17",
+                                "AIMUE015":"O_3000_17",
+                                "AIMUE016":"O_3500_17",
+                                "AIMUE017":"O_4000_17",
+                                "AIMUE018":"O_4100_17"})
 
-aff_18 = rm_hinc_18*0.3/12
-pums = income_interpolation (pums, '18', 0.6, aff_18, 'rhu_18_wcash', 'R', 'rent')
-pums = income_interpolation (pums, '18', 1.2, aff_18, 'rhu_18_wcash', 'R', 'rent')
+aff_17 = rm_hinc_17*0.3/12
+pums = income_interpolation (pums, '17', 0.6, aff_17, 'rhu_17_wcash', 'R', 'rent')
+pums = income_interpolation (pums, '17', 1.2, aff_17, 'rhu_17_wcash', 'R', 'rent')
 
-pums = income_interpolation (pums, '18', 0.6, aff_18, 'ohu_tot_18', 'O', 'own')
-pums = income_interpolation (pums, '18', 1.2, aff_18, 'ohu_tot_18', 'O', 'own')
+pums = income_interpolation (pums, '17', 0.6, aff_17, 'ohu_tot_17', 'O', 'own')
+pums = income_interpolation (pums, '17', 1.2, aff_17, 'ohu_tot_17', 'O', 'own')
+
+
 
 
 pums['FIPS'] = pums['FIPS'].astype(float).astype('int64')
-pums = pums.merge(census[['FIPS', 'mmhcosts_18']], on = 'FIPS')
+pums = pums.merge(census[['FIPS', 'mmhcosts_17']], on = 'FIPS')
 
-pums['rlow_18'] = pums['rent60_18']*pums['rhu_18_wcash']+pums['rhu_18_wocash'] ### includes no cash rent
-pums['rmod_18'] = pums['rent120_18']*pums['rhu_18_wcash']-pums['rent60_18']*pums['rhu_18_wcash']
-pums['rhigh_18'] = pums['rhu_18_wcash']-pums['rent120_18']*pums['rhu_18_wcash']
+pums['rlow_17'] = pums['rent60_17']*pums['rhu_17_wcash']+pums['rhu_17_wocash'] ### includes no cash rent
+pums['rmod_17'] = pums['rent120_17']*pums['rhu_17_wcash']-pums['rent60_17']*pums['rhu_17_wcash']
+pums['rhigh_17'] = pums['rhu_17_wcash']-pums['rent120_17']*pums['rhu_17_wcash']
 
-pums['olow_18'] = pums['own60_18']*pums['ohu_tot_18']
-pums['omod_18'] = pums['own120_18']*pums['ohu_tot_18'] - pums['own60_18']*pums['ohu_tot_18']
-pums['ohigh_18'] = pums['ohu_tot_18'] - pums['own120_18']*pums['ohu_tot_18']
+pums['olow_17'] = pums['own60_17']*pums['ohu_tot_17']
+pums['omod_17'] = pums['own120_17']*pums['ohu_tot_17'] - pums['own60_17']*pums['ohu_tot_17']
+pums['ohigh_17'] = pums['ohu_tot_17'] - pums['own120_17']*pums['ohu_tot_17']
 
-pums['hu_tot_18'] = pums['rhu_18_wcash']+pums['rhu_18_wocash']+pums['ohu_tot_18']
+pums['hu_tot_17'] = pums['rhu_17_wcash']+pums['rhu_17_wocash']+pums['ohu_tot_17']
 
-pums['low_tot_18'] = pums['rlow_18']+pums['olow_18']
-pums['mod_tot_18'] = pums['rmod_18']+pums['omod_18']
-pums['high_tot_18'] = pums['rhigh_18']+pums['ohigh_18']
+pums['low_tot_17'] = pums['rlow_17']+pums['olow_17']
+pums['mod_tot_17'] = pums['rmod_17']+pums['omod_17']
+pums['high_tot_17'] = pums['rhigh_17']+pums['ohigh_17']
 
-pums['pct_low_18'] = pums['low_tot_18']/pums['hu_tot_18']
-pums['pct_mod_18'] = pums['mod_tot_18']/pums['hu_tot_18']
-pums['pct_high_18'] = pums['high_tot_18']/pums['hu_tot_18']
+pums['pct_low_17'] = pums['low_tot_17']/pums['hu_tot_17']
+pums['pct_mod_17'] = pums['mod_tot_17']/pums['hu_tot_17']
+pums['pct_high_17'] = pums['high_tot_17']/pums['hu_tot_17']
 
 
 ### Low income
-pums['predominantly_LI'] = np.where((pums['pct_low_18']>=0.55)&
-                                       (pums['pct_mod_18']<0.45)&
-                                       (pums['pct_high_18']<0.45),1,0)
+pums['predominantly_LI'] = np.where((pums['pct_low_17']>=0.55)&
+                                       (pums['pct_mod_17']<0.45)&
+                                       (pums['pct_high_17']<0.45),1,0)
 
 ## High income
-pums['predominantly_HI'] = np.where((pums['pct_low_18']<0.45)&
-                                       (pums['pct_mod_18']<0.45)&
-                                       (pums['pct_high_18']>=0.55),1,0)
+pums['predominantly_HI'] = np.where((pums['pct_low_17']<0.45)&
+                                       (pums['pct_mod_17']<0.45)&
+                                       (pums['pct_high_17']>=0.55),1,0)
 
 ### Moderate income
-pums['predominantly_MI'] = np.where((pums['pct_low_18']<0.45)&
-                                       (pums['pct_mod_18']>=0.55)&
-                                       (pums['pct_high_18']<0.45),1,0)
+pums['predominantly_MI'] = np.where((pums['pct_low_17']<0.45)&
+                                       (pums['pct_mod_17']>=0.55)&
+                                       (pums['pct_high_17']<0.45),1,0)
 
 ### Mixed-Low income
 pums['mixed_low'] = np.where((pums['predominantly_LI']==0)&
                               (pums['predominantly_MI']==0)&
                               (pums['predominantly_HI']==0)&
-                              (pums['mmhcosts_18']<aff_18*0.6),1,0)
+                              (pums['mmhcosts_17']<aff_17*0.6),1,0)
 
 ### Mixed-Moderate income
 pums['mixed_mod'] = np.where((pums['predominantly_LI']==0)&
                               (pums['predominantly_MI']==0)&
                               (pums['predominantly_HI']==0)&
-                              (pums['mmhcosts_18']>=aff_18*0.6)&
-                              (pums['mmhcosts_18']<aff_18*1.2),1,0)
+                              (pums['mmhcosts_17']>=aff_17*0.6)&
+                              (pums['mmhcosts_17']<aff_17*1.2),1,0)
 
 ### Mixed-High income
 pums['mixed_high'] = np.where((pums['predominantly_LI']==0)&
                               (pums['predominantly_MI']==0)&
                               (pums['predominantly_HI']==0)&
-                              (pums['mmhcosts_18']>=aff_18*1.2),1,0)
+                              (pums['mmhcosts_17']>=aff_17*1.2),1,0)
 
 pums['lmh_flag_encoded'] = 0
 pums.loc[pums['predominantly_LI']==1, 'lmh_flag_encoded'] = 1
@@ -1397,68 +1359,68 @@ len(census)
 
 # ==========================================================================
 # Change: 
-# 2020.03.29 - add 2012 to 2018 changes - tim thomas
+# 2020.03.29 - add 2012 to 2017 changes - tim thomas
 # bk
 # start change
 # ==========================================================================
 
-# census['pctch_real_mhval_00_18'] = (census['real_mhval_18']-census['real_mhval_00'])/census['real_mhval_00']
-# census['pctch_real_mrent_00_18'] = (census['real_mrent_18']-census['real_mrent_00'])/census['real_mrent_00']
-census['pctch_real_mhval_00_18'] = (census['real_mhval_18']-census['real_mhval_00'])/census['real_mhval_00']
-# census['pctch_real_mhval_12_18'] = (census['real_mhval_18']-census['real_mhval_12'])/census['real_mhval_12']
-census['pctch_real_mrent_12_18'] = (census['real_mrent_18']-census['real_mrent_12'])/census['real_mrent_12']
+# census['pctch_real_mhval_00_17'] = (census['real_mhval_17']-census['real_mhval_00'])/census['real_mhval_00']
+# census['pctch_real_mrent_00_17'] = (census['real_mrent_17']-census['real_mrent_00'])/census['real_mrent_00']
+census['pctch_real_mhval_00_17'] = (census['real_mhval_17']-census['real_mhval_00'])/census['real_mhval_00']
+# census['pctch_real_mhval_12_17'] = (census['real_mhval_17']-census['real_mhval_12'])/census['real_mhval_12']
+census['pctch_real_mrent_12_17'] = (census['real_mrent_17']-census['real_mrent_12'])/census['real_mrent_12']
 
-# rm_pctch_real_mhval_00_18_increase=np.nanmedian(census['pctch_real_mhval_00_18'][census['pctch_real_mhval_00_18']>0.05])
-# rm_pctch_real_mrent_00_18_increase=np.nanmedian(census['pctch_real_mrent_00_18'][census['pctch_real_mrent_00_18']>0.05])
-rm_pctch_real_mhval_00_18_increase=np.nanmedian(census['pctch_real_mhval_00_18'][census['pctch_real_mhval_00_18']>0.05])
-# rm_pctch_real_mhval_12_18_increase=np.nanmedian(census['pctch_real_mhval_12_18'][census['pctch_real_mhval_12_18']>0.05])
-rm_pctch_real_mrent_12_18_increase=np.nanmedian(census['pctch_real_mrent_12_18'][census['pctch_real_mrent_12_18']>0.05])
+# rm_pctch_real_mhval_00_17_increase=np.nanmedian(census['pctch_real_mhval_00_17'][census['pctch_real_mhval_00_17']>0.05])
+# rm_pctch_real_mrent_00_17_increase=np.nanmedian(census['pctch_real_mrent_00_17'][census['pctch_real_mrent_00_17']>0.05])
+rm_pctch_real_mhval_00_17_increase=np.nanmedian(census['pctch_real_mhval_00_17'][census['pctch_real_mhval_00_17']>0.05])
+# rm_pctch_real_mhval_12_17_increase=np.nanmedian(census['pctch_real_mhval_12_17'][census['pctch_real_mhval_12_17']>0.05])
+rm_pctch_real_mrent_12_17_increase=np.nanmedian(census['pctch_real_mrent_12_17'][census['pctch_real_mrent_12_17']>0.05])
 
-# rm_pctch_real_mhval_00_18_increase=np.nanmedian(census['pctch_real_mhval_00_18'])
-# rm_pctch_real_mrent_00_18_increase=np.nanmedian(census['pctch_real_mrent_00_18'])
-
-
+# rm_pctch_real_mhval_00_17_increase=np.nanmedian(census['pctch_real_mhval_00_17'])
+# rm_pctch_real_mrent_00_17_increase=np.nanmedian(census['pctch_real_mrent_00_17'])
 
 
-# census['rent_decrease'] = np.where((census['pctch_real_mrent_00_18']<=-0.05), 1, 0)
 
-# census['rent_marginal'] = np.where((census['pctch_real_mrent_00_18']>-0.05)&
-#                                           (census['pctch_real_mrent_00_18']<0.05), 1, 0)
 
-# census['rent_increase'] = np.where((census['pctch_real_mrent_00_18']>=0.05)&
-#                                           (census['pctch_real_mrent_00_18']<rm_pctch_real_mrent_00_18_increase), 1, 0)
+# census['rent_decrease'] = np.where((census['pctch_real_mrent_00_17']<=-0.05), 1, 0)
 
-# census['rent_rapid_increase'] = np.where((census['pctch_real_mrent_00_18']>=0.05)&
-#                                           (census['pctch_real_mrent_00_18']>=rm_pctch_real_mrent_00_18_increase), 1, 0)
+# census['rent_marginal'] = np.where((census['pctch_real_mrent_00_17']>-0.05)&
+#                                           (census['pctch_real_mrent_00_17']<0.05), 1, 0)
 
-census['rent_decrease'] = np.where((census['pctch_real_mrent_12_18']<=-0.05), 1, 0)
+# census['rent_increase'] = np.where((census['pctch_real_mrent_00_17']>=0.05)&
+#                                           (census['pctch_real_mrent_00_17']<rm_pctch_real_mrent_00_17_increase), 1, 0)
 
-census['rent_marginal'] = np.where((census['pctch_real_mrent_12_18']>-0.05)&
-                                          (census['pctch_real_mrent_12_18']<0.05), 1, 0)
+# census['rent_rapid_increase'] = np.where((census['pctch_real_mrent_00_17']>=0.05)&
+#                                           (census['pctch_real_mrent_00_17']>=rm_pctch_real_mrent_00_17_increase), 1, 0)
 
-census['rent_increase'] = np.where((census['pctch_real_mrent_12_18']>=0.05)&
-                                          (census['pctch_real_mrent_12_18']<rm_pctch_real_mrent_12_18_increase), 1, 0)
+census['rent_decrease'] = np.where((census['pctch_real_mrent_12_17']<=-0.05), 1, 0)
 
-census['rent_rapid_increase'] = np.where((census['pctch_real_mrent_12_18']>=0.05)&
-                                          (census['pctch_real_mrent_12_18']>=rm_pctch_real_mrent_12_18_increase), 1, 0)
+census['rent_marginal'] = np.where((census['pctch_real_mrent_12_17']>-0.05)&
+                                          (census['pctch_real_mrent_12_17']<0.05), 1, 0)
+
+census['rent_increase'] = np.where((census['pctch_real_mrent_12_17']>=0.05)&
+                                          (census['pctch_real_mrent_12_17']<rm_pctch_real_mrent_12_17_increase), 1, 0)
+
+census['rent_rapid_increase'] = np.where((census['pctch_real_mrent_12_17']>=0.05)&
+                                          (census['pctch_real_mrent_12_17']>=rm_pctch_real_mrent_12_17_increase), 1, 0)
 
 # end change
 # ==========================================================================
 # Note:
-# We're keeping 2000 to 2018 because it's a one year decennial change vs a 5 year change from 2013 to 2018. 
+# We're keeping 2000 to 2017 because it's a one year decennial change vs a 5 year change from 2013 to 2017. 
 # I'm afraid using 2 acs 5-years back to back will not be sufficent in capturing change. 
 # ==========================================================================
 
-census['house_decrease'] = np.where((census['pctch_real_mhval_00_18']<=-0.05), 1, 0)
+census['house_decrease'] = np.where((census['pctch_real_mhval_00_17']<=-0.05), 1, 0)
 
-census['house_marginal'] = np.where((census['pctch_real_mhval_00_18']>-0.05)&
-                                          (census['pctch_real_mhval_00_18']<0.05), 1, 0)
+census['house_marginal'] = np.where((census['pctch_real_mhval_00_17']>-0.05)&
+                                          (census['pctch_real_mhval_00_17']<0.05), 1, 0)
 
-census['house_increase'] = np.where((census['pctch_real_mhval_00_18']>=0.05)&
-                                          (census['pctch_real_mhval_00_18']<rm_pctch_real_mhval_00_18_increase), 1, 0)
+census['house_increase'] = np.where((census['pctch_real_mhval_00_17']>=0.05)&
+                                          (census['pctch_real_mhval_00_17']<rm_pctch_real_mhval_00_17_increase), 1, 0)
 
-census['house_rapid_increase'] = np.where((census['pctch_real_mhval_00_18']>=0.05)&
-                                          (census['pctch_real_mhval_00_18']>=rm_pctch_real_mhval_00_18_increase), 1, 0)
+census['house_rapid_increase'] = np.where((census['pctch_real_mhval_00_17']>=0.05)&
+                                          (census['pctch_real_mhval_00_17']>=rm_pctch_real_mhval_00_17_increase), 1, 0)
 
 ## Note change: original didn't have house*** == 1
 census['tot_decrease'] = np.where((census['rent_decrease']==1)|(census['house_decrease']==1), 1, 0)
@@ -1492,12 +1454,12 @@ census.groupby(['change_flag_category', 'lmh_flag_category']).count()['FIPS']
 len(census)
 
 
-# ###### Load Zillow data: note change for Memphis/Boston
+# ###### Load Zillow data
 
 
 
 def filter_ZILLOW(df, FIPS):
-    if (city_name not in ('Memphis', 'Boston')):
+    if city_name != 'Memphis':
         FIPS_pre = [state+county for county in FIPS]
         df = df[(df['FIPS'].astype(str).str.zfill(11).str[:5].isin(FIPS_pre))].reset_index(drop = True)
     else:
@@ -1519,14 +1481,14 @@ zillow = pd.read_csv(input_path+'Zip_Zhvi_AllHomes.csv', encoding = "ISO-8859-1"
 zillow_xwalk = pd.read_csv(input_path+'TRACT_ZIP_032015.csv')
 
 ## Compute change over time
-zillow['ch_zillow_12_18'] = zillow['2018-01'] - zillow['2012-01']*CPI_12_18
-zillow['per_ch_zillow_12_18'] = zillow['ch_zillow_12_18']/zillow['2012-01']
+zillow['ch_zillow_12_17'] = zillow['2017-01'] - zillow['2012-01']*CPI_12_17
+zillow['per_ch_zillow_12_17'] = zillow['ch_zillow_12_17']/zillow['2012-01']
 zillow = zillow[zillow['State'].isin(state_init)].reset_index(drop = True)
 
 ####### CHANGE HERE: original code commented out below; changed from outer to inner merge
 
-zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
-#zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
+zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
+#zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
 zillow = zillow.rename(columns = {'TRACT':'FIPS'})
 
 # Filter only data of interest
@@ -1536,23 +1498,23 @@ zillow = filter_ZILLOW(zillow, FIPS)
 zillow = zillow.sort_values(by = ['FIPS', 'RES_RATIO'], ascending = False).groupby('FIPS').first().reset_index(drop = False)
 
 ### Compute 90th percentile change in region
-percentile_90 = zillow['per_ch_zillow_12_18'].quantile(q = 0.9)
+percentile_90 = zillow['per_ch_zillow_12_17'].quantile(q = 0.9)
 print(percentile_90)
 
 ### Create flags
 ### Change over 50% of change in region
-zillow['ab_50pct_ch'] = np.where(zillow['per_ch_zillow_12_18']>0.5, 1, 0)
+zillow['ab_50pct_ch'] = np.where(zillow['per_ch_zillow_12_17']>0.5, 1, 0)
 ### Change over 90th percentile change
-zillow['ab_90percentile_ch'] = np.where(zillow['per_ch_zillow_12_18']>percentile_90, 1, 0)
+zillow['ab_90percentile_ch'] = np.where(zillow['per_ch_zillow_12_17']>percentile_90, 1, 0)
 
-census = census.merge(zillow[['FIPS', 'per_ch_zillow_12_18', 'ab_50pct_ch', 'ab_90percentile_ch']], on = 'FIPS')
+census = census.merge(zillow[['FIPS', 'per_ch_zillow_12_17', 'ab_50pct_ch', 'ab_90percentile_ch']], on = 'FIPS')
 
 ### Create 90th percentile for rent - 
-# census['rent_percentile_90'] = census['pctch_real_mrent_12_18'].quantile(q = 0.9)
-census['rent_50pct_ch'] = np.where(census['pctch_real_mrent_12_18']>=0.5, 1, 0)
-census['rent_90percentile_ch'] = np.where(census['pctch_real_mrent_12_18']>=0.9, 1, 0)
+# census['rent_percentile_90'] = census['pctch_real_mrent_12_17'].quantile(q = 0.9)
+census['rent_50pct_ch'] = np.where(census['pctch_real_mrent_12_17']>=0.5, 1, 0)
+census['rent_90percentile_ch'] = np.where(census['pctch_real_mrent_12_17']>=0.9, 1, 0)
 
-# census[['rent_90percentile_ch', 'real_mrent_12', 'real_mrent_18']]
+# census[['rent_90percentile_ch', 'real_mrent_12', 'real_mrent_17']]
 
 # End change
 # ==========================================================================
@@ -1565,33 +1527,33 @@ census['rent_90percentile_ch'] = np.where(census['pctch_real_mrent_12_18']>=0.9,
 
 rm_per_all_li_90 = np.nanmedian(census['per_all_li_90'])
 rm_per_all_li_00 = np.nanmedian(census['per_all_li_00'])
-rm_per_all_li_18 = np.nanmedian(census['per_all_li_18'])
+rm_per_all_li_17 = np.nanmedian(census['per_all_li_17'])
 rm_per_nonwhite_90 = np.nanmedian(census['per_nonwhite_90'])
 rm_per_nonwhite_00 = np.nanmedian(census['per_nonwhite_00'])
-rm_per_nonwhite_18 = np.nanmedian(census['per_nonwhite_18'])
+rm_per_nonwhite_17 = np.nanmedian(census['per_nonwhite_17'])
 rm_per_col_90 = np.nanmedian(census['per_col_90'])
 rm_per_col_00 = np.nanmedian(census['per_col_00'])
-rm_per_col_18 = np.nanmedian(census['per_col_18'])
+rm_per_col_17 = np.nanmedian(census['per_col_17'])
 rm_per_rent_90= np.nanmedian(census['per_rent_90'])
 rm_per_rent_00= np.nanmedian(census['per_rent_00'])
-rm_per_rent_18= np.nanmedian(census['per_rent_18'])
+rm_per_rent_17= np.nanmedian(census['per_rent_17'])
 rm_real_mrent_90 = np.nanmedian(census['real_mrent_90'])
 rm_real_mrent_00 = np.nanmedian(census['real_mrent_00'])
 rm_real_mrent_12 = np.nanmedian(census['real_mrent_12'])
-rm_real_mrent_18 = np.nanmedian(census['real_mrent_18'])
+rm_real_mrent_17 = np.nanmedian(census['real_mrent_17'])
 rm_real_mhval_90 = np.nanmedian(census['real_mhval_90'])
 rm_real_mhval_00 = np.nanmedian(census['real_mhval_00'])
-rm_real_mhval_18 = np.nanmedian(census['real_mhval_18'])
+rm_real_mhval_17 = np.nanmedian(census['real_mhval_17'])
 rm_real_hinc_90 = np.nanmedian(census['real_hinc_90'])
 rm_real_hinc_00 = np.nanmedian(census['real_hinc_00'])
-rm_real_hinc_18 = np.nanmedian(census['real_hinc_18'])
-rm_per_units_pre50_18 = np.nanmedian(census['per_units_pre50_18'])
-rm_per_ch_zillow_12_18 = np.nanmedian(census['per_ch_zillow_12_18'])
-rm_pctch_real_mrent_12_18 = np.nanmedian(census['pctch_real_mrent_12_18'])  
+rm_real_hinc_17 = np.nanmedian(census['real_hinc_17'])
+rm_per_units_pre50_17 = np.nanmedian(census['per_units_pre50_17'])
+rm_per_ch_zillow_12_17 = np.nanmedian(census['per_ch_zillow_12_17'])
+rm_pctch_real_mrent_12_17 = np.nanmedian(census['pctch_real_mrent_12_17'])  
 
 # Above regional median change home value and rent
-census['hv_abrm_ch'] = np.where(census['per_ch_zillow_12_18'] > rm_per_ch_zillow_12_18, 1, 0)
-census['rent_abrm_ch'] = np.where(census['pctch_real_mrent_12_18'] > rm_pctch_real_mrent_12_18, 1, 0)
+census['hv_abrm_ch'] = np.where(census['per_ch_zillow_12_17'] > rm_per_ch_zillow_12_17, 1, 0)
+census['rent_abrm_ch'] = np.where(census['pctch_real_mrent_12_17'] > rm_pctch_real_mrent_12_17, 1, 0)
 
 # #### Percent changes
 
@@ -1601,19 +1563,19 @@ census['pctch_real_mhval_90_00'] = (census['real_mhval_00']-census['real_mhval_9
 census['pctch_real_mrent_90_00'] = (census['real_mrent_00']-census['real_mrent_90'])/census['real_mrent_90']
 census['pctch_real_hinc_90_00'] = (census['real_hinc_00']-census['real_hinc_90'])/census['real_hinc_90']
 
-census['pctch_real_mhval_00_18'] = (census['real_mhval_18']-census['real_mhval_00'])/census['real_mhval_00']
-census['pctch_real_mrent_00_18'] = (census['real_mrent_18']-census['real_mrent_00'])/census['real_mrent_00']
-census['pctch_real_mrent_12_18'] = (census['real_mrent_18']-census['real_mrent_12'])/census['real_mrent_12']
-census['pctch_real_hinc_00_18'] = (census['real_hinc_18']-census['real_hinc_00'])/census['real_hinc_00']
+census['pctch_real_mhval_00_17'] = (census['real_mhval_17']-census['real_mhval_00'])/census['real_mhval_00']
+census['pctch_real_mrent_00_17'] = (census['real_mrent_17']-census['real_mrent_00'])/census['real_mrent_00']
+census['pctch_real_mrent_12_17'] = (census['real_mrent_17']-census['real_mrent_12'])/census['real_mrent_12']
+census['pctch_real_hinc_00_17'] = (census['real_hinc_17']-census['real_hinc_00'])/census['real_hinc_00']
 
 ### Regional Medians
 pctch_rm_real_mhval_90_00 = (rm_real_mhval_00-rm_real_mhval_90)/rm_real_mhval_90
 pctch_rm_real_mrent_90_00 = (rm_real_mrent_00-rm_real_mrent_90)/rm_real_mrent_90
-pctch_rm_real_mhval_00_18 = (rm_real_mhval_18-rm_real_mhval_00)/rm_real_mhval_00
-pctch_rm_real_mrent_00_18 = (rm_real_mrent_18-rm_real_mrent_00)/rm_real_mrent_00
-pctch_rm_real_mrent_12_18 = (rm_real_mrent_18-rm_real_mrent_12)/rm_real_mrent_12
+pctch_rm_real_mhval_00_17 = (rm_real_mhval_17-rm_real_mhval_00)/rm_real_mhval_00
+pctch_rm_real_mrent_00_17 = (rm_real_mrent_17-rm_real_mrent_00)/rm_real_mrent_00
+pctch_rm_real_mrent_12_17 = (rm_real_mrent_17-rm_real_mrent_12)/rm_real_mrent_12
 pctch_rm_real_hinc_90_00 = (rm_real_hinc_00-rm_real_hinc_90)/rm_real_hinc_90
-pctch_rm_real_hinc_00_18 = (rm_real_hinc_18-rm_real_hinc_00)/rm_real_hinc_00
+pctch_rm_real_hinc_00_17 = (rm_real_hinc_17-rm_real_hinc_00)/rm_real_hinc_00
 
 # End Change
 # ==========================================================================
@@ -1624,14 +1586,14 @@ pctch_rm_real_hinc_00_18 = (rm_real_hinc_18-rm_real_hinc_00)/rm_real_hinc_00
 
 
 census['ch_all_li_count_90_00'] = census['all_li_count_00']-census['all_li_count_90']
-census['ch_all_li_count_00_18'] = census['all_li_count_18']-census['all_li_count_00']
+census['ch_all_li_count_00_17'] = census['all_li_count_17']-census['all_li_count_00']
 census['ch_per_col_90_00'] = census['per_col_00']-census['per_col_90']
-census['ch_per_col_00_18'] = census['per_col_18']-census['per_col_00']
-census['ch_per_limove_12_18'] = census['per_limove_18'] - census['per_limove_12']
+census['ch_per_col_00_17'] = census['per_col_17']-census['per_col_00']
+census['ch_per_limove_12_17'] = census['per_limove_17'] - census['per_limove_12']
 
 ### Regional Medians
 ch_rm_per_col_90_00 = rm_per_col_00-rm_per_col_90
-ch_rm_per_col_00_18 = rm_per_col_18-rm_per_col_00
+ch_rm_per_col_00_17 = rm_per_col_17-rm_per_col_00
 
 
 # #### Flags
@@ -1642,35 +1604,35 @@ df = census
 df['pop00flag'] = np.where(df['pop_00']>500, 1, 0)
 df['aboverm_per_all_li_90'] = np.where(df['per_all_li_90']>=rm_per_all_li_90, 1, 0)
 df['aboverm_per_all_li_00'] = np.where(df['per_all_li_00']>=rm_per_all_li_00, 1, 0)
-df['aboverm_per_all_li_18'] = np.where(df['per_all_li_18']>=rm_per_all_li_18, 1, 0)
-df['aboverm_per_nonwhite_18'] = np.where(df['per_nonwhite_18']>=rm_per_nonwhite_18, 1, 0)
+df['aboverm_per_all_li_17'] = np.where(df['per_all_li_17']>=rm_per_all_li_17, 1, 0)
+df['aboverm_per_nonwhite_17'] = np.where(df['per_nonwhite_17']>=rm_per_nonwhite_17, 1, 0)
 df['aboverm_per_nonwhite_90'] = np.where(df['per_nonwhite_90']>=rm_per_nonwhite_90, 1, 0)
 df['aboverm_per_nonwhite_00'] = np.where(df['per_nonwhite_00']>=rm_per_nonwhite_00, 1, 0)
 df['aboverm_per_rent_90'] = np.where(df['per_rent_90']>=rm_per_rent_90, 1, 0)
 df['aboverm_per_rent_00'] = np.where(df['per_rent_00']>=rm_per_rent_00, 1, 0)
-df['aboverm_per_rent_18'] = np.where(df['per_rent_18']>=rm_per_rent_18, 1, 0)
+df['aboverm_per_rent_17'] = np.where(df['per_rent_17']>=rm_per_rent_17, 1, 0)
 df['aboverm_per_col_90'] = np.where(df['per_col_90']>=rm_per_col_90, 1, 0)
 df['aboverm_per_col_00'] = np.where(df['per_col_00']>=rm_per_col_00, 1, 0)
-df['aboverm_per_col_18'] = np.where(df['per_col_18']>=rm_per_col_18, 1, 0)
+df['aboverm_per_col_17'] = np.where(df['per_col_17']>=rm_per_col_17, 1, 0)
 df['aboverm_real_mrent_90'] = np.where(df['real_mrent_90']>=rm_real_mrent_90, 1, 0)
 df['aboverm_real_mrent_00'] = np.where(df['real_mrent_00']>=rm_real_mrent_00, 1, 0)
 df['aboverm_real_mrent_12'] = np.where(df['real_mrent_12']>=rm_real_mrent_12, 1, 0)
-df['aboverm_real_mrent_18'] = np.where(df['real_mrent_18']>=rm_real_mrent_18, 1, 0)
+df['aboverm_real_mrent_17'] = np.where(df['real_mrent_17']>=rm_real_mrent_17, 1, 0)
 df['aboverm_real_mhval_90'] = np.where(df['real_mhval_90']>=rm_real_mhval_90, 1, 0)
 df['aboverm_real_mhval_00'] = np.where(df['real_mhval_00']>=rm_real_mhval_00, 1, 0)
-df['aboverm_real_mhval_18'] = np.where(df['real_mhval_18']>=rm_real_mhval_18, 1, 0)
-df['aboverm_pctch_real_mhval_00_18'] = np.where(df['pctch_real_mhval_00_18']>=pctch_rm_real_mhval_00_18, 1, 0)
-df['aboverm_pctch_real_mrent_00_18'] = np.where(df['pctch_real_mrent_00_18']>=pctch_rm_real_mrent_00_18, 1, 0)
-df['aboverm_pctch_real_mrent_12_18'] = np.where(df['pctch_real_mrent_12_18']>=pctch_rm_real_mrent_12_18, 1, 0)
+df['aboverm_real_mhval_17'] = np.where(df['real_mhval_17']>=rm_real_mhval_17, 1, 0)
+df['aboverm_pctch_real_mhval_00_17'] = np.where(df['pctch_real_mhval_00_17']>=pctch_rm_real_mhval_00_17, 1, 0)
+df['aboverm_pctch_real_mrent_00_17'] = np.where(df['pctch_real_mrent_00_17']>=pctch_rm_real_mrent_00_17, 1, 0)
+df['aboverm_pctch_real_mrent_12_17'] = np.where(df['pctch_real_mrent_12_17']>=pctch_rm_real_mrent_12_17, 1, 0)
 df['aboverm_pctch_real_mhval_90_00'] = np.where(df['pctch_real_mhval_90_00']>=pctch_rm_real_mhval_90_00, 1, 0)
 df['aboverm_pctch_real_mrent_90_00'] = np.where(df['pctch_real_mrent_90_00']>=pctch_rm_real_mrent_90_00, 1, 0)
 df['lostli_00'] = np.where(df['ch_all_li_count_90_00']<0, 1, 0)
-df['lostli_18'] = np.where(df['ch_all_li_count_00_18']<0, 1, 0)
+df['lostli_17'] = np.where(df['ch_all_li_count_00_17']<0, 1, 0)
 df['aboverm_pctch_real_hinc_90_00'] = np.where(df['pctch_real_hinc_90_00']>pctch_rm_real_hinc_90_00, 1, 0)
-df['aboverm_pctch_real_hinc_00_18'] = np.where(df['pctch_real_hinc_00_18']>pctch_rm_real_hinc_00_18, 1, 0)
+df['aboverm_pctch_real_hinc_00_17'] = np.where(df['pctch_real_hinc_00_17']>pctch_rm_real_hinc_00_17, 1, 0)
 df['aboverm_ch_per_col_90_00'] = np.where(df['ch_per_col_90_00']>ch_rm_per_col_90_00, 1, 0)
-df['aboverm_ch_per_col_00_18'] = np.where(df['ch_per_col_00_18']>ch_rm_per_col_00_18, 1, 0)
-df['aboverm_per_units_pre50_18'] = np.where(df['per_units_pre50_18']>rm_per_units_pre50_18, 1, 0)
+df['aboverm_ch_per_col_00_17'] = np.where(df['ch_per_col_00_17']>ch_rm_per_col_00_17, 1, 0)
+df['aboverm_per_units_pre50_17'] = np.where(df['per_units_pre50_17']>rm_per_units_pre50_17, 1, 0)
 
 
 # ### Spatial Analysis Variables
@@ -1698,9 +1660,9 @@ census_tract_list.describe()
 
 ### Filter only existing rail
 rail = rail[rail['Year Opened']=='Pre-2000'].reset_index(drop = True)
-# rail.Agency.unique()
+
 ### Filter by city
-rail = rail[rail['Agency'].isin(rail_agency)].reset_index(drop = True)
+rail = rail[rail['Agency'] == rail_agency].reset_index(drop = True)
 rail = gpd.GeoDataFrame(rail, geometry=[Point(xy) for xy in zip (rail['Longitude'], rail['Latitude'])])
 
 
