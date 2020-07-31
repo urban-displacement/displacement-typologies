@@ -191,7 +191,7 @@ df_sf <-
 
 
 ct <- 
-    fread('/Users/timothythomas/git/sparcc/data/inputs/sparcc_problem_tracts.csv') %>% 
+    fread('~/git/sparcc/data/inputs/sparcc_community_tracts.csv') %>% 
     rename(city = City) %>% 
     mutate(GEOID = as.numeric(GEOID), 
     	cs = "Community Suggested Change") %>% 
