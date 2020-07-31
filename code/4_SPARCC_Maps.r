@@ -209,41 +209,41 @@ ct <-
               Site Notes</b>: <br>', CommunityComments,
               '<br><br>',
               '<b><i><u>Market Dynamics</u></i></b><br>',
-              'Tract median home value: ', case_when(!is.na(real_mhval_17) ~ dollar(real_mhval_17), TRUE ~ 'No data'), '<br>',
-              'Tract home value change from 2000 to 2017: ', case_when(is.na(real_mhval_17) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_17)),'<br>',
-              'Regional median home value: ', dollar(rm_real_mhval_17), '<br>',
+              'Tract median home value: ', case_when(!is.na(real_mhval_18) ~ dollar(real_mhval_18), TRUE ~ 'No data'), '<br>',
+              'Tract home value change from 2000 to 2018: ', case_when(is.na(real_mhval_18) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_18)),'<br>',
+              'Regional median home value: ', dollar(rm_real_mhval_18), '<br>',
               '<br>',
-              'Tract median rent: ', case_when(!is.na(real_mrent_17) ~ dollar(real_mrent_17), TRUE ~ 'No data'), '<br>', 
-              'Regional median rent: ', case_when(is.na(real_mrent_17) ~ 'No data', TRUE ~ dollar(rm_real_mrent_17)), '<br>', 
-              'Tract rent change from 2012 to 2017: ', percent(pctch_real_mrent_12_17), '<br>',
+              'Tract median rent: ', case_when(!is.na(real_mrent_18) ~ dollar(real_mrent_18), TRUE ~ 'No data'), '<br>', 
+              'Regional median rent: ', case_when(is.na(real_mrent_18) ~ 'No data', TRUE ~ dollar(rm_real_mrent_18)), '<br>', 
+              'Tract rent change from 2012 to 2018: ', percent(pctch_real_mrent_12_18), '<br>',
               '<br>',
               'Rent gap (nearby - local): ', dollar(tr_rent_gap), '<br>',
               'Regional median rent gap: ', dollar(rm_rent_gap), '<br>',
               '<br>',
             # demographics
              '<b><i><u>Demographics</u></i></b><br>', 
-             'Tract population: ', comma(pop_17), '<br>', 
-             'Tract household count: ', comma(hh_17), '<br>', 
-             'Tract median income: ', dollar(real_hinc_17), '<br>', 
-             'Percent low income hh: ', percent(per_all_li_17), '<br>', 
+             'Tract population: ', comma(pop_18), '<br>', 
+             'Tract household count: ', comma(hh_18), '<br>', 
+             'Tract median income: ', dollar(real_hinc_18), '<br>', 
+             'Percent low income hh: ', percent(per_all_li_18), '<br>', 
              'Percent change in LI: ', percent(per_ch_li), '<br>',
              '<br>',
-             'Percent non-White: ', percent(per_nonwhite_17), '<br>',
-             'Regional median non-White: ', percent(rm_per_nonwhite_17), '<br>',
+             'Percent non-White: ', percent(per_nonwhite_18), '<br>',
+             'Regional median non-White: ', percent(rm_per_nonwhite_18), '<br>',
              '<br>',
-             'Percent college educated: ', percent(per_col_17), '<br>',
-             'Regional median educated: ', percent(rm_per_col_17), '<br>',
+             'Percent college educated: ', percent(per_col_18), '<br>',
+             'Regional median educated: ', percent(rm_per_col_18), '<br>',
             '<br>',
             # risk factors
              '<b><i><u>Risk Factors</u></i></b><br>', 
-             'Mostly low income: ', case_when(low_pdmt_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Mix low income: ', case_when(mix_low_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Mostly low income: ', case_when(low_pdmt_medhhinc_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Mix low income: ', case_when(mix_low_medhhinc_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Rent change: ', case_when(dp_PChRent == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Rent gap: ', case_when(dp_RentGap == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Hot Market: ', case_when(hotmarket_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
+             'Hot Market: ', case_when(hotmarket_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Vulnerable to gentrification: ', case_when(vul_gent_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
              'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 | gent_90_00_urban == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
-             'Gentrified from 2000 to 2017: ', case_when(gent_00_17 == 1 | gent_00_17_urban == 1 ~ 'Yes', TRUE ~ 'No')
+             'Gentrified from 2000 to 2018: ', case_when(gent_00_18 == 1 | gent_00_18_urban == 1 ~ 'Yes', TRUE ~ 'No')
           )
     ) 
     
@@ -258,21 +258,83 @@ ct <-
 red <- 
     rbind(
         geojson_sf('~/git/sparcc/data/overlays/CODenver1938_1.geojson') %>% 
-        mutate(city = 'Denver'),
-        geojson_sf('~/git/sparcc/data/overlays/GAAtlanta1938_1.geojson') %>% 
-        mutate(city = 'Atlanta'),
+            mutate(city = 'Denver'),
+        geojson_sf('~/git/sparcc/data/overlays/GAAtlanta1938_1.geojson') %>%  
+            mutate(city = 'Atlanta'),
         geojson_sf('~/git/sparcc/data/overlays/ILChicago1940_1.geojson') %>% 
-        mutate(city = 'Chicago'),
+            mutate(city = 'Chicago'),
         geojson_sf('~/git/sparcc/data/overlays/TNMemphis19XX_1.geojson') %>% 
-        mutate(city = 'Memphis'),
-        geojson_sf('~/git/sparcc/data/overlays/CAOakland1937.geojson', '~/git/sparcc/data/overlays/CASacramento1937.geojson', '~/git/sparcc/data/overlays/CASanFrancisco1937.geojson', '~/git/sparcc/data/overlays/CASanJose1937.geojson', '~/git/sparcc/data/overlays/CAStockton1938.geojson') %>% 
-        mutate(city = 'San Francisco'),
-        geojson_sf('~/git/sparcc/data/overlays/WASeattle1936.geojson', '~/git/sparcc/data/overlays/WATacoma1937.geojson') %>% 
-        mutate(city = 'Seattle'),
-        geojson_sf('~/git/sparcc/data/overlays/OHCleveland1939.geojson', '~/git/sparcc/data/overlays/OHLorain1937.geojson') %>% 
-        mutate(city = 'Cleveland'),
-        geojson_sf('~/git/sparcc/data/overlays/MAArlington1939.geojson', '~/git/sparcc/data/overlays/MABelmont1939.geojson', '~/git/sparcc/data/overlays/MABoston1938.geojson','~/git/sparcc/data/overlays/MABraintree1939.geojson','~/git/sparcc/data/overlays/MABrockton1937.geojson','~/git/sparcc/data/overlays/MABrookline1939.geojson','~/git/sparcc/data/overlays/MACambridge1939.geojson','~/git/sparcc/data/overlays/MAChelsea1939.geojson','~/git/sparcc/data/overlays/MADedham1939.geojson','~/git/sparcc/data/overlays/MAEverett19XX.geojson','~/git/sparcc/data/overlays/MAHaverhill1937.geojson','~/git/sparcc/data/overlays/MALexington19XX.geojson','~/git/sparcc/data/overlays/MAMalden19XX.geojson','~/git/sparcc/data/overlays/MAMedford19XX.geojson','~/git/sparcc/data/overlays/MAMelrose1939.geojson','~/git/sparcc/data/overlays/MAMilton1939.geojson','~/git/sparcc/data/overlays/MANeedham1939.geojson','~/git/sparcc/data/overlays/MANewton1937.geojson','~/git/sparcc/data/overlays/MAQuincy1939.geojson','~/git/sparcc/data/overlays/MARevere19XX.geojson','~/git/sparcc/data/overlays/MASaugus19XX.geojson','~/git/sparcc/data/overlays/MASomerville1939.geojson','~/git/sparcc/data/overlays/MAWaltham1939.geojson','~/git/sparcc/data/overlays/MAWatertown1939.geojson','~/git/sparcc/data/overlays/MAWinchester1939.geojson','~/git/sparcc/data/overlays/MAWinthrop1939.geojson.geojson') %>% 
-        mutate(city = 'Boston')
+            mutate(city = 'Memphis'),
+        geojson_sf('~/git/sparcc/data/overlays/CAOakland1937.geojson') %>% 
+            mutate(city = 'Bay Area'), 
+        geojson_sf('~/git/sparcc/data/overlays/CASacramento1937.geojson') %>% 
+            mutate(city = 'Bay Area'), 
+        geojson_sf('~/git/sparcc/data/overlays/CASanFrancisco1937.geojson') %>% 
+            mutate(city = 'Bay Area'), 
+        geojson_sf('~/git/sparcc/data/overlays/CASanJose1937.geojson') %>%
+            mutate(city = 'Bay Area'),
+        geojson_sf('~/git/sparcc/data/overlays/CAStockton1938.geojson') %>% 
+            mutate(city = 'Bay Area'),
+        geojson_sf('~/git/sparcc/data/overlays/WASeattle1936.geojson') %>% 
+            mutate(city = 'Puget Sound'), 
+        geojson_sf('~/git/sparcc/data/overlays/WATacoma1937.geojson') %>% 
+            mutate(city = 'Puget Sound'),
+        geojson_sf('~/git/sparcc/data/overlays/OHCleveland1939.geojson') %>% 
+            mutate(city = 'Cleveland'), 
+        geojson_sf('~/git/sparcc/data/overlays/OHLorain1937.geojson') %>% 
+            mutate(city = 'Cleveland'),
+        geojson_sf('~/git/sparcc/data/overlays/MAArlington1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MABelmont1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MABoston1938.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MABraintree1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MABrockton1937.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MABrookline1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MACambridge1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MAChelsea1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MADedham1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MAEverett19XX.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MAHaverhill1937.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MALexington19XX.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MAMalden19XX.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MAMedford19XX.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MAMelrose1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MAMilton1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MANeedham1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MANewton1937.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MAQuincy1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MARevere19XX.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MASaugus19XX.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MASomerville1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MAWaltham1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MAWatertown1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MAWinchester1939.geojson') %>% 
+            mutate(city = 'Major Boston Area'),
+        geojson_sf('~/git/sparcc/data/overlays/MAWinthrop1939.geojson') %>%  
+            mutate(city = 'Major Boston Area')
     ) %>% 
     mutate(
         Grade = 
