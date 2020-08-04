@@ -21,11 +21,11 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(colorout, fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet, update = TRUE)
+pacman::p_load(fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
-
+census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
 # ==========================================================================
 # Data
 # ==========================================================================
@@ -258,84 +258,84 @@ ct <-
 red <- 
     rbind(
         geojson_sf('~/git/sparcc/data/overlays/CODenver1938_1.geojson') %>% 
-            mutate(city = 'Denver'),
-        geojson_sf('~/git/sparcc/data/overlays/GAAtlanta1938_1.geojson') %>%  
-            mutate(city = 'Atlanta'),
+          mutate(city = 'Denver'),
+        geojson_sf('~/git/sparcc/data/overlays/GAAtlanta1938_1.geojson') %>% 
+          mutate(city = 'Atlanta'),
         geojson_sf('~/git/sparcc/data/overlays/ILChicago1940_1.geojson') %>% 
-            mutate(city = 'Chicago'),
+          mutate(city = 'Chicago'),
         geojson_sf('~/git/sparcc/data/overlays/TNMemphis19XX_1.geojson') %>% 
-            mutate(city = 'Memphis'),
+          mutate(city = 'Memphis'),
         geojson_sf('~/git/sparcc/data/overlays/CAOakland1937.geojson') %>% 
-            mutate(city = 'Bay Area'), 
+          mutate(city = 'Bay Area'),
         geojson_sf('~/git/sparcc/data/overlays/CASacramento1937.geojson') %>% 
-            mutate(city = 'Bay Area'), 
+          mutate(city = 'Bay Area'),
         geojson_sf('~/git/sparcc/data/overlays/CASanFrancisco1937.geojson') %>% 
-            mutate(city = 'Bay Area'), 
-        geojson_sf('~/git/sparcc/data/overlays/CASanJose1937.geojson') %>%
-            mutate(city = 'Bay Area'),
+          mutate(city = 'Bay Area'),
+        geojson_sf('~/git/sparcc/data/overlays/CASanJose1937.geojson') %>% 
+          mutate(city = 'Bay Area'),
         geojson_sf('~/git/sparcc/data/overlays/CAStockton1938.geojson') %>% 
-            mutate(city = 'Bay Area'),
+          mutate(city = 'Bay Area'),
         geojson_sf('~/git/sparcc/data/overlays/WASeattle1936.geojson') %>% 
-            mutate(city = 'Puget Sound'), 
+          mutate(city = 'Puget Sound'), 
         geojson_sf('~/git/sparcc/data/overlays/WATacoma1937.geojson') %>% 
-            mutate(city = 'Puget Sound'),
+          mutate(city = 'Puget Sound'),
         geojson_sf('~/git/sparcc/data/overlays/OHCleveland1939.geojson') %>% 
-            mutate(city = 'Cleveland'), 
+          mutate(city = 'Cleveland'),
         geojson_sf('~/git/sparcc/data/overlays/OHLorain1937.geojson') %>% 
-            mutate(city = 'Cleveland'),
+          mutate(city = 'Cleveland'),
         geojson_sf('~/git/sparcc/data/overlays/MAArlington1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MABelmont1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MABoston1938.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MABraintree1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MABrockton1937.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MABrookline1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MACambridge1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAChelsea1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MADedham1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAEverett19XX.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAHaverhill1937.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MALexington19XX.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAMalden19XX.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAMedford19XX.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAMelrose1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAMilton1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MANeedham1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MANewton1937.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAQuincy1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MARevere19XX.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MASaugus19XX.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MASomerville1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAWaltham1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAWatertown1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
+          mutate(city = 'Metro Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAWinchester1939.geojson') %>% 
-            mutate(city = 'Major Boston Area'),
-        geojson_sf('~/git/sparcc/data/overlays/MAWinthrop1939.geojson') %>%  
-            mutate(city = 'Major Boston Area')
-    ) %>% 
+          mutate(city = 'Metro Boston'),
+        geojson_sf('~/git/sparcc/data/overlays/MAWinthrop1939.geojson') %>% 
+          mutate(city = 'Metro Boston')
+    ) %>%
     mutate(
         Grade = 
             factor(
@@ -426,7 +426,7 @@ university <-
 
 ### Road map; add your state here
 states <- 
-    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'CA')
+    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'CA', 'MA', 'NH', 'OH')
 
 road_map <- 
     reduce(
