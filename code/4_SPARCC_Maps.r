@@ -21,7 +21,7 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(colorout, fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
+pacman::p_load(colorout, fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet, update = TRUE)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
@@ -515,8 +515,8 @@ road_pal <-
 
 # make map
 
-map_it <- function(city_name, st){
-	leaflet(data = ct %>% filter(city == city_name)) %>% 
+map_it <- function(data, city_name, st){
+	leaflet(data = data %>% filter(city == city_name)) %>% 
     addMapPane(name = "polygons", zIndex = 410) %>% 
     addMapPane(name = "maplabels", zIndex = 420) %>% # higher zIndex rendered on top
     addProviderTiles("CartoDB.PositronNoLabels") %>%
@@ -530,7 +530,7 @@ map_it <- function(city_name, st){
             onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
   # SPARCC typology
     addPolygons(
-        data = ct %>% filter(city == city_name), 
+        data = data %>% filter(city == city_name), 
         group = "SPARCC Typology", 
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
