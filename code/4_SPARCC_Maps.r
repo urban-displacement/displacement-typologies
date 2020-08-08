@@ -161,7 +161,7 @@ df <-
     data.frame()
 
 # State codes for downloading tract polygons; add your state here
-states <- c("06", "17", "13", "08", "28", "47", "53", "39", "25", "33")
+states <- c("06", "17", "13", "08", "25", "28", "47", "53", "39", "25", "33")
 
 # Download tracts in each of the shapes in sf (simple feature) class
 tracts <- 
@@ -266,75 +266,77 @@ red <-
         geojson_sf('~/git/sparcc/data/overlays/TNMemphis19XX_1.geojson') %>% 
           mutate(city = 'Memphis'),
         geojson_sf('~/git/sparcc/data/overlays/CAOakland1937.geojson') %>% 
-          mutate(city = 'Bay Area'),
+          mutate(city = 'San Francisco'),
         geojson_sf('~/git/sparcc/data/overlays/CASacramento1937.geojson') %>% 
-          mutate(city = 'Bay Area'),
+          mutate(city = 'San Francisco'),
         geojson_sf('~/git/sparcc/data/overlays/CASanFrancisco1937.geojson') %>% 
-          mutate(city = 'Bay Area'),
+          mutate(city = 'San Francisco'),
         geojson_sf('~/git/sparcc/data/overlays/CASanJose1937.geojson') %>% 
-          mutate(city = 'Bay Area'),
+          mutate(city = 'San Francisco'),
         geojson_sf('~/git/sparcc/data/overlays/CAStockton1938.geojson') %>% 
-          mutate(city = 'Bay Area'),
+          mutate(city = 'San Francisco'),
+        geojson_sf('~/git/sparcc/data/overlays/CALosAngeles1939.geojson') %>% 
+          mutate(city = 'Los Angeles'),
         geojson_sf('~/git/sparcc/data/overlays/WASeattle1936.geojson') %>% 
-          mutate(city = 'Puget Sound'), 
+          mutate(city = 'Seattle'), 
         geojson_sf('~/git/sparcc/data/overlays/WATacoma1937.geojson') %>% 
-          mutate(city = 'Puget Sound'),
+          mutate(city = 'Seattle'),
         geojson_sf('~/git/sparcc/data/overlays/OHCleveland1939.geojson') %>% 
           mutate(city = 'Cleveland'),
         geojson_sf('~/git/sparcc/data/overlays/OHLorain1937.geojson') %>% 
           mutate(city = 'Cleveland'),
         geojson_sf('~/git/sparcc/data/overlays/MAArlington1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MABelmont1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MABoston1938.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MABraintree1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MABrockton1937.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MABrookline1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MACambridge1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAChelsea1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MADedham1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAEverett19XX.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAHaverhill1937.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MALexington19XX.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAMalden19XX.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAMedford19XX.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAMelrose1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAMilton1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MANeedham1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MANewton1937.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAQuincy1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MARevere19XX.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MASaugus19XX.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MASomerville1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAWaltham1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAWatertown1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAWinchester1939.geojson') %>% 
-          mutate(city = 'Metro Boston'),
+          mutate(city = 'Boston'),
         geojson_sf('~/git/sparcc/data/overlays/MAWinthrop1939.geojson') %>% 
-          mutate(city = 'Metro Boston')
+          mutate(city = 'Boston')
     ) %>%
     mutate(
         Grade = 
@@ -593,7 +595,7 @@ map_it <- function(data, city_name, st){
     # ) %>%     
 # Public Housing
     addCircleMarkers(
-        data = hud %>% filter(state == "CA"), #add your state here
+        data = hud %>% filter(state == st), #add your state here
         radius = 5, 
         lng = ~longitude, 
         lat = ~latitude, 
@@ -687,10 +689,10 @@ addPolylines(
     )}  
 
 # Community Input
-  ci <- function(map = ., city_name){
+  ci <- function(map = ., data, city_name){
     map %>% 
     addPolygons(
-        data = data %>% filter(city == city_name, !is.na(cs)), 
+        data = data %>% filter(city == "Atlanta", !is.na(cs)), 
         group = "Community Input", 
         label = ~cs,
         labelOptions = labelOptions(textsize = "12px"),
@@ -771,7 +773,6 @@ addPolylines(
              is))
  }
 
-
 #
 # City specific SPARCC map; add your city here
 # --------------------------------------------------------------------------
@@ -780,7 +781,7 @@ addPolylines(
 atlanta <- 
     map_it(ct, "Atlanta", 'GA') %>% 
     ind(st = "GA") %>% 
-    ci(city_name = "Atlanta") %>% 
+    ci(data = ct, city_name = "Atlanta") %>% 
     oz(city_name = "Atlanta") %>% 
     belt() %>% 
     options(belt = "Beltline",ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
@@ -793,6 +794,8 @@ atlanta <-
 chicago <- 
     map_it(ct, "Chicago", 'IL') %>% 
     ind(st = "IL") %>% 
+    ci(data = ct, city_name = "Chicago") %>% 
+    oz(city_name = "Chicago") %>% 
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
@@ -801,6 +804,8 @@ chicago <-
 # Denver, CO
 denver <- 
     map_it(ct, "Denver", 'CO') %>% 
+    ci(data = ct, city_name = "Denver") %>% 
+    oz(city_name = "Denver") %>% 
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
@@ -810,6 +815,8 @@ denver <-
 memphis <- 
     map_it(ct, "Memphis", 'TN') %>% 
     ind(st = "TN") %>% 
+    ci(data = ct, city_name = "Memphis") %>% 
+    oz(city_name = "Memphis") %>% 
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
@@ -817,7 +824,7 @@ memphis <-
 
 # Los Angeles, CA
 losangeles <- 
-    map_it(ct, "Los Angeles", 'CA') %>% 
+    map_it(df_sf, "Los Angeles", 'CA') %>% 
     # ind(st = 'CA') %>% # change ind file to include LA if you want this. 
     oz(city_name = "Los Angeles") %>% 
     options(oz = "Opportunity Zones") %>% 
