@@ -36,8 +36,8 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-city_name = str(sys.argv[1])
-# city_name = 'Atlanta'
+# city_name = str(sys.argv[1])
+city_name = 'Atlanta'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -1473,8 +1473,8 @@ zillow = zillow[zillow['State'].isin(state_init)].reset_index(drop = True)
 
 ####### CHANGE HERE: original code commented out below; changed from outer to inner merge
 
-zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
-#zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
+# zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
+zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_17', 'per_ch_zillow_12_17']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
 zillow = zillow.rename(columns = {'TRACT':'FIPS'})
 
 # Filter only data of interest
@@ -1840,8 +1840,6 @@ census = census.merge(city_shp[['GEOID','geometry','rail',
 
 
 # ### Export csv file
-
-
 
 census.to_csv(output_path+city_name+'_database_2017.csv')
 # pq.write_table(output_path+city_name+'_database.parquet')
