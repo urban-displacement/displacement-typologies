@@ -32,14 +32,14 @@ city_name = str(sys.argv[1])
 # Note: If additional cities are added, make sure to change create_lag_vars.r
 # accordingly. 
 
-lag = pd.read_csv('~/git/sparcc/data/lag.csv')
+lag = pd.read_csv('~/git/sparcc/data/lag_2017.csv')
 
 home = str(Path.home())
 
 input_path = home+'/git/sparcc/data/inputs/'
 output_path = home+'/git/sparcc/data/'
 
-typology_input = pd.read_csv(output_path+city_name+'_database.csv', index_col = 0) ### Read file
+typology_input = pd.read_csv(output_path+city_name+'_database_2017.csv', index_col = 0) ### Read file
 typology_input['geometry'] = typology_input['geometry'].apply(wkt.loads) ### Read geometry as a shp attribute
 geo_typology_input  = gpd.GeoDataFrame(typology_input, geometry='geometry') ### Create the gdf
 data = geo_typology_input.copy(deep=True)
@@ -52,8 +52,6 @@ data = geo_typology_input.copy(deep=True)
 
 
 # ## Summarize Income Categorization Data
-
-
 
 data.groupby('inc_cat_medhhinc_17').count()['FIPS']
 
@@ -713,5 +711,5 @@ print('TYPOLOGIES')
 
 df['FIPS'] = df['FIPS'].astype(str)
 df = df.drop(columns = 'geometry')
-df.to_csv(output_path+city_name+'_typology_output.csv')
+df.to_csv(output_path+city_name+'_typology_output_2017.csv')
 

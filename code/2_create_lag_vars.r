@@ -122,7 +122,7 @@ tr_rents <-
     filter(row_number()==1) %>% 
     ungroup()
 
-# Pull in state tracts shapefile and merge them - this is a rough way to do it. 
+# Pull in state tracts shapefile and unite them into one shapefile.
     #Add your state here
 
 states <- 

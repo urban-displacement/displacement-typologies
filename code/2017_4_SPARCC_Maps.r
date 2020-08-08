@@ -21,7 +21,7 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(colorout, fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
+p_load(colorout, fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
@@ -36,16 +36,14 @@ options(tigris_use_cache = TRUE)
 
 data <- 
     bind_rows( # pull in data
-        read_csv('~/git/sparcc/data/Atlanta_typology_output.csv') %>% 
+        read_csv('~/git/sparcc/data/Atlanta_typology_output_2017.csv') %>% 
         mutate(city = 'Atlanta'),
-        read_csv('~/git/sparcc/data/Denver_typology_output.csv') %>%
+        read_csv('~/git/sparcc/data/Denver_typology_output_2017.csv') %>%
         mutate(city = 'Denver'),
-        read_csv('~/git/sparcc/data/Chicago_typology_output.csv') %>% 
+        read_csv('~/git/sparcc/data/Chicago_typology_output_2017.csv') %>% 
         mutate(city = 'Chicago'),
-        read_csv('~/git/sparcc/data/Memphis_typology_output.csv') %>% 
-        mutate(city = 'Memphis'),
-        read_csv('~/git/sparcc/data/Los Angeles_typology_output.csv') %>% 
-        mutate(city = 'Los Angeles')
+        read_csv('~/git/sparcc/data/Memphis_typology_output_2017.csv') %>% 
+        mutate(city = 'Memphis')
     ) %>% 
     left_join(., 
         read_csv('~/git/sparcc/data/overlays/oppzones.csv') %>% 
@@ -73,13 +71,13 @@ df <-
                     typ_cat == "['EOG']" ~ 'Early/Ongoing Gentrification',
                     typ_cat == "['OD']" ~ 'Ongoing Displacement',
                     typ_cat == "['SAE']" ~ 'Stable/Advanced Exclusive', 
-                    typ_cat == "['SLI']" ~ 'Stable/Low-Income',
+                    typ_cat == "['SLI']" ~ 'Low-Income/Susceptible to Displacement',
                     typ_cat == "['SMMI']" ~ 'Stable Moderate/Mixed Income',
-                    TRUE ~ "Insufficient Data"
+                    TRUE ~ "Unavailable or Unreliable Data"
                 ), 
                 levels = 
                     c(
-                        'Stable/Low-Income',
+                        'Low-Income/Susceptible to Displacement',
                         'Ongoing Displacement',
                         'At Risk of Gentrification',
                         'Early/Ongoing Gentrification',
@@ -88,7 +86,7 @@ df <-
                         'At Risk of Becoming Exclusive',
                         'Becoming Exclusive',
                         'Stable/Advanced Exclusive',
-                        'Insufficient Data'
+                        "Unavailable or Unreliable Data"
                     )
             ), 
         real_mhval_17 = case_when(real_mhval_17 > 0 ~ real_mhval_17),
@@ -182,7 +180,7 @@ df_sf <-
 
 
 ct <- 
-    fread('~/git/sparcc/data/sparcc_community_tracts.csv') %>% 
+    fread('~/git/sparcc/data/inputs/sparcc_community_tracts.csv') %>% 
     rename(city = City) %>% 
     mutate(GEOID = as.numeric(GEOID), 
     	cs = "Community Suggested Change") %>% 
@@ -349,7 +347,7 @@ university <-
 
 ### Road map; add your state here
 states <- 
-    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'CA')
+    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL')
 
 road_map <- 
     reduce(
@@ -399,8 +397,8 @@ sparcc_pal <-
         c(
             # '#e3dcf5',
             '#cbc9e2', # "#f2f0f7", 
-            '#5b88b5', #"#6699cc",
             '#9e9ac8', #D9D7E8', #"#cbc9e2", #D9D7E8
+            '#5b88b5', #"#6699cc",
             # "#9e9ac8",
             '#756bb1', #B7B6D3', #"#756bb1", #B7B6D3
             '#54278f', #8D82B6', #"#54278f", #8D82B6
@@ -710,7 +708,7 @@ atlanta <-
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta.html")
+htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_sparcc.html")
 
 # Chicago, IL
 chicago <- 
@@ -719,7 +717,7 @@ chicago <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago.html")
+htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_sparcc.html")
 
 # Denver, CO
 denver <- 
@@ -727,7 +725,7 @@ denver <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver.html")
+htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_sparcc.html")
 
 # Memphis, TN
 memphis <- 
@@ -736,15 +734,4 @@ memphis <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis.html")
-
-# Los Angeles, CA
-losangeles <- 
-    map_it("Los Angeles", 'CA') %>% 
-    # ind(st = 'CA') %>% # change ind file to include LA if you want this. 
-    oz(city_name = "Los Angeles") %>% 
-    options(oz = "Opportunity Zones") %>% 
-    setView(lng = -118.244, lat = 34.052, zoom = 10) #set an appropriate view for LA
-# # save map
-htmlwidgets::saveWidget(losangeles, file="~/git/sparcc/maps/losangeles_check.html")
-
+htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis_sparcc.html")

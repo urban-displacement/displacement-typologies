@@ -3,7 +3,7 @@
 # ==========================================================================
 
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(data.table, tigris, tidycensus, tidyverse, spdep)
+p_load(colorout, data.table, tigris, tidycensus, tidyverse, spdep)
 # options(width = Sys.getenv('COLUMNS'))
 
 # census_api_key("your_api_key_here", install = TRUE)
@@ -15,21 +15,18 @@ pacman::p_load(data.table, tigris, tidycensus, tidyverse, spdep)
 
 df <- 
     bind_rows(
-            read_csv("~/git/sparcc/data/Atlanta_database.csv") %>% 
+            read_csv("~/git/sparcc/data/Atlanta_database_2017.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Atlanta"),
-            read_csv("~/git/sparcc/data/Denver_database.csv") %>% 
+            read_csv("~/git/sparcc/data/Denver_database_2017.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Denver"),
-            read_csv("~/git/sparcc/data/Chicago_database.csv") %>% 
+            read_csv("~/git/sparcc/data/Chicago_database_2017.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Chicago"),
-            read_csv("~/git/sparcc/data/Memphis_database.csv") %>% 
+            read_csv("~/git/sparcc/data/Memphis_database_2017.csv") %>% 
             select(!X1) %>% 
-            mutate(city = "Memphis"),
-            read_csv("~/git/sparcc/data/Los Angeles_database.csv") %>% 
-            select(!X1) %>% 
-            mutate(city = "Los Angeles")
+            mutate(city = "Memphis")
     )
 
 # ==========================================================================
@@ -44,7 +41,7 @@ df <-
 # Memphis and IN is within close proximity of Chicago. 
 
 ### Tract data extraction function: add your state here
-st <- c("IL","GA","AR","TN","CO","MS","AL","KY","MO","IN", "CA")
+st <- c("IL","GA","AR","TN","CO","MS","AL","KY","MO","IN")
 
 tr_rent <- function(year, state){
     get_acs(
@@ -110,30 +107,20 @@ tr_rents <-
     filter(row_number()==1) %>% 
     ungroup()
 
-# Pull in state tracts shapefile and merge them - this is a rough way to do it. 
+# Pull in state tracts shapefile and unite them into one shapefile
     #Add your state here
 states <- 
     raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-    raster::union(
-        tracts("IL", cb = TRUE), 
-            tracts("GA", cb = TRUE)), 
-        tracts("AR", cb = TRUE)), 
-        tracts("TN", cb = TRUE)), 
-        tracts("CO", cb = TRUE)), 
-        tracts("MS", cb = TRUE)), 
-        tracts("AL", cb = TRUE)), 
-        tracts("KY", cb = TRUE)), 
-        tracts("MO", cb = TRUE)), 
-        tracts("IN", cb = TRUE)), 
-        tracts("CA", cb = TRUE))
+        tracts("IL", cb = TRUE, class = 'sp'), 
+        tracts("GA", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("AR", cb = TRUE, class = 'sp')) %>%  
+    raster::union(tracts("TN", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("CO", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("MS", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("AL", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("KY", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("MO", cb = TRUE, class = 'sp')) %>%
+    raster::union(tracts("IN", cb = TRUE, class = 'sp'))
     
 stsp <- states
 
@@ -142,7 +129,6 @@ stsp@data <-
     left_join(
         stsp@data %>% 
         mutate(GEOID = case_when(
-            !is.na(GEOID) ~ GEOID,
             !is.na(GEOID.1) ~ GEOID.1, 
             !is.na(GEOID.2) ~ GEOID.2, 
             !is.na(GEOID.1.1) ~ GEOID.1.1, 
@@ -213,29 +199,18 @@ lag <-
 # PUMA
 # ==========================================================================
 
-puma_df <-
+puma <-
     get_acs(
         geography = "public use microdata area", 
         variable = "B05006_001", 
         year = 2017, 
-        wide = TRUE
-)
-
-saveRDS(st_read("/Volumes/GoogleDrive/My Drive/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg") %>% #add your state here
-    filter(STATEFP10 %in% c("13", "80", "17", "47", "06")) %>% 
-    st_set_crs(102003) %>% 
-    st_transform(4269) %>% 
-    mutate(sqmile = ALAND10/2589988), 
-    "/Users/annadriscoll/git/sparcc/data/inputs/nhgispuma.RDS"
-)
-
-puma <-  
-    left_join(
-        readRDS("/Users/annadriscoll/git/sparcc/data/inputs/nhgispuma.RDS"), 
-        puma_df %>%
-            mutate(GEOID10 = as.factor(GEOID))
-    ) %>% 
-    mutate(puma_density = estimate/sqmile) %>% 
+        geometry = TRUE,
+        keep_geo_vars = TRUE, 
+        state = c("GA", "TN", "IL", "CO")) %>% 
+    mutate(
+        sqmile = ALAND10/2589988, 
+        puma_density = estimate/sqmile
+        ) %>% 
     select(puma_density)
 
 stsf <- 
@@ -287,6 +262,6 @@ lag <-
     # )
 
 # saveRDS(df2, "~/git/sparcc/data/rentgap.rds")
-fwrite(lag, "~/git/sparcc/data/lag.csv")
+fwrite(lag, "~/git/sparcc/data/lag_2017.csv")
 
 # df2 %>% filter(GEOID == 13121006000) %>% glimpse()

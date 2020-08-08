@@ -13,7 +13,26 @@ Currently, the SPARCC typology is set up for:
 * Boston (in progress)
 
 
-Each of the files are named in order of operation. To run the code, do the following in a terminal window. 
+Each of the files are named in order of operation. To run the code, do the following in a terminal window.  
+
+For the SPARCC released maps, which reflect 2017 ACS data, conduct the following: 
+
+```
+python 2017_1_data.py Atlanta
+python 2017_1_data.py Chicago
+python 2017_1_data.py Denver
+python 2017_1_data.py Memphis
+
+Rscript 2017_2_create_lag_vars.r
+
+python 2017_3_typology.py Atlanta
+python 2017_3_typology.py Chicago
+python 2017_3_typology.py Denver
+python 2017_3_typology.py Memphis
+
+Rscript 2017_4_SPARCC_Maps.r
+
+```
 
 ```
 # 1. data download
