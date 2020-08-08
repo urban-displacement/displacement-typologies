@@ -15,16 +15,16 @@ p_load(colorout, data.table, tigris, tidycensus, tidyverse, spdep)
 
 df <- 
     bind_rows(
-            read_csv("~/git/sparcc/data/Atlanta_database_2017.csv") %>% 
+            read_csv("~/git/sparcc/data/outputs/Atlanta_database_2017.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Atlanta"),
-            read_csv("~/git/sparcc/data/Denver_database_2017.csv") %>% 
+            read_csv("~/git/sparcc/data/outputs/Denver_database_2017.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Denver"),
-            read_csv("~/git/sparcc/data/Chicago_database_2017.csv") %>% 
+            read_csv("~/git/sparcc/data/outputs/Chicago_database_2017.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Chicago"),
-            read_csv("~/git/sparcc/data/Memphis_database_2017.csv") %>% 
+            read_csv("~/git/sparcc/data/outputs/Memphis_database_2017.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Memphis")
     )
@@ -262,6 +262,6 @@ lag <-
     # )
 
 # saveRDS(df2, "~/git/sparcc/data/rentgap.rds")
-fwrite(lag, "~/git/sparcc/data/lag_2017.csv")
+fwrite(lag, "~/git/sparcc/data/outputs/lag_2017.csv")
 
 # df2 %>% filter(GEOID == 13121006000) %>% glimpse()

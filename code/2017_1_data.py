@@ -23,11 +23,16 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 pd.options.display.float_format = '{:.2f}'.format # avoid scientific notation
 
+input_path = '~/git/sparcc/data/inputs/'
+output_path = '~/git/sparcc/data/outputs/'
+
+
 # ### Set API key
 
 
 
-key = '4c26aa6ebbaef54a55d3903212eabbb506ade381'
+# key = '4c26aa6ebbaef54a55d3903212eabbb506ade381'
+key = '63217a192c5803bfc72aab537fe4bf19f6058326'
 c = census.Census(key)
 
 
@@ -36,8 +41,8 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-# city_name = str(sys.argv[1])
-city_name = 'Atlanta'
+city_name = str(sys.argv[1])
+# city_name = 'Atlanta'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -606,12 +611,10 @@ df_vars_summ = df_vars_17.merge(df_vars_12, on ='FIPS')
 
 from pathlib import Path
 
-home = str(Path.home())
-
 #Export files to CSV
-df_vars_summ.to_csv(home+'/git/sparcc/data/'+city_name+'census_summ.csv')
-df_vars_90.to_csv(home+'/git/sparcc/data/'+city_name+'census_90.csv')
-df_vars_00.to_csv(home+'/git/sparcc/data/'+city_name+'census_00.csv')
+df_vars_summ.to_csv(output_path+city_name+'census_summ.csv')
+df_vars_90.to_csv(output_path+city_name+'census_90.csv')
+df_vars_00.to_csv(output_path+city_name+'census_00.csv')
 
 
 # ==========================================================================
@@ -627,11 +630,6 @@ df_vars_00.to_csv(home+'/git/sparcc/data/'+city_name+'census_00.csv')
 # Most of the input files are located on google drive and . I suggest downloading [Google's Drive File Stream](https://support.google.com/a/answer/7491144?utm_medium=et&utm_source=aboutdrive&utm_content=getstarted&utm_campaign=en_us) app, which doesn't download all Google Drive items to your computer, but rather pulls them as necessary. This will save a lot of space but compromises speed. 
 
 # Data files
-
-# Google File Drive Stream pathway for a mac. 
-input_path = home+'/git/sparcc/data/inputs/'
-output_path = home+'/git/sparcc/data/'
-
 census_90 = pd.read_csv(output_path+city_name+'census_90.csv', index_col = 0)
 census_00 = pd.read_csv(output_path+city_name+'census_00.csv', index_col = 0)
 
@@ -735,8 +733,8 @@ census_00_filtered = filter_FIPS(census_00_xwalked)
 
 
 
-census_90_filtered.to_csv(home+'/git/sparcc/data/'+city_name+'census_90_10.csv')
-census_00_filtered.to_csv(home+'/git/sparcc/data/'+city_name+'census_00_10.csv')
+census_90_filtered.to_csv(output_path+city_name+'census_90_10.csv')
+census_00_filtered.to_csv(output_path+city_name+'census_00_10.csv')
 
 
 # ==========================================================================
@@ -753,8 +751,8 @@ from pyproj import Proj
 import matplotlib.pyplot as plt
 
 # Below is the Google File Drive Stream pathway for a mac. 
-# input_path = home+'/git/sparcc/data/inputs/'
-# output_path = home+'/git/sparcc/data/'
+# input_path = '~/git/sparcc/data/inputs/'
+# output_path = output_path
 shp_folder = input_path+'shp/'+city_name+'/'
 data_1990 = pd.read_csv(output_path+city_name+'census_90_10.csv', index_col = 0) 
 data_2000 = pd.read_csv(output_path+city_name+'census_00_10.csv', index_col = 0)

@@ -36,13 +36,13 @@ options(tigris_use_cache = TRUE)
 
 data <- 
     bind_rows( # pull in data
-        read_csv('~/git/sparcc/data/Atlanta_typology_output_2017.csv') %>% 
+        read_csv('~/git/sparcc/data/outputs/Atlanta_typology_output_2017.csv') %>% 
         mutate(city = 'Atlanta'),
-        read_csv('~/git/sparcc/data/Denver_typology_output_2017.csv') %>%
+        read_csv('~/git/sparcc/data/outputs/Denver_typology_output_2017.csv') %>%
         mutate(city = 'Denver'),
-        read_csv('~/git/sparcc/data/Chicago_typology_output_2017.csv') %>% 
+        read_csv('~/git/sparcc/data/outputs/Chicago_typology_output_2017.csv') %>% 
         mutate(city = 'Chicago'),
-        read_csv('~/git/sparcc/data/Memphis_typology_output_2017.csv') %>% 
+        read_csv('~/git/sparcc/data/outputs/Memphis_typology_output_2017.csv') %>% 
         mutate(city = 'Memphis')
     ) %>% 
     left_join(., 
