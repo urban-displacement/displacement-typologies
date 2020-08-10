@@ -631,8 +631,8 @@ df_vars_00.to_csv(output_path+city_name+'census_00_2017.csv')
 # Most of the input files are located on google drive and . I suggest downloading [Google's Drive File Stream](https://support.google.com/a/answer/7491144?utm_medium=et&utm_source=aboutdrive&utm_content=getstarted&utm_campaign=en_us) app, which doesn't download all Google Drive items to your computer, but rather pulls them as necessary. This will save a lot of space but compromises speed. 
 
 # Data files
-census_90 = pd.read_csv(output_path+city_name+'census_90.csv', index_col = 0)
-census_00 = pd.read_csv(output_path+city_name+'census_00.csv', index_col = 0)
+census_90 = pd.read_csv(output_path+city_name+'census_90_2017.csv', index_col = 0)
+census_00 = pd.read_csv(output_path+city_name+'census_00_2017.csv', index_col = 0)
 
 # Crosswalk files
 xwalk_90_10 = pd.read_csv(input_path+'crosswalk_1990_2010.csv')
