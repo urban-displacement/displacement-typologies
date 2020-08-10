@@ -613,9 +613,9 @@ df_vars_summ = df_vars_17.merge(df_vars_12, on ='FIPS')
 from pathlib import Path
 
 #Export files to CSV
-df_vars_summ.to_csv(output_path+city_name+'census_summ.csv')
-df_vars_90.to_csv(output_path+city_name+'census_90.csv')
-df_vars_00.to_csv(output_path+city_name+'census_00.csv')
+df_vars_summ.to_csv(output_path+city_name+'census_summ_2017.csv')
+df_vars_90.to_csv(output_path+city_name+'census_90_2017.csv')
+df_vars_00.to_csv(output_path+city_name+'census_00_2017.csv')
 
 
 # ==========================================================================
@@ -734,8 +734,8 @@ census_00_filtered = filter_FIPS(census_00_xwalked)
 
 
 
-census_90_filtered.to_csv(output_path+city_name+'census_90_10.csv')
-census_00_filtered.to_csv(output_path+city_name+'census_00_10.csv')
+census_90_filtered.to_csv(output_path+city_name+'census_90_10_2017.csv')
+census_00_filtered.to_csv(output_path+city_name+'census_00_10_2017.csv')
 
 
 # ==========================================================================
@@ -755,9 +755,9 @@ import matplotlib.pyplot as plt
 # input_path = '~/git/sparcc/data/inputs/'
 # output_path = output_path
 shp_folder = input_path+'shp/'+city_name+'/'
-data_1990 = pd.read_csv(output_path+city_name+'census_90_10.csv', index_col = 0) 
-data_2000 = pd.read_csv(output_path+city_name+'census_00_10.csv', index_col = 0)
-acs_data = pd.read_csv(output_path+city_name+'census_summ.csv', index_col = 0)
+data_1990 = pd.read_csv(output_path+city_name+'census_90_10_2017.csv', index_col = 0) 
+data_2000 = pd.read_csv(output_path+city_name+'census_00_10_2017.csv', index_col = 0)
+acs_data = pd.read_csv(output_path+city_name+'census_summ_2017.csv', index_col = 0)
 acs_data = acs_data.drop(columns = ['county_y', 'state_y', 'tract_y'])
 acs_data = acs_data.rename(columns = {'county_x': 'county',
                                     'state_x': 'state',
