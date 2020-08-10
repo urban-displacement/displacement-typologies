@@ -17,22 +17,23 @@ import census
 import pandas as pd
 import numpy as np
 import sys
-import pyarrow.parquet as pq
+# import pyarrow.parquet as pq
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 pd.options.display.float_format = '{:.2f}'.format # avoid scientific notation
 
-input_path = '~/git/sparcc/data/inputs/'
-output_path = '~/git/sparcc/data/outputs/'
+home = str(Path.home())
+input_path = home+'/git/sparcc/data/inputs/'
+output_path = home+'/git/sparcc/data/outputs/'
 
 
 # ### Set API key
 
 
 
-# key = '4c26aa6ebbaef54a55d3903212eabbb506ade381'
-key = '63217a192c5803bfc72aab537fe4bf19f6058326'
+key = '4c26aa6ebbaef54a55d3903212eabbb506ade381'
+# key = '63217a192c5803bfc72aab537fe4bf19f6058326'
 c = census.Census(key)
 
 
@@ -41,8 +42,8 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-city_name = str(sys.argv[1])
-# city_name = 'Atlanta'
+# city_name = str(sys.argv[1])
+city_name = 'Atlanta'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -432,8 +433,8 @@ var_sf3 = var_sf3 + var_list
 
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-
-
+# NOTE: on certain days, Census API may argue about too many queries and this section
+#   may get hung up. 
 
 # SF1
 if city_name != 'Memphis':
