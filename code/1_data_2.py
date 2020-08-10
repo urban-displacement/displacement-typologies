@@ -10,15 +10,14 @@
 # coding: utf-8
 
 # ### Import libraries
+
+
+
 import census
 import pandas as pd
 import numpy as np
 import sys
 from pathlib import Path
-import geopandas as gpd
-from shapely.geometry import Point
-from pyproj import Proj
-import matplotlib.pyplot as plt
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -28,7 +27,11 @@ home = str(Path.home())
 input_path = home+'/git/sparcc/data/inputs/'
 output_path = home+'/git/sparcc/data/outputs/'
 
+
 # ### Set API key
+
+
+
 # key = '4c26aa6ebbaef54a55d3903212eabbb506ade381'
 key = '63217a192c5803bfc72aab537fe4bf19f6058326'
 c = census.Census(key)
@@ -39,8 +42,8 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-city_name = str(sys.argv[1])
-# city_name = "San Francisco"
+# city_name = str(sys.argv[1])
+city_name = 'San Francisco'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -74,7 +77,6 @@ elif city_name == 'Boston':
 else:
     print ('There is not information for the selected city')
 
-
 if (city_name not in ('Memphis', 'Boston')):
     sql_query='state:{} county:*'.format(state)
 else:
@@ -83,7 +85,6 @@ else:
 
 # ### Creates filter function
 # Note - Memphis is different bc it's located in 2 states
-# Same for Boston
 
 def filter_FIPS(df):
     if (city_name not in ('Memphis', 'Boston')):
@@ -281,9 +282,18 @@ df_vars_12=['B25077_001E',
 
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-# same for Boston
 
-if (city_name not in ('Memphis','Boston')):
+# if (city_name not in ('Memphis','Boston')):
+#     var_dict_acs5 = c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
+#                                  'in': sql_query}, year=2012)
+# else:
+#     var_dict_1 = c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
+#                                  'in': sql_query_1} , year=2012)
+#     var_dict_2 = (c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
+#                                  'in': sql_query_2}, year=2012))
+#     var_dict_acs5 = var_dict_1+var_dict_2
+
+if city_name != 'Memphis':
     var_dict_acs5 = c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2012)
 else:
@@ -292,7 +302,6 @@ else:
     var_dict_2 = (c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
                                  'in': sql_query_2}, year=2012))
     var_dict_acs5 = var_dict_1+var_dict_2
-
 
 # #### Converts variables into dataframe and filters only FIPS of interest
 
@@ -447,12 +456,11 @@ var_sf3 = var_sf3 + var_list
 
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-# same for Boston
-
-
+# NOTE: on certain days, Census API may argue about too many queries and this section
+#   may get hung up. 
 
 # SF1
-if (city_name not in ('Memphis', 'Boston')):
+if city_name != 'Memphis':
     var_dict_sf1 = c.sf1.get(var_sf1, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2000)
 else:
@@ -463,7 +471,7 @@ else:
     var_dict_sf1 = var_dict_1+var_dict_2
     
 # SF3
-if (city_name not in ('Memphis', 'Boston')):
+if city_name != 'Memphis':
     var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2000)
 else:
@@ -549,11 +557,10 @@ var_sf3 = var_sf3 + var_list
 
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
-# Same for Boston
 
 # SF1 - All of the variables are found in the SF3
 # SF3
-if (city_name not in ('Memphis', 'Boston')):
+if city_name != 'Memphis':
     var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=1990)
 else:
@@ -626,14 +633,12 @@ df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
 # df_vars_summ = df_vars_18.merge(df_vars_10, on = 'FIPS').merge(df_vars_12, on ='FIPS')
 df_vars_summ = df_vars_18.merge(df_vars_12, on ='FIPS')
 
-
-
-home = str(Path.home())
+from pathlib import Path
 
 #Export files to CSV
-df_vars_summ.to_csv(output_path+city_name+'census_summ.csv')
-df_vars_90.to_csv(output_path+city_name+'census_90.csv')
-df_vars_00.to_csv(output_path+city_name+'census_00.csv')
+df_vars_summ.to_csv(output_path+city_name+'census_summ_2018.csv')
+df_vars_90.to_csv(output_path+city_name+'census_90_2018.csv')
+df_vars_00.to_csv(output_path+city_name+'census_00_2018.csv')
 
 
 # ==========================================================================
@@ -645,8 +650,115 @@ df_vars_00.to_csv(output_path+city_name+'census_00.csv')
 # ==========================================================================
 
 # ### Read files
-# ccsv('~/git/sparcc/data/'+city_name+'census_90_10.csv')
-census_00_filtered.to_csv(output_path+city_name+'census_00_10.csv')
+# 
+# Most of the input files are located on google drive and . I suggest downloading [Google's Drive File Stream](https://support.google.com/a/answer/7491144?utm_medium=et&utm_source=aboutdrive&utm_content=getstarted&utm_campaign=en_us) app, which doesn't download all Google Drive items to your computer, but rather pulls them as necessary. This will save a lot of space but compromises speed. 
+
+# Data files
+census_90 = pd.read_csv(output_path+city_name+'census_90_2018.csv', index_col = 0)
+census_00 = pd.read_csv(output_path+city_name+'census_00_2018.csv', index_col = 0)
+
+# Crosswalk files
+xwalk_90_10 = pd.read_csv(input_path+'crosswalk_1990_2010.csv')
+xwalk_00_10 = pd.read_csv(input_path+'crosswalk_2000_2010.csv')
+
+
+# ### Choose city and census tracts of interest
+
+
+
+#add elif for your city here
+
+if city_name == 'Chicago':
+    state = '17'
+    FIPS = ['031', '043', '089', '093', '097', '111', '197']
+elif city_name == 'Atlanta':
+    state = '13'
+    FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
+elif city_name == 'Denver':
+    state = '08'
+    FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']   
+elif city_name == 'Memphis':
+    state = ['28', '47']
+    FIPS = {'28':['033', '093'], '47': ['047', '157']}   
+else:
+    print ('There is no information for the selected city')
+
+# ### Creates filter function
+# Note - Memphis is different bc it's located in 2 states
+
+def filter_FIPS(df):
+    if city_name != 'Memphis':
+        df = df[df['county'].isin(FIPS)].reset_index(drop = True)
+    else:
+        fips_list = []
+        for i in state:
+            county = FIPS[i]
+            a = list((df['FIPS'][(df['county'].isin(county))&(df['state']==i)]))
+            fips_list = fips_list + a
+        df = df[df['FIPS'].isin(fips_list)].reset_index(drop = True)
+    return df
+
+# ### Creates crosswalking function
+
+def crosswalk_files (df, xwalk, counts, medians, df_fips_base, xwalk_fips_base, xwalk_fips_horizon):
+    # merge dataframe with xwalk file
+    df_merge = df.merge(xwalk[['weight', xwalk_fips_base, xwalk_fips_horizon]], left_on = df_fips_base, right_on = xwalk_fips_base, how='left')                             
+    df = df_merge
+    # apply interpolation weight
+    new_var_list = list(counts)+(medians)
+    for var in new_var_list:
+        df[var] = df[var]*df['weight']
+    # aggregate by horizon census tracts fips
+    df = df.groupby(xwalk_fips_horizon).sum().reset_index()
+    # rename trtid10 to FIPS & FIPS to trtid_base
+    df = df.rename(columns = {'FIPS':'trtid_base',
+                              'trtid10':'FIPS'})  
+    # fix state, county and fips code
+    df ['state'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[0:2]
+    df ['county'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[2:5]
+    df ['tract'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[5:]
+    # drop weight column
+    df = df.drop(columns = ['weight'])
+    return df
+
+### Crosswalking
+
+###### 1990 Census Data
+
+
+
+counts = census_90.columns.drop(['county', 'state', 'tract', 'mrent_90', 'mhval_90', 'hinc_90', 'FIPS'])
+medians = ['mrent_90', 'mhval_90', 'hinc_90']
+df_fips_base = 'FIPS'
+xwalk_fips_base = 'trtid90'
+xwalk_fips_horizon = 'trtid10'
+census_90_xwalked = crosswalk_files (census_90, xwalk_90_10,  counts, medians, df_fips_base, xwalk_fips_base, xwalk_fips_horizon )
+
+
+# ###### 2000 Census Data
+
+
+
+counts = census_00.columns.drop(['county', 'state', 'tract', 'mrent_00', 'mhval_00', 'hinc_00', 'FIPS'])
+medians = ['mrent_00', 'mhval_00', 'hinc_00']
+df_fips_base = 'FIPS'
+xwalk_fips_base = 'trtid00'
+xwalk_fips_horizon = 'trtid10'
+census_00_xwalked = crosswalk_files (census_00, xwalk_00_10,  counts, medians, df_fips_base, xwalk_fips_base, xwalk_fips_horizon )
+
+
+# ###### Filters and exports data
+
+
+
+census_90_filtered = filter_FIPS(census_90_xwalked)
+census_00_filtered = filter_FIPS(census_00_xwalked)
+
+
+
+
+census_90_filtered.to_csv(output_path+city_name+'census_90_10_2018.csv')
+census_00_filtered.to_csv(output_path+city_name+'census_00_10_2018.csv')
 
 
 # ==========================================================================
@@ -657,10 +769,18 @@ census_00_filtered.to_csv(output_path+city_name+'census_00_10.csv')
 # ==========================================================================
 # ==========================================================================
 
+import geopandas as gpd
+from shapely.geometry import Point
+from pyproj import Proj
+import matplotlib.pyplot as plt
+
+# Below is the Google File Drive Stream pathway for a mac. 
+# input_path = '~/git/sparcc/data/inputs/'
+# output_path = output_path
 shp_folder = input_path+'shp/'+city_name+'/'
-data_1990 = pd.read_csv(output_path+city_name+'census_90_10.csv', index_col = 0) 
-data_2000 = pd.read_csv(output_path+city_name+'census_00_10.csv', index_col = 0)
-acs_data = pd.read_csv(output_path+city_name+'census_summ.csv', index_col = 0)
+data_1990 = pd.read_csv(output_path+city_name+'census_90_10_2018.csv', index_col = 0) 
+data_2000 = pd.read_csv(output_path+city_name+'census_00_10_2018.csv', index_col = 0)
+acs_data = pd.read_csv(output_path+city_name+'census_summ_2018.csv', index_col = 0)
 acs_data = acs_data.drop(columns = ['county_y', 'state_y', 'tract_y'])
 acs_data = acs_data.rename(columns = {'county_x': 'county',
                                     'state_x': 'state',
@@ -702,93 +822,54 @@ pub_hous = pd.read_csv(input_path+'Public_Housing_Buildings.csv.gz')
 ### SHP data
 #add elif for your city here
 #Pull cartographic boundary files from here: 
-#https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.2018.html
+#https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.2017.html
 if city_name == 'Memphis':
-    shp_name = 'cb_2018_47_tract_500k.shp'
+    shp_name = 'cb_2017_47_tract_500k.shp'
 elif city_name == 'Chicago':
-    shp_name = 'cb_2018_17_tract_500k.shp'
+    shp_name = 'cb_2017_17_tract_500k.shp'
 elif city_name == 'Atlanta':
-    shp_name = 'cb_2018_13_tract_500k.shp'
+    shp_name = 'cb_2017_13_tract_500k.shp'
 elif city_name == 'Denver':
-    shp_name = 'cb_2018_08_tract_500k.shp'
-elif city_name == 'Los Angeles':
-    shp_name = 'cb_2018_06_tract_500k.shp'
-elif city_name == 'San Francisco':
-    shp_name = 'cb_2018_06_tract_500k.shp'
-elif city_name == 'Seattle':
-    shp_name = 'cb_2018_53_tract_500k.shp'
-elif city_name == 'Cleveland':
-    shp_name = 'cb_2018_39_tract_500k.shp'
-elif city_name == 'Boston':
-    shp_name = 'cb_2018_25_tract_500k.shp'
+    shp_name = 'cb_2017_08_tract_500k.shp'
 
 city_shp = gpd.read_file(shp_folder+shp_name)
 
 
 # ### Choose city and define city specific variables
 # Add elif for your city here
-# 2020.07.20 change: make rail agencies a list for calls later in the code
 
 
 if city_name == 'Chicago':
     state = '17'
     state_init = ['IL']
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
-    rail_agency = ['CTA']
+    rail_agency = 'CTA'
     zone = '16T'  
 elif city_name == 'Atlanta':
     state = '13'
     state_init = ['GA']
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
-    rail_agency = ['MARTA']
+    rail_agency = 'MARTA'
     zone = '16S' 
 elif city_name == 'Denver':
     state = '08'
     state_init = ['CO']
     FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']
-    rail_agency = ['RTD']
+    rail_agency = 'RTD'
     zone = '13S'
 elif city_name == 'Memphis':
     state = ['28', '47']
     state_init = ['MS', 'TN']
     FIPS = {'28':['033', '093'], '47': ['047', '157']}
-    rail_agency = [np.nan]
+    rail_agency = np.nan
     zone = '15S'
-elif city_name == 'Los Angeles':
-    state = '06'
-    state_init = ['CA']
-    FIPS = ['037', '059', '073']
-    rail_agency = ['Metro', 'MTS', 'Metrolink']
-    zone = '11S'
-elif city_name == 'San Francisco':
-    state = '06'
-    state_init = ['CA']
-    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']
-    rail_agency = ['ACE ', 'ACE , Capitol Corridor Joint Powers Authority', 'BART', 'Caltrain', 'Capitol Corridor Joint Powers Authority', 'RT', 'San Francisco Municipal Transportation Agency', 'VTA', 'Alameda/Oakland Ferry', 'Blue & Gold Fleet', 'Golden Gate Ferry', 'Harbor Bay Ferry', 'Baylink']
-    zone = '10S'
-elif city_name == 'Seattle':
-    state = '53'
-    state_init = ['WA']
-    FIPS = ['033', '053', '061']
-    rail_agency = ['City of Seattle', 'Sound Transit', 'Washington State Ferries', 'King County Marine Division']
-    zone = '10T'
-elif city_name == 'Cleveland':
-    state = '39'
-    state_init = ['OH']
-    FIPS = ['035', '055', '085', '093', '103']
-    rail_agency = ['GCRTA']
-    zone = '17T'
-elif city_name == 'Boston':
-    state = ['25', '33']
-    state_init = ['MA', 'NH']
-    FIPS = {'25': ['009', '017', '021', '023', '025'], '33': ['015', '017']}
-    rail_agency = ['MBTA', 'Amtrak', 'Salem Ferry', 'Boston Harbor Islands Ferries']
-    zone = '19T'
 else:
     print ('There is no information for the selected city')
 
 
 # ### Merge census data in single file
+
+
 
 census = acs_data.merge(data_2000, on = 'FIPS', how = 'outer').merge(data_1990, on = 'FIPS', how = 'outer')
 
@@ -799,13 +880,13 @@ census = acs_data.merge(data_2000, on = 'FIPS', how = 'outer').merge(data_1990, 
 
 
 
-### This is based on the yearly CPI average - see https://www.bls.gov/data/inflation_calculator.htm for updates. 
-CPI_89_18 = 2.04
-CPI_99_18 = 1.51
-CPI_12_18 = 1.09
+### This is based on the yearly CPI average
+CPI_89_18 = 2.08
+CPI_99_18 = 1.53
+CPI_12_18 = 1.11
 
 ### This is used for the Zillow data, where january values are compared
-CPI_0115_0119 = 1.06
+CPI_0115_0119 = 1.077
 
 
 # #### Income
@@ -868,10 +949,11 @@ def income_interpolation (census, year, cutoff, mhinc, tot_var, var_suffix, out)
     census = census.merge (df[['FIPS', income]], on = 'FIPS')
     return census
 
+
 census = income_interpolation (census, '18', 0.8, rm_hinc_18, 'hh_18', 'I', 'inc')
-census = income_interpolation (census, '18', 1.2, rm_hinc_18, 'hh_18', 'I', 'inc')
+census =income_interpolation (census, '18', 1.2, rm_hinc_18, 'hh_18', 'I', 'inc')
 census = income_interpolation (census, '00', 0.8, rm_hinc_00, 'hh_00', 'I', 'inc')
-census = income_interpolation (census, '00', 1.2, rm_hinc_00, 'hh_00', 'I', 'inc')
+census =income_interpolation (census, '00', 1.2, rm_hinc_00, 'hh_00', 'I', 'inc')
 census = income_interpolation (census, '90', 0.8, rm_hinc_90, 'hh_00', 'I', 'inc')
 
 income_col = census.columns[census.columns.str[0:2]=='I_'] 
@@ -956,7 +1038,11 @@ census['all_li_count_90'] = census['per_all_li_90']*census['hh_90']
 census['all_li_count_00'] = census['per_all_li_00']*census['hh_00']
 census['all_li_count_18'] = census['per_all_li_18']*census['hh_18']
 
+
+
+
 len(census)
+
 
 # #### Index all values to 2018
 
@@ -1113,10 +1199,10 @@ census = income_interpolation_movein (census, '12', 0.8, rm_iinc_12)
 
 len(census)
 
-# #### Housing Affordability: note exceptions for Memphis & Boston that have 2 states
+# #### Housing Affordability
 
 def filter_PUMS(df, FIPS):
-    if (city_name not in ('Memphis', 'Boston')):
+    if city_name != 'Memphis':
         FIPS = [int(x) for x in FIPS]
         df = df[(df['STATEA'] == int(state))&(df['COUNTYA'].isin(FIPS))].reset_index(drop = True)
     else:
@@ -1185,6 +1271,8 @@ pums = income_interpolation (pums, '18', 1.2, aff_18, 'rhu_18_wcash', 'R', 'rent
 
 pums = income_interpolation (pums, '18', 0.6, aff_18, 'ohu_tot_18', 'O', 'own')
 pums = income_interpolation (pums, '18', 1.2, aff_18, 'ohu_tot_18', 'O', 'own')
+
+
 
 
 pums['FIPS'] = pums['FIPS'].astype(float).astype('int64')
@@ -1374,12 +1462,12 @@ census.groupby(['change_flag_category', 'lmh_flag_category']).count()['FIPS']
 len(census)
 
 
-# ###### Load Zillow data: note change for Memphis/Boston
+# ###### Load Zillow data
 
 
 
 def filter_ZILLOW(df, FIPS):
-    if (city_name not in ('Memphis', 'Boston')):
+    if city_name != 'Memphis':
         FIPS_pre = [state+county for county in FIPS]
         df = df[(df['FIPS'].astype(str).str.zfill(11).str[:5].isin(FIPS_pre))].reset_index(drop = True)
     else:
@@ -1580,9 +1668,9 @@ census_tract_list.describe()
 
 ### Filter only existing rail
 rail = rail[rail['Year Opened']=='Pre-2000'].reset_index(drop = True)
-# rail.Agency.unique()
+
 ### Filter by city
-rail = rail[rail['Agency'].isin(rail_agency)].reset_index(drop = True)
+rail = rail[rail['Agency'] == rail_agency].reset_index(drop = True)
 rail = gpd.GeoDataFrame(rail, geometry=[Point(xy) for xy in zip (rail['Longitude'], rail['Latitude'])])
 
 
@@ -1775,7 +1863,5 @@ census = census.merge(city_shp[['GEOID','geometry','rail',
 
 # ### Export csv file
 
-
-
-census.to_csv(output_path+city_name+'_database.csv')
+census.to_csv(output_path+city_name+'_database_2018.csv')
 # pq.write_table(output_path+city_name+'_database.parquet')
