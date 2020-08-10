@@ -14,7 +14,6 @@ import census
 import pandas as pd
 import numpy as np
 import sys
-# import pyarrow.parquet as pq
 from pathlib import Path
 import geopandas as gpd
 from shapely.geometry import Point
@@ -25,8 +24,13 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 pd.options.display.float_format = '{:.2f}'.format # avoid scientific notation
 
+home = str(Path.home())
+input_path = home+'/git/sparcc/data/inputs/'
+output_path = home+'/git/sparcc/data/outputs/'
+
 # ### Set API key
-key = '4c26aa6ebbaef54a55d3903212eabbb506ade381'
+# key = '4c26aa6ebbaef54a55d3903212eabbb506ade381'
+key = '63217a192c5803bfc72aab537fe4bf19f6058326'
 c = census.Census(key)
 
 
@@ -35,8 +39,8 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-# city_name = str(sys.argv[1])
-city_name = "Boston"
+city_name = str(sys.argv[1])
+# city_name = "Boston"
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -627,9 +631,9 @@ df_vars_summ = df_vars_18.merge(df_vars_12, on ='FIPS')
 home = str(Path.home())
 
 #Export files to CSV
-df_vars_summ.to_csv('~/git/sparcc/data/'+city_name+'census_summ.csv')
-df_vars_90.to_csv('~/git/sparcc/data/'+city_name+'census_90.csv')
-df_vars_00.to_csv('~/git/sparcc/data/'+city_name+'census_00.csv')
+df_vars_summ.to_csv(output_path+city_name+'census_summ.csv')
+df_vars_90.to_csv(output_path+city_name+'census_90.csv')
+df_vars_00.to_csv(output_path+city_name+'census_00.csv')
 
 
 # ==========================================================================
@@ -641,127 +645,8 @@ df_vars_00.to_csv('~/git/sparcc/data/'+city_name+'census_00.csv')
 # ==========================================================================
 
 # ### Read files
-# 
-# Most of the input files are located on google drive and . I suggest downloading [Google's Drive File Stream](https://support.google.com/a/answer/7491144?utm_medium=et&utm_source=aboutdrive&utm_content=getstarted&utm_campaign=en_us) app, which doesn't download all Google Drive items to your computer, but rather pulls them as necessary. This will save a lot of space but compromises speed. 
-
-# Data files
-
-# Google File Drive Stream pathway for a mac. 
-input_path = '~/git/sparcc/data/inputs/'
-output_path = '~/git/sparcc/data/'
-
-census_90 = pd.read_csv(output_path+city_name+'census_90.csv', index_col = 0)
-census_00 = pd.read_csv(output_path+city_name+'census_00.csv', index_col = 0)
-
-# Crosswalk files
-xwalk_90_10 = pd.read_csv(input_path+'crosswalk_1990_2010.csv')
-xwalk_00_10 = pd.read_csv(input_path+'crosswalk_2000_2010.csv')
-
-
-# ### Choose city and census tracts of interest
-
-
-
-#add elif for your city here
-
-if city_name == 'Chicago':
-    state = '17'
-    FIPS = ['031', '043', '089', '093', '097', '111', '197']
-elif city_name == 'Atlanta':
-    state = '13'
-    FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
-elif city_name == 'Denver':
-    state = '08'
-    FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']   
-elif city_name == 'Memphis':
-    state = ['28', '47']
-    FIPS = {'28':['033', '093'], '47': ['047', '157']}   
-elif city_name == 'Los Angeles':
-    state = '06'
-    FIPS = ['037', '059', '073']
-elif city_name == 'San Francisco':
-    state = '06'
-    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']
-elif city_name == 'Seattle':
-    state = '53'
-    FIPS = ['033', '053', '061']
-elif city_name == 'Cleveland':
-    state = '39'
-    FIPS = ['035', '055', '085', '093', '103']
-elif city_name == 'Boston':
-      state = ['25', '33']
-      FIPS = {'25': ['009', '017', '021', '023', '025'], '33': ['015', '017']}
-else:
-    print ('There is no information for the selected city')
-
-# ### Creates filter function
-# Note - Memphis is different bc it's located in 2 states; same for Boston
-
-def filter_FIPS(df):
-    if (city_name not in ('Memphis', 'Boston')):
-        df = df[df['county'].isin(FIPS)].reset_index(drop = True)
-    else:
-        fips_list = []
-        for i in state:
-            county = FIPS[i]
-            a = list((df['FIPS'][(df['county'].isin(county))&(df['state']==i)]))
-            fips_list = fips_list + a
-        df = df[df['FIPS'].isin(fips_list)].reset_index(drop = True)
-    return df
-
-# ### Creates crosswalking function
-
-def crosswalk_files (df, xwalk, counts, medians, df_fips_base, xwalk_fips_base, xwalk_fips_horizon):
-    df_merge = df.merge(xwalk[['weight', xwalk_fips_base, xwalk_fips_horizon]], left_on = df_fips_base, right_on = xwalk_fips_base, how='left') # merge dataframe with xwalk file
-    df = df_merge
-    new_var_list = list(counts)+(medians)     # apply interpolation weight
-    for var in new_var_list:
-        df[var] = df[var]*df['weight']
-    df = df.groupby(xwalk_fips_horizon).sum().reset_index() # aggregate by horizon census tracts fips
-    df = df.rename(columns = {'FIPS':'trtid_base',
-                              'trtid10':'FIPS'})      # rename trtid10 to FIPS & FIPS to trtid_base
-    df ['state'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[0:2]     # fix state, county and fips code
-    df ['county'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[2:5]
-    df ['tract'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[5:] 
-    df = df.drop(columns = ['weight'])     # drop weight column
-    return df
-
-### Crosswalking
-
-###### 1990 Census Data
-
-
-
-counts = census_90.columns.drop(['county', 'state', 'tract', 'mrent_90', 'mhval_90', 'hinc_90', 'FIPS'])
-medians = ['mrent_90', 'mhval_90', 'hinc_90']
-df_fips_base = 'FIPS'
-xwalk_fips_base = 'trtid90'
-xwalk_fips_horizon = 'trtid10'
-census_90_xwalked = crosswalk_files (census_90, xwalk_90_10,  counts, medians, df_fips_base, xwalk_fips_base, xwalk_fips_horizon )
-
-
-# ###### 2000 Census Data
-
-counts = census_00.columns.drop(['county', 'state', 'tract', 'mrent_00', 'mhval_00', 'hinc_00', 'FIPS'])
-medians = ['mrent_00', 'mhval_00', 'hinc_00']
-df_fips_base = 'FIPS'
-xwalk_fips_base = 'trtid00'
-xwalk_fips_horizon = 'trtid10'
-census_00_xwalked = crosswalk_files (census_00, xwalk_00_10,  counts, medians, df_fips_base, xwalk_fips_base, xwalk_fips_horizon )
-
-
-# ###### Filters and exports data
-
-
-
-census_90_filtered = filter_FIPS(census_90_xwalked)
-census_00_filtered = filter_FIPS(census_00_xwalked)
-
-
-
-
-census_90_filtered.to_csv('~/git/sparcc/data/'+city_name+'census_90_10.csv')
-census_00_filtered.to_csv('~/git/sparcc/data/'+city_name+'census_00_10.csv')
+# ccsv('~/git/sparcc/data/'+city_name+'census_90_10.csv')
+census_00_filtered.to_csv(output_path+city_name+'census_00_10.csv')
 
 
 # ==========================================================================
@@ -772,9 +657,6 @@ census_00_filtered.to_csv('~/git/sparcc/data/'+city_name+'census_00_10.csv')
 # ==========================================================================
 # ==========================================================================
 
-# Below is the Google File Drive Stream pathway for a mac. 
-# input_path = '~/git/sparcc/data/inputs/'
-# output_path = '~/git/sparcc/data/'
 shp_folder = input_path+'shp/'+city_name+'/'
 data_1990 = pd.read_csv(output_path+city_name+'census_90_10.csv', index_col = 0) 
 data_2000 = pd.read_csv(output_path+city_name+'census_00_10.csv', index_col = 0)
