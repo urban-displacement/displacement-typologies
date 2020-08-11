@@ -11,8 +11,6 @@
 
 # ### Import libraries
 
-
-
 import census
 import pandas as pd
 import numpy as np
@@ -43,7 +41,7 @@ c = census.Census(key)
 # Example: python data.py Atlanta
 
 # city_name = str(sys.argv[1])
-city_name = 'San Francisco'
+city_name = 'Atlanta'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -280,20 +278,11 @@ df_vars_12=['B25077_001E',
             'B06011_001E']
 
 
+
 # #### Run API query
 # NOTE: Memphis is located in two states so the query looks different
 
-# if (city_name not in ('Memphis','Boston')):
-#     var_dict_acs5 = c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
-#                                  'in': sql_query}, year=2012)
-# else:
-#     var_dict_1 = c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
-#                                  'in': sql_query_1} , year=2012)
-#     var_dict_2 = (c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
-#                                  'in': sql_query_2}, year=2012))
-#     var_dict_acs5 = var_dict_1+var_dict_2
-
-if city_name != 'Memphis':
+if (city_name not in ('Memphis', 'Boston')):
     var_dict_acs5 = c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=2012)
 else:
@@ -302,6 +291,30 @@ else:
     var_dict_2 = (c.acs5.get(df_vars_12, geo = {'for': 'tract:*',
                                  'in': sql_query_2}, year=2012))
     var_dict_acs5 = var_dict_1+var_dict_2
+    
+
+
+if (city_name not in ('Memphis', 'Boston')):
+    var_dict_acs5 = c.acs5.get(df_vars_18, geo = {'for': 'tract:*',
+                                 'in': sql_query}, year=2018)
+else:
+    var_dict_1 = c.acs5.get(df_vars_18, geo = {'for': 'tract:*',
+                                 'in': sql_query_1} , year=2018)
+    var_dict_2 = (c.acs5.get(df_vars_18, geo = {'for': 'tract:*',
+                                 'in': sql_query_2}, year=2018))
+    var_dict_acs5 = var_dict_1+var_dict_2
+
+
+# if (city_name not in ('Memphis', 'Boston')):
+#     var_dict_acs5 = c.acs5.get(df_vars_18, geo = {'for': 'tract:*',
+#                                  'in': sql_query}, year=2018)
+# else:
+#     var_dict_1 = c.acs5.get(df_vars_18, geo = {'for': 'tract:*',
+#                                  'in': sql_query_1} , year=2018)
+#     var_dict_2 = (c.acs5.get(df_vars_18, geo = {'for': 'tract:*',
+#                                  'in': sql_query_2}, year=2018))
+#     var_dict_acs5 = var_dict_1+var_dict_2
+
 
 # #### Converts variables into dataframe and filters only FIPS of interest
 
