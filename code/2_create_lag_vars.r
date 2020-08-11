@@ -15,33 +15,33 @@ census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
 
 df <- 
     bind_rows(
-            read_csv("~/git/sparcc/data/Atlanta_database.csv") %>% 
+            read_csv("~/git/sparcc/data/Atlanta_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Atlanta"),
-            read_csv("~/git/sparcc/data/Denver_database.csv") %>% 
+            read_csv("~/git/sparcc/data/Denver_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Denver"),
-            read_csv("~/git/sparcc/data/Chicago_database.csv") %>%  
+            read_csv("~/git/sparcc/data/Chicago_database_2018.csv") %>%  
             select(!X1) %>% 
             mutate(city = "Chicago"),
-            read_csv("~/git/sparcc/data/Memphis_database.csv") %>% 
+            read_csv("~/git/sparcc/data/Memphis_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Memphis"),
-            read_csv("~/git/sparcc/data/Los Angeles_database.csv") %>% 
+            read_csv("~/git/sparcc/data/Los Angeles_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Los Angeles"),
-            read_csv("~/git/sparcc/data/San Francisco_database.csv") %>% 
+            read_csv("~/git/sparcc/data/San Francisco_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "San Francisco"),
-            read_csv("~/git/sparcc/data/Seattle_database.csv") %>% 
+            read_csv("~/git/sparcc/data/Seattle_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Seattle"),
-            read_csv("~/git/sparcc/data/Cleveland_database.csv") %>% 
+            read_csv("~/git/sparcc/data/Cleveland_database_2018.csv") %>% 
             select(!X1) %>% 
-            mutate(city = "Cleveland")# ,
-            # read_csv("~/git/sparcc/data/Boston_database.csv") %>% 
-            # select(!X1) %>% 
-            # mutate(city = "Boston")
+            mutate(city = "Cleveland"),
+            read_csv("~/git/sparcc/data/Boston_database.csv") %>%
+            select(!X1) %>%
+            mutate(city = "Boston")
     )
 
 # ==========================================================================
