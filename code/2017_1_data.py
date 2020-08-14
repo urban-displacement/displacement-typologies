@@ -613,9 +613,9 @@ df_vars_summ = df_vars_17.merge(df_vars_12, on ='FIPS')
 from pathlib import Path
 
 #Export files to CSV
-df_vars_summ.to_csv(output_path+city_name+'census_summ_2017.csv')
-df_vars_90.to_csv(output_path+city_name+'census_90_2017.csv')
-df_vars_00.to_csv(output_path+city_name+'census_00_2017.csv')
+df_vars_summ.to_csv(output_path+'downloads/'+city_name+'census_summ_2017.csv')
+df_vars_90.to_csv(output_path+'downloads/'+city_name+'census_90_2017.csv')
+df_vars_00.to_csv(output_path+'downloads/'+city_name+'census_00_2017.csv')
 
 
 # ==========================================================================
@@ -734,8 +734,8 @@ census_00_filtered = filter_FIPS(census_00_xwalked)
 
 
 
-census_90_filtered.to_csv(output_path+city_name+'census_90_10_2017.csv')
-census_00_filtered.to_csv(output_path+city_name+'census_00_10_2017.csv')
+census_90_filtered.to_csv(output_path+'crosswalks/'+city_name+'census_90_10_2017.csv')
+census_00_filtered.to_csv(output_path+'crosswalks/'+city_name+'census_00_10_2017.csv')
 
 
 # ==========================================================================
@@ -1840,5 +1840,5 @@ census = census.merge(city_shp[['GEOID','geometry','rail',
 
 # ### Export csv file
 
-census.to_csv(output_path+city_name+'_database_2017.csv')
+census.to_csv(output_path+'databases/'+city_name+'_database_2017.csv')
 # pq.write_table(output_path+city_name+'_database.parquet')

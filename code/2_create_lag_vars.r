@@ -3,7 +3,7 @@
 # ==========================================================================
 
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(data.table, tigris, tidycensus, tidyverse, spdep)
+pacman::p_load(fs, data.table, tigris, tidycensus, tidyverse, spdep)
 # options(width = Sys.getenv('COLUMNS'))
 
 census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
@@ -13,35 +13,46 @@ census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
 # ==========================================================================
 # Note: Adjust the cities below if there are additional cities - add your city here
 
+city_names <- commandArgs(trailingOnly = TRUE)
+data_dir <- "~/git/sparcc/data/outputs/databases/"
+
+
 df <- 
+    map_dfr(city_names, function(city){
+        bind_rows(
+            fread(paste0)
+            )
+        tr_rent(year = 2018, state) %>% 
+        mutate(COUNTY = substr(GEOID, 1, 5))
+    })
     bind_rows(
-            read_csv("~/git/sparcc/data/Atlanta_database_2018.csv") %>% 
+            # read_csv("~/git/sparcc/data/Atlanta_database_2018.csv") %>% 
+            # select(!X1) %>% 
+            # mutate(city = "Atlanta"),
+            # read_csv("~/git/sparcc/data/Denver_database_2018.csv") %>% 
+            # select(!X1) %>% 
+            # mutate(city = "Denver"),
+            # read_csv("~/git/sparcc/data/Chicago_database_2018.csv") %>%  
+            # select(!X1) %>% 
+            # mutate(city = "Chicago"),
+            # read_csv("~/git/sparcc/data/Memphis_database_2018.csv") %>% 
+            # select(!X1) %>% 
+            # mutate(city = "Memphis"),
+            # read_csv("~/git/sparcc/data/Los Angeles_database_2018.csv") %>% 
+            # select(!X1) %>% 
+            # mutate(city = "Los Angeles"),
+            read_csv(paste0"~/git/sparcc/data/outputs/San Francisco_database_2018.csv") %>% 
             select(!X1) %>% 
-            mutate(city = "Atlanta"),
-            read_csv("~/git/sparcc/data/Denver_database_2018.csv") %>% 
-            select(!X1) %>% 
-            mutate(city = "Denver"),
-            read_csv("~/git/sparcc/data/Chicago_database_2018.csv") %>%  
-            select(!X1) %>% 
-            mutate(city = "Chicago"),
-            read_csv("~/git/sparcc/data/Memphis_database_2018.csv") %>% 
-            select(!X1) %>% 
-            mutate(city = "Memphis"),
-            read_csv("~/git/sparcc/data/Los Angeles_database_2018.csv") %>% 
-            select(!X1) %>% 
-            mutate(city = "Los Angeles"),
-            read_csv("~/git/sparcc/data/San Francisco_database_2018.csv") %>% 
-            select(!X1) %>% 
-            mutate(city = "San Francisco"),
-            read_csv("~/git/sparcc/data/Seattle_database_2018.csv") %>% 
-            select(!X1) %>% 
-            mutate(city = "Seattle"),
-            read_csv("~/git/sparcc/data/Cleveland_database_2018.csv") %>% 
-            select(!X1) %>% 
-            mutate(city = "Cleveland"),
-            read_csv("~/git/sparcc/data/Boston_database.csv") %>%
-            select(!X1) %>%
-            mutate(city = "Boston")
+            mutate(city = "San Francisco")#,
+            # read_csv("~/git/sparcc/data/Seattle_database_2018.csv") %>% 
+            # select(!X1) %>% 
+            # mutate(city = "Seattle"),
+            # read_csv("~/git/sparcc/data/Cleveland_database_2018.csv") %>% 
+            # select(!X1) %>% 
+            # mutate(city = "Cleveland"),
+            # read_csv("~/git/sparcc/data/Boston_database.csv") %>%
+            # select(!X1) %>%
+            # mutate(city = "Boston")
     )
 
 # ==========================================================================

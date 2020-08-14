@@ -16,6 +16,10 @@ import pandas as pd
 import numpy as np
 import sys
 from pathlib import Path
+import geopandas as gpd
+from shapely.geometry import Point
+from pyproj import Proj
+import matplotlib.pyplot as plt
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -41,7 +45,7 @@ c = census.Census(key)
 # Example: python data.py Atlanta
 
 # city_name = str(sys.argv[1])
-city_name = 'San Francisco'
+city_name = 'Memphis'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 
@@ -677,13 +681,27 @@ elif city_name == 'Atlanta':
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
 elif city_name == 'Denver':
     state = '08'
-    FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']   
+    FIPS = ['001', '005', '013', '014', '019', '031', '035', '047', '059']
 elif city_name == 'Memphis':
     state = ['28', '47']
-    FIPS = {'28':['033', '093'], '47': ['047', '157']}   
+    FIPS = {'28':['033', '093'], '47': ['047', '157']}
+elif city_name == 'Los Angeles':
+    state = '06'
+    FIPS = ['037', '059', '073']
+elif city_name == 'San Francisco':
+    state = '06'
+    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']  
+elif city_name == 'Seattle':
+    state = '53'
+    FIPS = ['033', '053', '061']
+elif city_name == 'Cleveland':
+    state = '39'
+    FIPS = ['035', '055', '085', '093', '103']
+elif city_name == 'Boston':
+    state = ['25', '33']
+    FIPS = {'25': ['009', '017', '021', '023', '025'], '33': ['015', '017']}
 else:
-    print ('There is no information for the selected city')
-
+    print ('There is not information for the selected city')
 # ### Creates filter function
 # Note - Memphis is different bc it's located in 2 states
 
@@ -738,8 +756,6 @@ census_90_xwalked = crosswalk_files (census_90, xwalk_90_10,  counts, medians, d
 
 # ###### 2000 Census Data
 
-
-
 counts = census_00.columns.drop(['county', 'state', 'tract', 'mrent_00', 'mhval_00', 'hinc_00', 'FIPS'])
 medians = ['mrent_00', 'mhval_00', 'hinc_00']
 df_fips_base = 'FIPS'
@@ -750,17 +766,11 @@ census_00_xwalked = crosswalk_files (census_00, xwalk_00_10,  counts, medians, d
 
 # ###### Filters and exports data
 
-
-
 census_90_filtered = filter_FIPS(census_90_xwalked)
 census_00_filtered = filter_FIPS(census_00_xwalked)
 
-
-
-
 census_90_filtered.to_csv(output_path+city_name+'census_90_10_2018.csv')
 census_00_filtered.to_csv(output_path+city_name+'census_00_10_2018.csv')
-
 
 # ==========================================================================
 # ==========================================================================
@@ -770,10 +780,6 @@ census_00_filtered.to_csv(output_path+city_name+'census_00_10_2018.csv')
 # ==========================================================================
 # ==========================================================================
 
-import geopandas as gpd
-from shapely.geometry import Point
-from pyproj import Proj
-import matplotlib.pyplot as plt
 
 # Below is the Google File Drive Stream pathway for a mac. 
 # input_path = '~/git/sparcc/data/inputs/'
@@ -786,7 +792,6 @@ acs_data = acs_data.drop(columns = ['county_y', 'state_y', 'tract_y'])
 acs_data = acs_data.rename(columns = {'county_x': 'county',
                                     'state_x': 'state',
                                     'tract_x': 'tract'})
-
 
 ### PUMS
 pums_r = pd.read_csv(input_path+'nhgis0002_ds233_20175_2017_tract.csv', encoding = "ISO-8859-1")
@@ -845,10 +850,8 @@ elif city_name == 'Boston':
 
 city_shp = gpd.read_file(shp_folder+shp_name)
 
-
 # ### Choose city and define city specific variables
 # Add elif for your city here
-
 
 if city_name == 'Chicago':
     state = '17'
@@ -910,17 +913,11 @@ else:
 
 # ### Merge census data in single file
 
-
-
 census = acs_data.merge(data_2000, on = 'FIPS', how = 'outer').merge(data_1990, on = 'FIPS', how = 'outer')
-
 
 # ### Compute census variables
 
 # #### CPI indexing values
-
-
-
 ### This is based on the yearly CPI average
 CPI_89_18 = 2.08
 CPI_99_18 = 1.53
@@ -929,17 +926,11 @@ CPI_12_18 = 1.11
 ### This is used for the Zillow data, where january values are compared
 CPI_0115_0119 = 1.077
 
-
 # #### Income
-
-
 
 census['hinc_18'][census['hinc_18']<0]=np.nan
 census['hinc_00'][census['hinc_00']<0]=np.nan
 census['hinc_90'][census['hinc_90']<0]=np.nan
-
-
-
 
 ### These are not indexed
 rm_hinc_18 = np.nanmedian(census['hinc_18'])
@@ -949,9 +940,6 @@ rm_iinc_18 = np.nanmedian(census['iinc_18'])
 rm_iinc_12 = np.nanmedian(census['iinc_12'])
 
 print(rm_hinc_18, rm_hinc_00, rm_hinc_90, rm_iinc_18, rm_iinc_12)
-
-
-
 
 def income_interpolation (census, year, cutoff, mhinc, tot_var, var_suffix, out):
     name = []
@@ -990,7 +978,6 @@ def income_interpolation (census, year, cutoff, mhinc, tot_var, var_suffix, out)
     census = census.merge (df[['FIPS', income]], on = 'FIPS')
     return census
 
-
 census = income_interpolation (census, '18', 0.8, rm_hinc_18, 'hh_18', 'I', 'inc')
 census = income_interpolation (census, '18', 1.2, rm_hinc_18, 'hh_18', 'I', 'inc')
 census = income_interpolation (census, '00', 0.8, rm_hinc_00, 'hh_00', 'I', 'inc')
@@ -1000,10 +987,7 @@ census = income_interpolation (census, '90', 0.8, rm_hinc_90, 'hh_00', 'I', 'inc
 income_col = census.columns[census.columns.str[0:2]=='I_'] 
 census = census.drop(columns = income_col)
 
-
 # ###### Generate income categories
-
-
 
 def income_categories (df, year, mhinc, hinc):
     df['hinc_'+year] = np.where(df['hinc_'+year]<0, 0, df['hinc_'+year])  
@@ -1063,9 +1047,6 @@ def income_categories (df, year, mhinc, hinc):
 census = income_categories(census, '18', rm_hinc_18, 'hinc_18')
 census = income_categories(census, '00', rm_hinc_00, 'hinc_00')
 
-
-
-
 census.groupby('inc_cat_medhhinc_00').count()['FIPS']
 
 census.groupby('inc_cat_medhhinc_18').count()['FIPS']
@@ -1079,11 +1060,7 @@ census['all_li_count_90'] = census['per_all_li_90']*census['hh_90']
 census['all_li_count_00'] = census['per_all_li_00']*census['hh_00']
 census['all_li_count_18'] = census['per_all_li_18']*census['hh_18']
 
-
-
-
 len(census)
-
 
 # #### Index all values to 2018
 
@@ -1112,8 +1089,6 @@ census['real_hinc_18'] = census['hinc_18']
 # end change
 # ==========================================================================
 
-
-
 # #### Demographics
 
 # bk - bookmark
@@ -1131,7 +1106,6 @@ df['per_nonwhite_90'] = 1 - df['white_90']/df['pop_90']
 ### 2000
 df['per_nonwhite_00'] = 1 - df['white_00']/df['pop_00']
 
-
 ### % of owner and renter-occupied housing units
 ### 1990
 df['hu_90'] = df['ohu_90']+df['rhu_90']
@@ -1143,7 +1117,6 @@ df['per_rent_00'] = df['rhu_00']/df['hu_00']
 ### 2018
 df['hu_18'] = df['ohu_18']+df['rhu_18']
 df['per_rent_18'] = df['rhu_18']/df['hu_18']
-
 
 ### % of college educated
 
@@ -1179,10 +1152,7 @@ df['per_col_18'] = (df['total_25_col_bd_18']+
 ### Housing units built
 df['per_units_pre50_18'] = (df['units_40_49_built_18']+df['units_39_early_built_18'])/df['tot_units_built_18']
 
-
 # #### Percent of people who have moved who are low-income
-
-
 
 def income_interpolation_movein (census, year, cutoff, rm_iinc):
     # SUM EVERY CATEGORY BY INCOME
@@ -1313,9 +1283,6 @@ pums = income_interpolation (pums, '18', 1.2, aff_18, 'rhu_18_wcash', 'R', 'rent
 pums = income_interpolation (pums, '18', 0.6, aff_18, 'ohu_tot_18', 'O', 'own')
 pums = income_interpolation (pums, '18', 1.2, aff_18, 'ohu_tot_18', 'O', 'own')
 
-
-
-
 pums['FIPS'] = pums['FIPS'].astype(float).astype('int64')
 pums = pums.merge(census[['FIPS', 'mmhcosts_18']], on = 'FIPS')
 
@@ -1336,7 +1303,6 @@ pums['high_tot_18'] = pums['rhigh_18']+pums['ohigh_18']
 pums['pct_low_18'] = pums['low_tot_18']/pums['hu_tot_18']
 pums['pct_mod_18'] = pums['mod_tot_18']/pums['hu_tot_18']
 pums['pct_high_18'] = pums['high_tot_18']/pums['hu_tot_18']
-
 
 ### Low income
 pums['predominantly_LI'] = np.where((pums['pct_low_18']>=0.55)&
@@ -1388,21 +1354,11 @@ pums.loc[pums['lmh_flag_encoded']==4, 'lmh_flag_category'] = 'aff_mix_low'
 pums.loc[pums['lmh_flag_encoded']==5, 'lmh_flag_category'] = 'aff_mix_mod'
 pums.loc[pums['lmh_flag_encoded']==6, 'lmh_flag_category'] = 'aff_mix_high'
 
-
-
-
 pums.groupby('lmh_flag_category').count()['FIPS']
-
-
-
 
 census = census.merge(pums[['FIPS', 'lmh_flag_encoded', 'lmh_flag_category']], on = 'FIPS')
 
-
-
-
 len(census)
-
 
 # #### Market Type
 
@@ -1487,25 +1443,13 @@ census.loc[census['change_flag_encoded']==1, 'change_flag_category'] = 'ch_decre
 census.loc[census['change_flag_encoded']==2, 'change_flag_category'] = 'ch_increase'
 census.loc[census['change_flag_encoded']==3, 'change_flag_category'] = 'ch_rapid_increase'
 
-
-
-
 census.groupby('change_flag_category').count()['FIPS']
-
-
-
 
 census.groupby(['change_flag_category', 'lmh_flag_category']).count()['FIPS']
 
-
-
-
 len(census)
 
-
 # ###### Load Zillow data
-
-
 
 def filter_ZILLOW(df, FIPS):
     if (city_name not in ('Memphis', 'Boston')):
@@ -1536,9 +1480,9 @@ zillow = zillow[zillow['State'].isin(state_init)].reset_index(drop = True)
 
 ####### CHANGE HERE: original code commented out below; changed from outer to inner merge
 
-# zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
-zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
-zillow = zillow.rename(columns = {'TRACT':'FIPS'})
+zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
+# zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = 'outer')
+# zillow = zillow.rename(columns = {'TRACT':'FIPS'})
 
 # Filter only data of interest
 zillow = filter_ZILLOW(zillow, FIPS)
@@ -1557,6 +1501,8 @@ zillow['ab_50pct_ch'] = np.where(zillow['per_ch_zillow_12_18']>0.5, 1, 0)
 zillow['ab_90percentile_ch'] = np.where(zillow['per_ch_zillow_12_18']>percentile_90, 1, 0)
 
 census = census.merge(zillow[['FIPS', 'per_ch_zillow_12_18', 'ab_50pct_ch', 'ab_90percentile_ch']], on = 'FIPS')
+census.head()
+census.info()
 
 ### Create 90th percentile for rent - 
 # census['rent_percentile_90'] = census['pctch_real_mrent_12_18'].quantile(q = 0.9)
@@ -1606,8 +1552,6 @@ census['rent_abrm_ch'] = np.where(census['pctch_real_mrent_12_18'] > rm_pctch_re
 
 # #### Percent changes
 
-
-
 census['pctch_real_mhval_90_00'] = (census['real_mhval_00']-census['real_mhval_90'])/census['real_mhval_90']
 census['pctch_real_mrent_90_00'] = (census['real_mrent_00']-census['real_mrent_90'])/census['real_mrent_90']
 census['pctch_real_hinc_90_00'] = (census['real_hinc_00']-census['real_hinc_90'])/census['real_hinc_90']
@@ -1632,8 +1576,6 @@ pctch_rm_real_hinc_00_18 = (rm_real_hinc_18-rm_real_hinc_00)/rm_real_hinc_00
 
 # #### Absolute changes
 
-
-
 census['ch_all_li_count_90_00'] = census['all_li_count_00']-census['all_li_count_90']
 census['ch_all_li_count_00_18'] = census['all_li_count_18']-census['all_li_count_00']
 census['ch_per_col_90_00'] = census['per_col_00']-census['per_col_90']
@@ -1644,10 +1586,7 @@ census['ch_per_limove_12_18'] = census['per_limove_18'] - census['per_limove_12'
 ch_rm_per_col_90_00 = rm_per_col_00-rm_per_col_90
 ch_rm_per_col_00_18 = rm_per_col_18-rm_per_col_00
 
-
 # #### Flags
-
-
 
 df = census
 df['pop00flag'] = np.where(df['pop_00']>500, 1, 0)
@@ -1683,10 +1622,7 @@ df['aboverm_ch_per_col_90_00'] = np.where(df['ch_per_col_90_00']>ch_rm_per_col_9
 df['aboverm_ch_per_col_00_18'] = np.where(df['ch_per_col_00_18']>ch_rm_per_col_00_18, 1, 0)
 df['aboverm_per_units_pre50_18'] = np.where(df['per_units_pre50_18']>rm_per_units_pre50_18, 1, 0)
 
-
 # ### Spatial Analysis Variables
-
-
 
 ### Filter only census tracts of interest from shp
 census_tract_list = census['FIPS'].astype(str).str.zfill(11)
@@ -1697,25 +1633,16 @@ city_shp = city_shp[city_shp['GEOID'].isin(census_tract_list)].reset_index(drop 
 city_poly = city_shp.dissolve(by = 'STATEFP')
 city_poly = city_poly.reset_index(drop = True)
 
-
-
-
 census_tract_list.describe()
-
 
 # ###### Rail
 
-
-
 ### Filter only existing rail
 rail = rail[rail['Year Opened']=='Pre-2000'].reset_index(drop = True)
-
+# rail.Agency.unique()
 ### Filter by city
-rail = rail[rail['Agency'] == rail_agency].reset_index(drop = True)
+rail = rail[rail['Agency'].isin(rail_agency)].reset_index(drop = True)
 rail = gpd.GeoDataFrame(rail, geometry=[Point(xy) for xy in zip (rail['Longitude'], rail['Latitude'])])
-
-
-
 
 ### check whether census tract contains rail station
 ### and create rail flag
@@ -1856,9 +1783,6 @@ lihtc = pd.read_csv(input_path+'LowIncome_Housing_Tax_Credit_Properties.csv')
 
 ### Public housing
 pub_hous = pd.read_csv(input_path+'Public_Housing_Buildings.csv.gz')
-
-
-
 
 # Convert to geodataframe
 lihtc = gpd.GeoDataFrame(lihtc, geometry=[Point(xy) for xy in zip (lihtc['X'], lihtc['Y'])])

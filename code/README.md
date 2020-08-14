@@ -36,19 +36,20 @@ Rscript 2017_4_SPARCC_Maps.r
 
 ```
 # 1. data download
-python 1_data.py Atlanta
-python 1_data.py Chicago
-python 1_data.py Denver
-python 1_data.py Memphis
-python 1_data.py 'Los Angeles'
-python 1_data.py 'San Francisco'
-<!-- on hold below -->
-python 1_data.py Seattle
-python 1_data.py Cleveland
-python 1_data.py Boston 
-* notes: Boston Geometry is not running
+python 1_data_download.py Atlanta
+python 1_data_download.py Chicago
+python 1_data_download.py Denver
+python 1_data_download.py Memphis
+python 1_data_download.py 'Los Angeles'
+python 1_data_download.py 'San Francisco'
+python 1_data_download.py Seattle
+python 1_data_download.py Cleveland
+python 1_data_download.py Boston 
 
-# 2. create lag variables
+# 2. data curation
+
+
+# 3. create lag variables
 Rscript 2_create_lag_vars.r
 
 # 3. create typologies
