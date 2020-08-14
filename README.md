@@ -1,3 +1,5 @@
+# Gentrification Maps Project <a href='https://http://sensitivecommunities.org/'><img src='docs/images/UDP Logo.png' align="right" height="120" /></a>
+
 # SPARCC
 
 ## Latest maps
