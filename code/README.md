@@ -115,4 +115,31 @@ aboverm_pctch_real_mrent_12_17 =
     * AdvG == 1 & ARG == 0 & EOG == 1
 
 advg requires that either home value percent change or rent percent change are positive
-    
+
+
+
+## Downloading external datasets
+
+While much of the data used in this methodology is pulled from an API, others will need to be downloaded separately, as follows:
+
+Redlining Data:
+    Visit the URL https://dsl.richmond.edu/panorama/redlining/, then navigate to Downloads & Data and select all GEOJSON files within the region of your choice (note that there may be more than one relevant map, and relevant maps may come from more than one state)
+
+Zillow Data:
+    Visit the URL https://www.zillow.com/research/data/. under "Home values," select "ZHVI All Homes (SFR, Condo/Co-op) Time Series ($)" as Data Type and ZIP Code as Geography, then download. 
+
+Transit Data:
+    Visit the URL https://toddata.cnt.org/downloads.php (you will need to register), then click All US Stations and download.
+
+LIHTC Properties Data:
+    Visit the URL http://hudgis-hud.opendata.arcgis.com/datasets/907edabaf7974f7fb59beef14c4b82f6_0, then download as "Spreadsheet"
+
+Public Housing Buildings Data:
+    Visit the URL https://hudgis-hud.opendata.arcgis.com/datasets/public-housing-buildings, then download as "Spreadsheet"
+****then compress via gzip? need to finalize this****
+
+Hospitals Data:
+    Visit the URL https://hifld-geoplatform.opendata.arcgis.com/datasets/hospitals, then download as "Spreadsheet"
+
+Universities Data:
+    Visit the URL https://nces.ed.gov/ipeds/use-the-data/download-access-database, then download the file called "2016-2017 Access"
