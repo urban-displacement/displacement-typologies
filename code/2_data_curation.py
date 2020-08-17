@@ -31,8 +31,9 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-city_name = "San Francisco"
+city_name = "Memphis"
 # city_name = str(sys.argv[1])
+# merge_type = str(sys.argv[2])
 
 # ==========================================================================
 # ==========================================================================
@@ -47,8 +48,8 @@ city_name = "San Francisco"
 # Most of the input files are located on google drive and . I suggest downloading [Google's Drive File Stream](https://support.google.com/a/answer/7491144?utm_medium=et&utm_source=aboutdrive&utm_content=getstarted&utm_campaign=en_us) app, which doesn't download all Google Drive items to your computer, but rather pulls them as necessary. This will save a lot of space but compromises speed. 
 
 # Data files
-census_90 = pd.read_csv(output_path+'downloads/'+city_name+'census_90_2018.csv', index_col = 0)
-census_00 = pd.read_csv(output_path+'downloads/'+city_name+'census_00_2018.csv', index_col = 0)
+census_90 = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_90_2018.csv', index_col = 0)
+census_00 = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_00_2018.csv', index_col = 0)
 
 # Crosswalk files
 xwalk_90_10 = pd.read_csv(input_path+'crosswalk_1990_2010.csv')
@@ -172,12 +173,12 @@ census_00_filtered = filter_FIPS(census_00_xwalked)
 # Below is the Google File Drive Stream pathway for a mac. 
 # input_path = '~/git/sparcc/data/inputs/'
 # output_path = output_path
-shp_folder = input_path+'shp/'+city_name+'/'
-# data_1990 = pd.read_csv(output_path+city_name+'census_90_10_2018.csv', index_col = 0) 
+shp_folder = input_path+'shp/'+city_name.replace(" ", "")+'/'
+# data_1990 = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_90_10_2018.csv', index_col = 0) 
 data_1990 = census_90_filtered
-# data_2000 = pd.read_csv(output_path+city_name+'census_00_10_2018.csv', index_col = 0)
+# data_2000 = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_00_10_2018.csv', index_col = 0)
 data_2000 = census_00_filtered
-acs_data = pd.read_csv(output_path+city_name+'census_summ_2018.csv', index_col = 0)
+acs_data = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_summ_2018.csv', index_col = 0)
 acs_data = acs_data.drop(columns = ['county_y', 'state_y', 'tract_y'])
 acs_data = acs_data.rename(columns = {'county_x': 'county',
                                     'state_x': 'state',
@@ -871,7 +872,7 @@ zillow = zillow[zillow['State'].isin(state_init)].reset_index(drop = True)
 ####### CHANGE HERE: original code commented out below; changed from outer to inner merge
 
 # zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
-zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
+zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = "outer")
 zillow = zillow.rename(columns = {'TRACT':'FIPS'})
 
 # Filter only data of interest
@@ -1221,4 +1222,4 @@ census_zillow = census_zillow.merge(city_shp[['GEOID','geometry','rail',
 # ### Export csv file
 
 census_zillow.to_csv(output_path+'databases/'+city_name.replace(" ", "")+'_database_2018.csv')
-# pq.write_table(output_path+city_name+'_database.parquet')
+# pq.write_table(output_path+'downloads/'+city_name.replace(" ", "")+'_database.parquet')

@@ -4,7 +4,7 @@
 Each file is appended with the census year from which it was pulled (e.g. 2017 for ACS 5-year census). All code updates should update this scheme accordingly. 
 
 ### crosswalks (legacy)
-Deprecated files from `2017_1_data.py` for the SPARCC project. Current iteration skips saving these files to disk. 
+Deprecated files from `2017_1_data.py` for the SPARCC project and earlier development code runs. Current iteration skips saving these files to disk. 
 
 ### databases
 Primary file used for lags.

@@ -33,6 +33,7 @@ python 2017_3_typology.py Memphis
 Rscript 2017_4_SPARCC_Maps.r
 
 ```
+For all updates, run the following scripts. Currently this is set to 2018 ACS pulls. *Any updates will require code edist for year* 
 
 ```
 # 1. data download
