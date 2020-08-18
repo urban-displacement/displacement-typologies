@@ -45,7 +45,7 @@ df <-
             read_csv("~/git/sparcc/data/outputs/databases/LosAngeles_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Los Angeles") %>% 
-            mutate_at(vars(state_y:tract_y, state:tract), funs(as.numeric)),
+            mutate_at(vars(state_y:tract_y, state:tract), funs(as.numeric)), # temp fix
             read_csv("~/git/sparcc/data/outputs/databases/SanFrancisco_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "San Francisco") %>% 
