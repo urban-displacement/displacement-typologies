@@ -3,7 +3,7 @@
 # ==========================================================================
 
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(colorout, bit64, fs, data.table, tigris, tidycensus, tidyverse, spdep)
+pacman::p_load(colorout, googledrive, bit64, fs, data.table, tigris, tidycensus, tidyverse, spdep)
 # options(width = Sys.getenv('COLUMNS'))
 
 census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
@@ -17,8 +17,8 @@ census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
 data_dir <- "~/git/sparcc/data/outputs/databases/"
 csv_files <- fs::dir_ls(data_dir, regexp = "2018.csv$")
 
-df <- csv_files %>% 
-    map_dfr(read_csv) 
+# df <- csv_files %>% 
+#     map_dfr(read_csv) 
 
 # tr_rents18 <- 
 #     map_dfr(st, function(state){
@@ -45,18 +45,19 @@ df <-
             read_csv("~/git/sparcc/data/outputs/databases/LosAngeles_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Los Angeles") %>% 
-            mutate_at(vars(state_y:tract_y, state:tract), funs(as.numeric)), # temp fix
+            mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric)), # temp fix
             read_csv("~/git/sparcc/data/outputs/databases/SanFrancisco_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "San Francisco") %>% 
-            mutate_at(vars(state_y:tract_y, state:tract), funs(as.numeric)),
+            mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric)),
             read_csv("~/git/sparcc/data/outputs/databases/Seattle_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Seattle") %>% 
-            mutate_at(vars(state_y:tract_y, state:tract), funs(as.numeric))
-            # read_csv("~/git/sparcc/data/outputs/databases/Cleveland_database_2018.csv") %>% 
-            # select(!X1) %>% 
-            # mutate(city = "Cleveland"),
+            mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric)),
+            read_csv("~/git/sparcc/data/outputs/databases/Cleveland_database_2018.csv") %>% 
+            select(!X1) %>% 
+            mutate(city = "Cleveland") %>% 
+            mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric))
             # read_csv("~/git/sparcc/data/outputs/databases/Boston_database.csv") %>%
             # select(!X1) %>%
             # mutate(city = "Boston")
@@ -111,7 +112,7 @@ tr_rents12 <-
             COUNTY = substr(GEOID, 1, 5),
             medrent = medrent*1.07)
     })
-
+gc()
 
 tr_rents <- 
     bind_rows(tr_rents18, tr_rents12) %>% 
@@ -142,6 +143,7 @@ tr_rents <-
 
 # Pull in state tracts shapefile and unite them into one shapefile.
     #Add your state here
+gc()
 
 states <- 
     raster::union(
@@ -238,30 +240,43 @@ lag <-
 # PUMA
 # ==========================================================================
 
-puma_df <-
+puma <-
     get_acs(
         geography = "public use microdata area", 
         variable = "B05006_001", 
         year = 2018, 
-        wide = TRUE
-)
-#add your state FIPS here
-saveRDS(st_read("/Volumes/GoogleDrive/My Drive/CCI Docs/Current Projects/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg") %>% #add your state here
-    filter(STATEFP10 %in% c('17', '13', '08', '28', '47', '06', '53', '39', '25', '33')) %>% 
-    # st_set_crs(102003) %>% 
-    st_transform(4269) %>% 
-    mutate(sqmile = ALAND10/2589988), 
-    "~/git/sparcc/data/inputs/nhgispuma.RDS"
-)
-
-puma <-  
-    left_join(
-        readRDS("~/git/sparcc/data/inputs/nhgispuma.RDS"), 
-        puma_df %>%
-            mutate(GEOID10 = as.factor(GEOID))
+        # wide = TRUE, 
+        geometry=TRUE, 
+        state = st, 
+        keep_geo_vars = TRUE
     ) %>% 
-    mutate(puma_density = estimate/sqmile) %>% 
-    select(puma_density)
+    mutate(
+        sqmile = ALAND10/2589988, 
+        puma_density = estimate/sqmile
+        ) %>% 
+    rename(PUMAID = GEOID)
+
+
+#add your state FIPS here
+# drive_download("~/CCI Docs/Current Projects/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg", overwrite = TRUE)
+
+# saveRDS(st_read("US_puma_2017.gpkg") %>% #add your state here
+#     filter(STATEFP10 %in% c('17', '13', '08', '28', '47', '06', '53', '39', '25', '33')) %>% 
+#     # st_set_crs(102003) %>% 
+#     st_transform(4269) %>% 
+#     mutate(sqmile = ALAND10/2589988), 
+#     "~/git/sparcc/data/inputs/nhgispuma.RDS"
+# )
+
+# puma <-  
+#     st_join(
+#         readRDS("~/git/sparcc/data/inputs/nhgispuma.RDS") %>% 
+#             filter(STATEFP10 == "17", PUMACE10 == "03413") %>% glimpse(), 
+#         puma_df %>%
+#             mutate(GEOID10 = as.factor(GEOID))
+#     ) %>% 
+#     mutate(puma_density = estimate/sqmile) %>% 
+#     select(puma_density)
 
 stsf <- 
     stsp %>% 
@@ -275,40 +290,6 @@ stsf <-
     mutate(GEOID = as.numeric(GEOID))
 
 lag <- left_join(lag, stsf)
-
-# ==========================================================================
-# At risk of gentrification (ARG)
-# Risk = Vulnerability, cheap housing, hot market (rent-gap & extra local change)
-# ==========================================================================
-
-    # group_by(GEOID) %>% 
-    # mutate(
-    #     ARG2 = 
-    #         case_when(
-    #             pop00flag == 1 & 
-    #             (low_pdmt_medhhinc_17 == 1 | mix_low_medhhinc_17 == 1) & 
-    #             (lmh_flag_encoded == 1 | lmh_flag_encoded == 4) & 
-    #             (change_flag_encoded == 1 | change_flag_encoded == 2) &
-    #             gent_90_00 == 0 &
-    #             (dp_PChRent == 1 | dp_RentGap == 1) & # new
-    #             vul_gent_00 == 1 & # new
-    #             gent_00_17 == 0 ~ 1, 
-    #             TRUE ~ 0), 
-    #     # trueARG = case_when(ARG == ARG2 ~ TRUE, TRUE ~ FALSE)
-    #     typ_cat2 = 
-    #         case_when(
-    #             SLI == 1 ~ "SLI",
-    #             OD == 1 ~ "OD",
-    #             ARG2 == 1 ~ "ARG", # ARG2!!
-    #             EOG == 1 ~ "EOG",
-    #             AdvG == 1 ~ "AdvG",
-    #             SMMI == 1 ~ "SMMI",
-    #             ARE == 1 ~ "ARE",
-    #             BE == 1 ~ "BE",
-    #             SAE == 1 ~ "SAE",
-    #             double_counted > 1 ~ "double_counted"
-    #         )
-    # )
 
 # saveRDS(df2, "~/git/sparcc/data/rentgap.rds")
 fwrite(lag, "~/git/sparcc/data/lag.csv")
