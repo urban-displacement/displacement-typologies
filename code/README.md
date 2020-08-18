@@ -102,23 +102,54 @@ advg requires that either home value percent change or rent percent change are p
 While much of the data used in this methodology is pulled from an API, others will need to be downloaded separately, as follows:
 
 Redlining Data:
-    Visit the URL https://dsl.richmond.edu/panorama/redlining/, then navigate to Downloads & Data and select all GEOJSON files within the region of your choice (note that there may be more than one relevant map, and relevant maps may come from more than one state)
+    Visit the URL https://dsl.richmond.edu/panorama/redlining/. 
+    Navigate to Downloads & Data and select all GEOJSON files within the region of your choice 
+    (note that there may be more than one relevant map, and relevant maps may come from more than one state).
 
 Zillow Data:
-    Visit the URL https://www.zillow.com/research/data/. under "Home values," select "ZHVI All Homes (SFR, Condo/Co-op) Time Series ($)" as Data Type and ZIP Code as Geography, then download. 
+    Visit the URL https://www.zillow.com/research/data/. 
+    Under "Home values," select "ZHVI All Homes (SFR, Condo/Co-op) Time Series ($)" as Data Type and ZIP Code as Geography, then download. 
+        ***^note that this data has changed since our original download: our team needs to update the code to reflect this!***
 
 Transit Data:
-    Visit the URL https://toddata.cnt.org/downloads.php (you will need to register), then click All US Stations and download.
+    Visit the URL https://toddata.cnt.org/downloads.php (you will need to register).  
+    Select and download "All US Stations".
 
 LIHTC Properties Data:
-    Visit the URL http://hudgis-hud.opendata.arcgis.com/datasets/907edabaf7974f7fb59beef14c4b82f6_0, then download as "Spreadsheet"
+    Visit the URL http://hudgis-hud.opendata.arcgis.com/datasets/907edabaf7974f7fb59beef14c4b82f6_0.
+    Download as "Spreadsheet".
 
 Public Housing Buildings Data:
-    Visit the URL https://hudgis-hud.opendata.arcgis.com/datasets/public-housing-buildings, then download as "Spreadsheet"
-****then compress via gzip? need to finalize this****
+    Visit the URL https://hudgis-hud.opendata.arcgis.com/datasets/public-housing-buildings.
+    Download as "Spreadsheet". 
+    Compress as a .gz file.
 
 Hospitals Data:
-    Visit the URL https://hifld-geoplatform.opendata.arcgis.com/datasets/hospitals, then download as "Spreadsheet"
+    Visit the URL https://hifld-geoplatform.opendata.arcgis.com/datasets/hospitals. 
+    Download as "Spreadsheet".
 
 Universities Data:
-    Visit the URL https://nces.ed.gov/ipeds/use-the-data/download-access-database, then download the file called "2016-2017 Access"
+    Visit the URL https://nces.ed.gov/ipeds/use-the-data/download-access-database. 
+    Download "2016-2017 Access".
+
+ZIP Codes to Census Tracts Crosswalk:
+    Visit the URL http://mcdc.missouri.edu/applications/geocorr2014.html. 
+    Select the whole list of states as "state(s) to process".
+    Set the source geography as "2010 Geographies: ZIP/ZCTA." 
+    Set the target geography as "2010 Geographies: Census Tract." 
+    Set the weighting variable as "Population (2010 census)." 
+        ***^need to confirm this variable***
+    Download as a CSV.
+        ***^need to update: they then need to follow steps outlined in a do-file***
+        
+Crosswalks from 1990 and 2000 to 2010:
+    Visit the URL https://s4.ad.brown.edu/projects/diversity/Researcher/LTBDDload/DataList.aspx.
+    Under User Tools, select Excel as format type and download two files: one for 1990-2010, and one for 2000-2010.
+
+PUMS Data:
+    Visit the URL https://data2.nhgis.org/main. 
+    Select Years: 5-Year Ranges --> 2013-2017. 
+        ***^update to 2014-2018?***
+    Select Geographic Levels: Census Tract.
+    Download two datasets: B25063 (Gross Rent) and B25094 (Selected Monthly Owner Costs).
+
