@@ -292,6 +292,6 @@ stsf <-
 lag <- left_join(lag, stsf)
 
 # saveRDS(df2, "~/git/sparcc/data/rentgap.rds")
-fwrite(lag, "~/git/sparcc/data/lag.csv")
+fwrite(lag, "~/git/sparcc/data/outputs/lags/lag.csv")
 
 # df2 %>% filter(GEOID == 13121006000) %>% glimpse()

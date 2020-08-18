@@ -66,12 +66,12 @@ Rscript 2_create_lag_vars.r
 python 4_typology.py Atlanta
 python 4_typology.py Chicago
 python 4_typology.py Denver
-python 4_typology.py Memphis
+<!-- python 4_typology.py Memphis -->
 python 4_typology.py 'Los Angeles'
 python 4_typology.py 'San Francisco'
 python 4_typology.py Seattle
 python 4_typology.py Cleveland
-python 4_typology.py Boston
+<!-- python 4_typology.py Boston -->
 
 # 5. create maps
 Rscript 5_SPARCC_Maps.r

@@ -36,23 +36,23 @@ census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
 
 data <- 
     bind_rows( # pull in data
-        read_csv('~/git/sparcc/data/Atlanta_typology_output.csv') %>% 
+        read_csv('~/git/sparcc/data/outputs/typologies/Atlanta_typology_output.csv') %>% 
         mutate(city = 'Atlanta'),
-        read_csv('~/git/sparcc/data/Denver_typology_output.csv') %>%
+        read_csv('~/git/sparcc/data/outputs/typologies/Denver_typology_output.csv') %>%
         mutate(city = 'Denver'),
-        read_csv('~/git/sparcc/data/Chicago_typology_output.csv') %>% 
+        read_csv('~/git/sparcc/data/outputs/typologies/Chicago_typology_output.csv') %>% 
         mutate(city = 'Chicago'),
-        read_csv('~/git/sparcc/data/Memphis_typology_output.csv') %>% 
-        mutate(city = 'Memphis'),
-        read_csv('~/git/sparcc/data/Los Angeles_typology_output.csv') %>% 
+    #     read_csv('~/git/sparcc/data/outputs/typologies/Memphis_typology_output.csv') %>% 
+    #     mutate(city = 'Memphis'),
+        read_csv('~/git/sparcc/data/outputs/typologies/LosAngeles_typology_output.csv') %>% 
         mutate(city = 'Los Angeles'),
-        read_csv('~/git/sparcc/data/San Francisco_typology_output.csv') %>% 
+        read_csv('~/git/sparcc/data/outputs/typologies/SanFrancisco_typology_output.csv') %>% 
         mutate(city = 'San Francisco'),
-        read_csv('~/git/sparcc/data/Seattle_typology_output.csv') %>% 
+        read_csv('~/git/sparcc/data/outputs/typologies/Seattle_typology_output.csv') %>% 
         mutate(city = 'Seattle'),
-        read_csv('~/git/sparcc/data/Cleveland_typology_output.csv') %>% 
+        read_csv('~/git/sparcc/data/outputs/typologies/Cleveland_typology_output.csv') %>% 
         mutate(city = 'Cleveland')#,
-        # read_csv('~/git/sparcc/data/Boston_typology_output.csv') %>% 
+        # read_csv('~/git/sparcc/data/outputs/typologies/Boston_typology_output.csv') %>% 
         # mutate(city = 'Boston')                      
     ) %>% 
     left_join(., 
@@ -171,8 +171,7 @@ tracts <-
                 geography = "tract", 
                 variables = "B01003_001", 
                 state = x, 
-                geometry = TRUE, 
-                year = 2018)
+                geometry = TRUE)
         ), 
         rbind # bind each of the dataframes together
     ) %>% 
@@ -430,19 +429,27 @@ university <-
 states <- 
     c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'CA', 'MA', 'NH', 'OH')
 
-road_map <- 
-    reduce(
-        map(states, function(state){
-            primary_secondary_roads(state, class = 'sf')
-        }),
-        rbind
-    ) %>% 
-    filter(RTTYP %in% c('I','U')) %>% 
-    ms_simplify(keep = 0.1) %>% 
-    st_transform(st_crs(df_sf)) %>%
-    st_join(., df_sf %>% select(city), join = st_intersects) %>% 
-    mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
-    filter(!is.na(city))
+###
+# Run below if file is missing in "~/git/sparcc/data/overlays/road_map.rds" or needs
+#   an update
+# ---
+# road_map <- 
+#     reduce(
+#         map(states, function(state){
+#             primary_secondary_roads(state, class = 'sf')
+#         }),
+#         rbind
+#     ) %>% 
+#     filter(RTTYP %in% c('I','U')) %>% 
+#     ms_simplify(keep = 0.1) %>% 
+#     st_transform(st_crs(df_sf)) %>%
+#     st_join(., df_sf %>% select(city), join = st_intersects) %>% 
+#     mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
+#     filter(!is.na(city)) 
+# saveRDS(road_map, "~/git/sparcc/data/overlays/road_map.rds")
+###
+
+readRDS("~/git/sparcc/data/overlays/road_map.rds")
 
 ### Atlanta Beltline
 beltline <- 
@@ -788,7 +795,7 @@ atlanta <-
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-# htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_2018.html")
+# htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_udp.html")
 
 # Chicago, IL
 chicago <- 
@@ -799,7 +806,7 @@ chicago <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-# htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_2018.html")
+# htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_udp.html")
 
 # Denver, CO
 denver <- 
@@ -809,7 +816,7 @@ denver <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
-# htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_2018.html")
+# htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_udp.html")
 
 # Memphis, TN
 memphis <- 
@@ -830,37 +837,37 @@ losangeles <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -118.244, lat = 34.052, zoom = 10) #set an appropriate view for LA
 # # save map
-htmlwidgets::saveWidget(losangeles, file="~/git/sparcc/maps/losangeles_2018.html")
+# htmlwidgets::saveWidget(losangeles, file="~/git/sparcc/maps/losangeles_udp.html")
 
 # San Francisco, CA
 sanfrancisco <- 
-    map_it("San Francisco", 'CA') %>% 
+    map_it(df_sf, "San Francisco", 'CA') %>% 
     # ind(st = 'CA') %>% # change ind file to include SF if you want this. 
     oz(city_name = "San Francisco") %>% 
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -122.443, lat = 37.756, zoom = 10) #set an appropriate view for SF
 # # save map
-htmlwidgets::saveWidget(sanfrancisco, file="~/git/sparcc/maps/sanfrancisco_2018.html")
+# htmlwidgets::saveWidget(sanfrancisco, file="~/git/sparcc/maps/sanfrancisco_udp.html")
 
 # Seattle, WA
 seattle <- 
-    map_it("Seattle", 'WA') %>% 
+    map_it(df_sf, "Seattle", 'WA') %>% 
     # ind(st = 'WA') %>% 
     oz(city_name = "Seattle") %>% 
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -122.334, lat = 47.605, zoom = 10) #set an appropriate view for Seattle
 # # save map
-htmlwidgets::saveWidget(seattle, file="~/git/sparcc/maps/seattle_2018.html")
+htmlwidgets::saveWidget(seattle, file="~/git/sparcc/maps/seattle_udp.html")
 
 # Cleveland, OH
 cleveland <- 
-    map_it("Cleveland", 'OH') %>% 
+    map_it(df_sf, "Cleveland", 'OH') %>% 
     # ind(st = 'OH') %>% 
     oz(city_name = "Cleveland") %>% 
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -81.686, lat = 41.504, zoom = 10) #set an appropriate view for Cleveland
 # # save map
-htmlwidgets::saveWidget(cleveland, file="~/git/sparcc/maps/cleveland_2018.html")
+htmlwidgets::saveWidget(cleveland, file="~/git/sparcc/maps/cleveland_udp.html")
 
 # Boston, MA
 boston <- 
