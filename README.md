@@ -1,5 +1,7 @@
-# Strong, Prosperous, and Resilient Communities Challenge (SPARCC) Project <a href='https://www.urbandisplacement.org/'><img src='.assets/images/blue_udp_logo.png' align="right" height="120" />
-</a>
+<a href='https://www.urbandisplacement.org/'><img src='.assets/images/blue_udp_logo.png' align="left" height="120" /></a>  
+
+# Strong, Prosperous, and Resilient Communities Challenge (SPARCC) Project 
+
  
 ## Overview
  
