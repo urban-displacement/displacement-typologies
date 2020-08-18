@@ -154,7 +154,7 @@ PUMS Data:
     Download two datasets: B25063 (Gross Rent) and B25094 (Selected Monthly Owner Costs).
 
 
-# Strong, Prosperous, and Resilient Communities Challenge (SPARCC) Project <a href='https://www.urbandisplacement.org/'><img src='Documents/UC Berkeley/UDP/blue_UDP_logo.png' align="right" height="120" />
+# Strong, Prosperous, and Resilient Communities Challenge (SPARCC) Project <a href='https://www.urbandisplacement.org/'><img src ="./assets/images/blue_UDP_logo.png" align="right" height="120" />
 </a>
  
 ## Overview
@@ -171,6 +171,6 @@ To run the code, fork this repository and navigate to `code/README.md` file. You
  
 Please feel free to reach out to us for questions, help, or suggestions.
  
-# SPARCC Project <a href='https://www.urbandisplacement.org/'><img src='Documents/UC Berkeley/UDP/blue_UDP_logo.png' align="right" height="120" />
+# SPARCC Project <a href='https://www.urbandisplacement.org/'><img src ="./assets/images/blue_UDP_logo.png" align="right" height="120" />
 </a>
 
