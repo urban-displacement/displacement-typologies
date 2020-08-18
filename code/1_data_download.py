@@ -45,7 +45,7 @@ c = census.Census(key)
 # Example: python data.py Atlanta
 
 city_name = str(sys.argv[1])
-# city_name = 'Memphis'
+# city_name = 'Los Angeles'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 

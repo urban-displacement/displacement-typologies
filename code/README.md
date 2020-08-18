@@ -48,26 +48,35 @@ python 1_data_download.py Cleveland
 python 1_data_download.py Boston 
 
 # 2. data curation
+python 2_data_curation.py Atlanta
+python 2_data_curation.py Chicago
+python 2_data_curation.py Denver
+python 2_data_curation.py Memphis
+python 2_data_curation.py 'Los Angeles'
+python 2_data_curation.py 'San Francisco'
+python 2_data_curation.py Seattle
+python 2_data_curation.py Cleveland
+python 2_data_curation.py Boston 
 
 
 # 3. create lag variables
 Rscript 2_create_lag_vars.r
 
-# 3. create typologies
-python 3_typology.py Atlanta
-python 3_typology.py Chicago
-python 3_typology.py Denver
-python 3_typology.py Memphis
-python 3_typology.py 'Los Angeles'
-python 3_typology.py 'San Francisco'
-python 3_typology.py Seattle
-python 3_typology.py Cleveland
-python 3_typology.py Boston
+# 4. create typologies
+python 4_typology.py Atlanta
+python 4_typology.py Chicago
+python 4_typology.py Denver
+python 4_typology.py Memphis
+python 4_typology.py 'Los Angeles'
+python 4_typology.py 'San Francisco'
+python 4_typology.py Seattle
+python 4_typology.py Cleveland
+python 4_typology.py Boston
 
-# 4. create maps
-Rscript 4_SPARCC_Maps.r
+# 5. create maps
+Rscript 5_SPARCC_Maps.r
 
-# 5. Encrypt the maps
+# (optional) 5. Encrypt the maps
 # To encrypt (on a mac)
 # brew install npm
 # npm install -g staticrypt # see https://github.com/robinmoisson/staticrypt/
