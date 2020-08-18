@@ -17,11 +17,9 @@ To run the code, fork this repository and navigate to `code/README.md` file. You
  
 Please feel free to reach out to us for questions, help, or suggestions.
  
-# SPARCC Project <a href='https://www.urbandisplacement.org/'><img src='docs/images/UDP Logo.png' align="right" height="120" />
+<!-- # SPARCC Project <a href='https://www.urbandisplacement.org/'><img src='docs/images/UDP Logo.png' align="right" height="120" />
 </a>
-
-
-<!-- # SPARCC
+# SPARCC
 
 ## Latest maps
 password = `city_namesparcc`
