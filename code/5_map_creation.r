@@ -427,7 +427,7 @@ university <-
 
 ### Road map; add your state here
 states <- 
-    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'CA', 'MA', 'NH', 'OH')
+    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'CA', 'MA', 'NH', 'OH', 'WA')
 
 ###
 # Run below if file is missing in "~/git/sparcc/data/overlays/road_map.rds" or needs
@@ -699,7 +699,7 @@ addPolylines(
   ci <- function(map = ., data, city_name){
     map %>% 
     addPolygons(
-        data = data %>% filter(city == "Atlanta", !is.na(cs)), 
+        data = data %>% filter(city == city_name, !is.na(cs)), 
         group = "Community Input", 
         label = ~cs,
         labelOptions = labelOptions(textsize = "12px"),
