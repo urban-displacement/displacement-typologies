@@ -26,6 +26,7 @@ Boston - *coming soon*
 [Cleveland](http://cci-ucb.github.io/sparcc/maps/cleveland_udp.html)  
 [Denver](http://cci-ucb.github.io/sparcc/maps/denver_udp.html)  
 [Los Angeles](http://cci-ucb.github.io/sparcc/maps/losangeles_udp.html)  
-[Memphis](http://cci-ucb.github.io/sparcc/maps/memphis_sparcc.html)  <!-- adjust URL once fixed -->
+[Memphis](http://cci-ucb.github.io/sparcc/maps/memphis_sparcc.html)  <!-- adjust URL once fixed -->  
+[Seattle Puget Sound](http://cci-ucb.github.io/sparcc/maps/seattle_udp.html)  
 
 
