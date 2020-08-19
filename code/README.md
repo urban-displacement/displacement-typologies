@@ -33,7 +33,7 @@ python 2017_3_typology.py Memphis
 Rscript 2017_4_SPARCC_Maps.r
 
 ```
-For all updates, run the following scripts. Currently this is set to 2018 ACS pulls. *Any updates will require code edist for year* 
+For all updates, navigate to `sparcc/code/` and run the following scripts. Currently this is set to 2018 ACS pulls. *Any updates will require code edits for the respective city and year.* 
 
 ```
 # 1. data download
@@ -76,19 +76,19 @@ python 4_typology.py Cleveland
 # 5. create maps
 Rscript 5_SPARCC_Maps.r
 
-# (optional) 5. Encrypt the maps
+# (optional) 6. Encrypt the maps
 # To encrypt (on a mac)
 # brew install npm
 # npm install -g staticrypt # see https://github.com/robinmoisson/staticrypt/
-staticrypt ../maps/atlanta.html atlantasparcc -o ../maps/atlanta.html
-staticrypt ../maps/denver.html denversparcc -o ../maps/denver.html
-staticrypt ../maps/memphis.html memphissparcc -o ../maps/memphis.html
-staticrypt ../maps/chicago.html chicagosparcc -o ../maps/chicago.html
-staticrypt ../maps/losangeles_check.html lasparcc -o ../maps/losangeles_check.html
-staticrypt ../maps/sanfrancisco_check.html sfsparcc -o ../maps/sanfrancisco_check.html
-staticrypt ../maps/seattle_check.html seattlesparcc -o ../maps/seattle_check.html
-staticrypt ../maps/cleveland_check.html clevelandsparcc -o ../maps/cleveland_check.html
-staticrypt ../maps/boston_check.html bostonsparcc -o ../maps/boston_check.html
+staticrypt ../maps/atlanta_udp.html atlantasparcc -o ../maps/atlanta_udp.html
+staticrypt ../maps/denver_udp.html denversparcc -o ../maps/denver_udp.html
+staticrypt ../maps/memphis_udp.html memphissparcc -o ../maps/memphis_udp.html
+staticrypt ../maps/chicago_udp.html chicagosparcc -o ../maps/chicago_udp.html
+staticrypt ../maps/losangeles_udp.html lasparcc -o ../maps/losangeles_udp.html
+staticrypt ../maps/sanfrancisco_udp.html sfsparcc -o ../maps/sanfrancisco_udp.html
+staticrypt ../maps/seattle_udp.html seattlesparcc -o ../maps/seattle_udp.html
+staticrypt ../maps/cleveland_udp.html clevelandsparcc -o ../maps/cleveland_udp.html
+staticrypt ../maps/boston_udp.html bostonsparcc -o ../maps/boston_udp.html
 ```
 
 ## Adding cities
