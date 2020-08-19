@@ -485,8 +485,8 @@ sparcc_pal <-
         c(
             # '#e3dcf5',
             '#cbc9e2', # "#f2f0f7", 
-            '#9e9ac8', #D9D7E8', #"#cbc9e2", #D9D7E8
-            '#5b88b5', #"#6699cc", #light blue       
+            '#5b88b5', #"#6699cc", #light blue              
+            '#9e9ac8', #D9D7E8', #"#cbc9e2", #D9D7E8     
             # "#9e9ac8",
             '#756bb1', #B7B6D3', #"#756bb1", #B7B6D3
             '#54278f', #8D82B6', #"#54278f", #8D82B6
@@ -796,7 +796,7 @@ atlanta <-
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-# htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_udp.html")
+htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_udp.html")
 
 # Chicago, IL
 chicago <- 
@@ -807,7 +807,7 @@ chicago <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-# htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_udp.html")
+htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_udp.html")
 
 # Denver, CO
 denver <- 
@@ -817,7 +817,7 @@ denver <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
-# htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_udp.html")
+htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_udp.html")
 
 # Memphis, TN
 memphis <- 
@@ -838,7 +838,7 @@ losangeles <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -118.244, lat = 34.052, zoom = 10) #set an appropriate view for LA
 # # save map
-# htmlwidgets::saveWidget(losangeles, file="~/git/sparcc/maps/losangeles_udp.html")
+htmlwidgets::saveWidget(losangeles, file="~/git/sparcc/maps/losangeles_udp.html")
 
 # San Francisco, CA
 sanfrancisco <- 
@@ -848,7 +848,7 @@ sanfrancisco <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -122, lat = 37.9, zoom = 9.1) #set an appropriate view for SF
 # # save map
-# htmlwidgets::saveWidget(sanfrancisco, file="~/git/sparcc/maps/sanfrancisco_udp.html")
+htmlwidgets::saveWidget(sanfrancisco, file="~/git/sparcc/maps/sanfrancisco_udp.html")
 
 # Seattle, WA
 seattle <- 
