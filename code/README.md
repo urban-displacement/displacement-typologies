@@ -183,6 +183,21 @@ PUMS Data:
     Select Geographic Levels: Census Tract.
     Download two datasets: B25063 (Gross Rent) and B25094 (Selected Monthly Owner Costs).
 
+Industrial Sites Data:
+    ***How to handle this explanation given that TOXMAP no longer exists?***
+    ***Was this overlay actually used?***
+
+Opportunity Zones Data:
+    Visit the URL https://www.cdfifund.gov/Pages/Opportunity-Zones.aspx.
+    Download the linked spreadsheet called "List of designated Qualified Opportunity Zones".
+    ***they then need to follow steps outlined in a do-file***
+
+BeltLine Overlay (Atlanta maps only):
+    Visit the URL https://beltline.org/map/.
+    Take a screenshot of the map of the BeltLine found at this URL.
+    Georeference the image and trace over the BeltLine. Save as a shapefile.
+
+
 
 # Strong, Prosperous, and Resilient Communities Challenge (SPARCC) Project <a href='https://www.urbandisplacement.org/'><img src ="./assets/images/blue_UDP_logo.png" align="right" height="120" />
 </a>
