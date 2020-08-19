@@ -856,7 +856,7 @@ seattle <-
     # ind(st = 'WA') %>% 
     oz(city_name = "Seattle") %>% 
     options(oz = "Opportunity Zones") %>% 
-    setView(lng = -122.334, lat = 47.605, zoom = 10) #set an appropriate view for Seattle
+    setView(lng = -122.2, lat = 47.56, zoom = 9.5) #set an appropriate view for Seattle
 # # save map
 htmlwidgets::saveWidget(seattle, file="~/git/sparcc/maps/seattle_udp.html")
 
