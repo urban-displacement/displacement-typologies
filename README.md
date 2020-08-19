@@ -1,5 +1,7 @@
-# Strong, Prosperous, and Resilient Communities Challenge (SPARCC) Project <a href='https://www.urbandisplacement.org/'><img src='docs/images/UDP Logo.png' align="right" height="120" />
+<a href='https://www.urbandisplacement.org/'><img src='.assets/images/blue_udp_logo.png' align="top" height="120" />
 </a>
+
+# Strong, Prosperous, and Resilient Communities Challenge (SPARCC) Project 
  
 ## Overview
  
@@ -9,11 +11,24 @@ This repository holds all the code needed to produce the [SPARCC maps](https://u
  
 ## Code & Usage
  
-To run the code, fork this repository and navigate to `code/README.md` file. You will have to edit the files to include your state and city accordingly. Once completed, follow the instructions in the readme to download all external datasets for your specific region that will be required, then run the five consecutive files of code in a terminal window, as indicated in the readme replacing your state/city name.
+To run the code, fork this repository and navigate to the `code/README.md` file and follow the instructions. You will have to edit the files to include your state and city accordingly. Once completed, follow the instructions in the readme to download all external datasets for your specific region that will be required, then run the five consecutive files of code in a terminal window, as indicated in the readme replacing your state/city name.
  
 ## Contact
  
 Please feel free to reach out to us for questions, help, or suggestions.
  
-# SPARCC Project <a href='https://www.urbandisplacement.org/'><img src='docs/images/UDP Logo.png' align="right" height="120" />
-</a>
+## Maps
+
+[Atlanta](http://cci-ucb.github.io/sparcc/maps/atlanta_udp.html)  
+[Bay Area](http://cci-ucb.github.io/sparcc/maps/sanfrancisco_udp.html)  
+Boston - *coming soon*  
+[Chicago](http://cci-ucb.github.io/sparcc/maps/chicago_udp.html)  
+[Cleveland](http://cci-ucb.github.io/sparcc/maps/cleveland_udp.html)  
+[Denver](http://cci-ucb.github.io/sparcc/maps/denver_udp.html)  
+[Los Angeles](http://cci-ucb.github.io/sparcc/maps/losangeles_udp.html)  
+[Memphis](http://cci-ucb.github.io/sparcc/maps/memphis_sparcc.html)  <!-- adjust URL once fixed -->  
+[Seattle Puget Sound](http://cci-ucb.github.io/sparcc/maps/seattle_udp.html)  
+
+### Typology reference
+
+<a href='https://www.urbandisplacement.org/'><img src='.assets/images/typology_sheet.png'/></a>
