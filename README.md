@@ -17,5 +17,3 @@ To run the code, fork this repository and navigate to the `code/README.md` file 
  
 Please feel free to reach out to us for questions, help, or suggestions.
  
-# SPARCC Project <a href='https://www.urbandisplacement.org/'><img src='docs/images/UDP Logo.png' align="right" height="120" />
-</a>
