@@ -17,3 +17,15 @@ To run the code, fork this repository and navigate to the `code/README.md` file 
  
 Please feel free to reach out to us for questions, help, or suggestions.
  
+## Maps
+
+[Atlanta](http://cci-ucb.github.io/sparcc/maps/atlanta_udp.html)  
+[Bay Area](http://cci-ucb.github.io/sparcc/maps/sanfrancisco_udp.html)  
+Boston - *coming soon*  
+[Chicago](http://cci-ucb.github.io/sparcc/maps/chicago_udp.html)  
+[Cleveland](http://cci-ucb.github.io/sparcc/maps/cleveland_udp.html)  
+[Denver](http://cci-ucb.github.io/sparcc/maps/denver_udp.html)  
+[Los Angeles](http://cci-ucb.github.io/sparcc/maps/losangeles_udp.html)  
+[Memphis](http://cci-ucb.github.io/sparcc/maps/memphis_sparcc.html)  <!-- adjust URL once fixed -->
+
+
