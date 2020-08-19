@@ -515,7 +515,7 @@ map_it <- function(city_name, st){
     # ) %>%     
 # Public Housing
     addCircleMarkers(
-        data = hud %>% filter(state == "CA"), #add your state here
+        data = hud %>% filter(state == st), #add your state here
         radius = 5, 
         lng = ~longitude, 
         lat = ~latitude, 
@@ -715,6 +715,8 @@ htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_sparcc.html")
 chicago <- 
     map_it("Chicago", 'IL') %>% 
     ind(st = "IL") %>% 
+    ci(city_name = "Chicago") %>% 
+    oz(city_name = "Chicago") %>% 
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
@@ -723,7 +725,9 @@ htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_sparcc.html")
 # Denver, CO
 denver <- 
     map_it("Denver", 'CO') %>% 
-    options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
+    ci(city_name = "Denver") %>% 
+    oz(city_name = "Denver") %>%     
+    options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing") %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
 htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_sparcc.html")
@@ -732,6 +736,8 @@ htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_sparcc.html")
 memphis <- 
     map_it("Memphis", 'TN') %>% 
     ind(st = "TN") %>% 
+    ci(city_name = "Memphis") %>% 
+    oz(city_name = "Memphis") %>%     
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
