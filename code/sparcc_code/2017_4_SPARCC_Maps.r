@@ -36,13 +36,13 @@ options(tigris_use_cache = TRUE)
 
 data <- 
     bind_rows( # pull in data
-        read_csv('~/git/sparcc/data/outputs/databases/Atlanta_typology_output_2017.csv') %>% 
+        read_csv('~/git/sparcc/data/outputs/typologies/Atlanta_typology_output_2017.csv') %>% 
         mutate(city = 'Atlanta'),
-        read_csv('~/git/sparcc/data/outputs/databases/Denver_typology_output_2017.csv') %>%
+        read_csv('~/git/sparcc/data/outputs/typologies/Denver_typology_output_2017.csv') %>%
         mutate(city = 'Denver'),
-        read_csv('~/git/sparcc/data/outputs/databases/Chicago_typology_output_2017.csv') %>% 
+        read_csv('~/git/sparcc/data/outputs/typologies/Chicago_typology_output_2017.csv') %>% 
         mutate(city = 'Chicago'),
-        read_csv('~/git/sparcc/data/outputs/databases/Memphis_typology_output_2017.csv') %>% 
+        read_csv('~/git/sparcc/data/outputs/typologies/Memphis_typology_output_2017.csv') %>% 
         mutate(city = 'Memphis')
     ) %>% 
     left_join(., 
@@ -449,10 +449,10 @@ map_it <- function(city_name, st){
             icon="fa-crosshairs", 
             title="My Location",
             onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
-  # SPARCC typology
+  # Displacement typology
     addPolygons(
         data = ct %>% filter(city == city_name), 
-        group = "SPARCC Typology", 
+        group = "Displacement Typology", 
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
         fillOpacity = .5, 
@@ -466,7 +466,8 @@ map_it <- function(city_name, st){
     addLegend(
         pal = sparcc_pal, 
         values = ~Typology, 
-        group = "SPARCC Typology"
+        group = "Displacement Typology", 
+        title = "Displacement Typology"
     ) %>% 
 # Redlined areas
     addPolygons(
@@ -678,7 +679,7 @@ addPolylines(
                  is, #
                  belt,
                  "Highways",
-                 "SPARCC Typology"),
+                 "Displacement Typology"),
          options = layersControlOptions(collapsed = FALSE)) %>% 
      hideGroup(
          c(ci, 
