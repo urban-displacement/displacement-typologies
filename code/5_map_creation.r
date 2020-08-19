@@ -185,7 +185,7 @@ df_sf <-
     right_join(tracts, df) 
 
 #
-# Explore problem areas
+# Explore problem areas - this is for Atlanta, Denver, Chicago, and Memphis
 # --------------------------------------------------------------------------
 
 
@@ -246,6 +246,18 @@ ct <-
           )
     ) 
     
+### Urban Areas
+urban <-  
+  urban_areas(cb = TRUE) %>% 
+  st_transform(st_crs(df_sf)) 
+
+urban_df_sf <- 
+  df_sf %>% 
+  st_join(urban)
+
+urban_ct <- 
+  ct %>% 
+  st_join(urban)
 
 # ==========================================================================
 # overlays
@@ -433,23 +445,23 @@ states <-
 # Run below if file is missing in "~/git/sparcc/data/overlays/road_map.rds" or needs
 #   an update
 # ---
-# road_map <- 
-#     reduce(
-#         map(states, function(state){
-#             primary_secondary_roads(state, class = 'sf')
-#         }),
-#         rbind
-#     ) %>% 
-#     filter(RTTYP %in% c('I','U')) %>% 
-#     ms_simplify(keep = 0.1) %>% 
-#     st_transform(st_crs(df_sf)) %>%
-#     st_join(., df_sf %>% select(city), join = st_intersects) %>% 
-#     mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
-#     filter(!is.na(city)) 
-# saveRDS(road_map, "~/git/sparcc/data/overlays/road_map.rds")
+road_map <- 
+    reduce(
+        map(states, function(state){
+            primary_secondary_roads(state, class = 'sf')
+        }),
+        rbind
+    ) %>% 
+    filter(RTTYP %in% c('I','U')) %>% 
+    ms_simplify(keep = 0.1) %>% 
+    st_transform(st_crs(df_sf)) %>%
+    st_join(., df_sf %>% select(city), join = st_intersects) %>% 
+    mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
+    filter(!is.na(city)) 
+saveRDS(road_map, "~/git/sparcc/data/overlays/road_map.rds")
 ###
 
-readRDS("~/git/sparcc/data/overlays/road_map.rds")
+road_map <- readRDS("~/git/sparcc/data/overlays/road_map.rds")
 
 ### Atlanta Beltline
 beltline <- 
@@ -463,7 +475,6 @@ opp_zone <-
   st_transform(st_crs(ct)) %>% 
   st_join(., df_sf %>% select(city), join = st_intersects) %>% 
   filter(!is.na(city))
-
 
 # ==========================================================================
 # Maps
@@ -815,6 +826,7 @@ denver <-
     oz(city_name = "Denver") %>% 
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
+denver
 # # save map
 # htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_udp.html")
 
