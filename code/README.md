@@ -139,7 +139,7 @@ Redlining Data:
 Zillow Data:
     Visit the URL https://www.zillow.com/research/data/. 
     Under "Home values," select "ZHVI All Homes (SFR, Condo/Co-op) Time Series ($)" as Data Type and ZIP Code as Geography, then download. 
-        ***^note that this data has changed since our original download: our team needs to update the code to reflect this!***
+        ***^note that this data has changed since our original download: be sure to update the code to reflect any changes in column names, etc!***
 
 Transit Data:
     Visit the URL https://toddata.cnt.org/downloads.php (you will need to register).  
@@ -168,9 +168,8 @@ ZIP Codes to Census Tracts Crosswalk:
     Set the source geography as "2010 Geographies: ZIP/ZCTA." 
     Set the target geography as "2010 Geographies: Census Tract." 
     Set the weighting variable as "Population (2010 census)." 
-        ***^need to confirm this variable***
     Download as a CSV.
-        ***^need to update: they then need to follow steps outlined in a do-file***
+        ***note: you will need to clean this data before using***
         
 Crosswalks from 1990 and 2000 to 2010:
     Visit the URL https://s4.ad.brown.edu/projects/diversity/Researcher/LTBDDload/DataList.aspx.
@@ -178,44 +177,22 @@ Crosswalks from 1990 and 2000 to 2010:
 
 PUMS Data:
     Visit the URL https://data2.nhgis.org/main. 
-    Select Years: 5-Year Ranges --> 2013-2017. 
-        ***^update to 2014-2018?***
+    Select Years: 5-Year Ranges --> 2013-2017.
+        ***should be updated to 2014-2018*** 
     Select Geographic Levels: Census Tract.
     Download two datasets: B25063 (Gross Rent) and B25094 (Selected Monthly Owner Costs).
 
 Industrial Sites Data:
-    ***How to handle this explanation given that TOXMAP no longer exists?***
-    ***Was this overlay actually used?***
+    ***As of 2019, the original data file used for this overlay is no longer available***
+    ***(Tim is checking this for non-SPARCC sites)***
 
 Opportunity Zones Data:
     Visit the URL https://www.cdfifund.gov/Pages/Opportunity-Zones.aspx.
     Download the linked spreadsheet called "List of designated Qualified Opportunity Zones".
-    ***they then need to follow steps outlined in a do-file***
+    ***note: you will need to clean this data before using***
 
 BeltLine Overlay (Atlanta maps only):
     Visit the URL https://beltline.org/map/.
     Take a screenshot of the map of the BeltLine found at this URL.
     Georeference the image and trace over the BeltLine. Save as a shapefile.
-
-
-
-# Strong, Prosperous, and Resilient Communities Challenge (SPARCC) Project <a href='https://www.urbandisplacement.org/'><img src ="./assets/images/blue_UDP_logo.png" align="right" height="120" />
-</a>
- 
-## Overview
- 
-This repository holds all the code needed to produce the [SPARCC maps](https://urbandisplacement.org) visualizing neighborhood change in several US regions. We provide this code so that you may be able to replicate this work in your own state/city.
- 
-*Any modified code that is taken from this repo and not reviewed by the Urban Displacement Project is not endorsed by us and should be documented accordingly as not endorsed by the Urban Displacement Project.*
- 
-## Code & Usage
- 
-To run the code, fork this repository and navigate to `code/README.md` file. You will have to edit the files to include your state and city accordingly. Once completed, follow the instructions in the readme to download all external datasets for your specific region that will be required, then run the five consecutive files of code in a terminal window, as indicated in the readme replacing your state/city name.
- 
-## Contact
- 
-Please feel free to reach out to us for questions, help, or suggestions.
- 
-# SPARCC Project <a href='https://www.urbandisplacement.org/'><img src ="./assets/images/blue_UDP_logo.png" align="right" height="120" />
-</a>
 
