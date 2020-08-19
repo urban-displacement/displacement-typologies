@@ -15,7 +15,7 @@ Currently, the SPARCC typology is set up for:
 
 Each of the files are named in order of operation. To run the code, do the following in a terminal window.  
 
-For the SPARCC released maps, which reflect 2017 ACS data, conduct the following: 
+For the SPARCC released maps, which reflect 2017 ACS data, navigate to `sparcc/code/sparcc_code` and execute the following commands in your terminal: 
 
 ```
 python 2017_1_data.py Atlanta
