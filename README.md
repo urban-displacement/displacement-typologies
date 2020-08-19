@@ -29,4 +29,6 @@ Boston - *coming soon*
 [Memphis](http://cci-ucb.github.io/sparcc/maps/memphis_sparcc.html)  <!-- adjust URL once fixed -->  
 [Seattle Puget Sound](http://cci-ucb.github.io/sparcc/maps/seattle_udp.html)  
 
+### Typology reference
 
+<a href='https://www.urbandisplacement.org/'><img src='.assets/images/typology_sheet.png'/></a>
