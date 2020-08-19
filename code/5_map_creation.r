@@ -433,20 +433,20 @@ states <-
 # Run below if file is missing in "~/git/sparcc/data/overlays/road_map.rds" or needs
 #   an update
 # ---
-road_map <- 
-    reduce(
-        map(states, function(state){
-            primary_secondary_roads(state, class = 'sf')
-        }),
-        rbind
-    ) %>% 
-    filter(RTTYP %in% c('I','U')) %>% 
-    ms_simplify(keep = 0.1) %>% 
-    st_transform(st_crs(df_sf)) %>%
-    st_join(., df_sf %>% select(city), join = st_intersects) %>% 
-    mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
-    filter(!is.na(city)) 
-saveRDS(road_map, "~/git/sparcc/data/overlays/road_map.rds")
+# road_map <- 
+#     reduce(
+#         map(states, function(state){
+#             primary_secondary_roads(state, class = 'sf')
+#         }),
+#         rbind
+#     ) %>% 
+#     filter(RTTYP %in% c('I','U')) %>% 
+#     ms_simplify(keep = 0.1) %>% 
+#     st_transform(st_crs(df_sf)) %>%
+#     st_join(., df_sf %>% select(city), join = st_intersects) %>% 
+#     mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
+#     filter(!is.na(city)) 
+# saveRDS(road_map, "~/git/sparcc/data/overlays/road_map.rds")
 ###
 
 road_map <- readRDS("~/git/sparcc/data/overlays/road_map.rds")
@@ -554,7 +554,8 @@ map_it <- function(data, city_name, st){
     addLegend(
         pal = sparcc_pal, 
         values = ~Typology, 
-        group = "Displacement Typology"
+        group = "Displacement Typology", 
+        title = "Displacement Typology"
     ) %>% 
 # Redlined areas
     addPolygons(
@@ -845,7 +846,7 @@ sanfrancisco <-
     # ind(st = 'CA') %>% # change ind file to include SF if you want this. 
     oz(city_name = "San Francisco") %>% 
     options(oz = "Opportunity Zones") %>% 
-    setView(lng = -122.443, lat = 37.756, zoom = 10) #set an appropriate view for SF
+    setView(lng = -122, lat = 37.9, zoom = 9.1) #set an appropriate view for SF
 # # save map
 # htmlwidgets::saveWidget(sanfrancisco, file="~/git/sparcc/maps/sanfrancisco_udp.html")
 
