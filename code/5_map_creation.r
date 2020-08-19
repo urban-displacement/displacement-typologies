@@ -246,18 +246,6 @@ ct <-
           )
     ) 
     
-### Urban Areas
-urban <-  
-  urban_areas(cb = TRUE) %>% 
-  st_transform(st_crs(4326)) 
-
-urban_df_sf <- 
-  df_sf %>% 
-  st_join(urban)
-
-urban_ct <- 
-  ct %>% 
-  st_join(urban)
 
 # ==========================================================================
 # overlays
@@ -439,7 +427,7 @@ university <-
 
 ### Road map; add your state here
 states <- 
-    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'CA', 'MA', 'NH', 'OH', 'WA')
+    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'CA', 'MA', 'NH', 'OH', "WA")
 
 ###
 # Run below if file is missing in "~/git/sparcc/data/overlays/road_map.rds" or needs
@@ -475,6 +463,7 @@ opp_zone <-
   st_transform(st_crs(ct)) %>% 
   st_join(., df_sf %>% select(city), join = st_intersects) %>% 
   filter(!is.na(city))
+
 
 # ==========================================================================
 # Maps
@@ -550,7 +539,7 @@ map_it <- function(data, city_name, st){
             onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
   # Displacement typology
     addPolygons(
-        #data = data %>% filter(city == city_name), 
+        data = data %>% filter(city == city_name), 
         group = "Displacement Typology", 
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
@@ -565,8 +554,7 @@ map_it <- function(data, city_name, st){
     addLegend(
         pal = sparcc_pal, 
         values = ~Typology, 
-        group = "Displacement Typology",
-        title = "Displacement Typology"
+        group = "Displacement Typology"
     ) %>% 
 # Redlined areas
     addPolygons(
@@ -773,9 +761,9 @@ addPolylines(
                  "Redlined Areas", 
                  "Hospitals", 
                  "Universities & Colleges", 
-                 ph, 
+                 ph, #?
                  "Transit Stations", 
-                 is,
+                 is, #
                  belt,
                  "Highways",
                  "Displacement Typology"),
