@@ -249,7 +249,7 @@ ct <-
 ### Urban Areas
 urban <-  
   urban_areas(cb = TRUE) %>% 
-  st_transform(st_crs(df_sf)) 
+  st_transform(st_crs(4326)) 
 
 urban_df_sf <- 
   df_sf %>% 
@@ -497,7 +497,7 @@ sparcc_pal <-
             # '#e3dcf5',
             '#cbc9e2', # "#f2f0f7", 
             '#9e9ac8', #D9D7E8', #"#cbc9e2", #D9D7E8
-            '#5b88b5', #"#6699cc",            
+            '#5b88b5', #"#6699cc", #light blue       
             # "#9e9ac8",
             '#756bb1', #B7B6D3', #"#756bb1", #B7B6D3
             '#54278f', #8D82B6', #"#54278f", #8D82B6
@@ -548,10 +548,10 @@ map_it <- function(data, city_name, st){
             icon="fa-crosshairs", 
             title="My Location",
             onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
-  # SPARCC typology
+  # Displacement typology
     addPolygons(
-        data = data %>% filter(city == city_name), 
-        group = "SPARCC Typology", 
+        #data = data %>% filter(city == city_name), 
+        group = "Displacement Typology", 
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
         fillOpacity = .5, 
@@ -565,7 +565,8 @@ map_it <- function(data, city_name, st){
     addLegend(
         pal = sparcc_pal, 
         values = ~Typology, 
-        group = "SPARCC Typology"
+        group = "Displacement Typology",
+        title = "Displacement Typology"
     ) %>% 
 # Redlined areas
     addPolygons(
@@ -772,12 +773,12 @@ addPolylines(
                  "Redlined Areas", 
                  "Hospitals", 
                  "Universities & Colleges", 
-                 ph, #?
+                 ph, 
                  "Transit Stations", 
-                 is, #
+                 is,
                  belt,
                  "Highways",
-                 "SPARCC Typology"),
+                 "Displacement Typology"),
          options = layersControlOptions(collapsed = FALSE)) %>% 
      hideGroup(
          c(ci, 
@@ -826,7 +827,6 @@ denver <-
     oz(city_name = "Denver") %>% 
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
-denver
 # # save map
 # htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_udp.html")
 
