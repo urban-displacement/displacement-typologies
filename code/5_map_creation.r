@@ -36,27 +36,27 @@ census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
 
 data <- 
     bind_rows( # pull in data
-        read_csv('~/git/sparcc/data/outputs/typologies/Atlanta_typology_output.csv') %>% 
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Atlanta_typology_output.csv') %>% 
         mutate(city = 'Atlanta'),
-        read_csv('~/git/sparcc/data/outputs/typologies/Denver_typology_output.csv') %>%
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Denver_typology_output.csv') %>%
         mutate(city = 'Denver'),
-        read_csv('~/git/sparcc/data/outputs/typologies/Chicago_typology_output.csv') %>% 
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Chicago_typology_output.csv') %>% 
         mutate(city = 'Chicago'),
-    #     read_csv('~/git/sparcc/data/outputs/typologies/Memphis_typology_output.csv') %>% 
+    #     read_csv('~/git/displacement-typologies/data/outputs/typologies/Memphis_typology_output.csv') %>% 
     #     mutate(city = 'Memphis'),
-        read_csv('~/git/sparcc/data/outputs/typologies/LosAngeles_typology_output.csv') %>% 
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/LosAngeles_typology_output.csv') %>% 
         mutate(city = 'Los Angeles'),
-        read_csv('~/git/sparcc/data/outputs/typologies/SanFrancisco_typology_output.csv') %>% 
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/SanFrancisco_typology_output.csv') %>% 
         mutate(city = 'San Francisco'),
-        read_csv('~/git/sparcc/data/outputs/typologies/Seattle_typology_output.csv') %>% 
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Seattle_typology_output.csv') %>% 
         mutate(city = 'Seattle'),
-        read_csv('~/git/sparcc/data/outputs/typologies/Cleveland_typology_output.csv') %>% 
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Cleveland_typology_output.csv') %>% 
         mutate(city = 'Cleveland')#,
-        # read_csv('~/git/sparcc/data/outputs/typologies/Boston_typology_output.csv') %>% 
+        # read_csv('~/git/displacement-typologies/data/outputs/typologies/Boston_typology_output.csv') %>% 
         # mutate(city = 'Boston')                      
     ) %>% 
     left_join(., 
-        read_csv('~/git/sparcc/data/overlays/oppzones.csv') %>% 
+        read_csv('~/git/displacement-typologies/data/overlays/oppzones.csv') %>% 
         select(
         	GEOID = geoid, 
         	opp_zone = tract_type
@@ -65,12 +65,78 @@ data <-
     ) %>% 
     select(!X1)
 
+# 
+# Create Neighborhood Racial Typologies for mapping
+# --------------------------------------------------------------------------
+
+source("~/git/functions/NeighType_Fun.R")
+# This code is pulled from https://gitlab.com/timathomas/Functions/blob/master/NeighType_Fun.R
+
+states <- c('17', '13', '08', '28', '47', '06', '06', '53', '39', '25', '33')
+
+race_vars <- 
+  c('totrace' = 'B03002_001',
+    'White' = 'B03002_003',
+    'Black' = 'B03002_004',
+    'Asian' = 'B03002_006',
+    'Latinx' = 'B03002_012')
+
+acs_data <- 
+  get_acs(
+    geography = 'tract',
+    variables = race_vars,
+    state = states,
+    output = 'wide',
+    cache_table = TRUE
+  ) 
+
+df <- 
+  acs_data %>%
+  select(-ends_with("M")) %>% 
+  group_by(GEOID) %>% 
+  mutate(pWhite = WhiteE/totraceE, 
+         pAsian = AsianE/totraceE, 
+         pBlack = BlackE/totraceE, 
+         pLatinx = LatinxE/totraceE, 
+         pOther = (totraceE - sum(WhiteE, AsianE, BlackE, LatinxE, na.rm = TRUE))/totraceE)
+
+df_nt <- nt(df = df) %>%
+  mutate(GEOID = as.numeric(GEOID))
+
+#
+# Student population exception
+# --------------------------------------------------------------------------
+
+student_vars <- 
+  c('st_totenroll' = 'B14007_001',
+     'st_colenroll' = 'B14007_017',
+     'st_proenroll' = 'B14007_018',
+     'st_pov_under' = 'B14006_009', 
+     'st_pov_grad' = 'B14006_010')
+
+tr_students <- 
+  get_acs(
+    geography = "tract",
+    state = states,
+    output = 'wide', 
+    variables = student_vars, 
+    cache_table = TRUE
+  ) %>% 
+  group_by(GEOID) %>% 
+  mutate(
+    tr_pstudents = sum(st_colenrollE, st_proenrollE, na.rm = TRUE)/st_totenrollE, 
+    GEOID = as.numeric(GEOID)
+    )
+
+# LEFT OFF: incorporate into map. Start with .2 threshold. 
+
 #
 # Prep dataframe for mapping
 # --------------------------------------------------------------------------
 
 df <- 
     data %>% 
+    left_join(df_nt) %>% 
     mutate( # create typology for maps
         Typology = 
             factor( # turn to factor for mapping 
@@ -139,8 +205,14 @@ df <-
              'Percent low income hh: ', percent(per_all_li_18), '<br>', 
              'Percent change in LI: ', percent(per_ch_li), '<br>',
              '<br>',
-             'Percent non-White: ', percent(per_nonwhite_18), '<br>',
-             'Regional median non-White: ', percent(rm_per_nonwhite_18), '<br>',
+             'Percent POC: ', percent(per_nonwhite_18), '<br>',
+             'Regional median POC: ', percent(rm_per_nonwhite_18), '<br>',
+             'Tract racial typology: ', NeighType, '<br>', 
+             'White: ', percent(pWhite, accuracy = .1), '<br>', 
+             'Black: ', percent(pBlack, accuracy = .1), '<br>', 
+             'Asian: ', percent(pAsian, accuracy = .1), '<br>', 
+             'Latinx: ', percent(pLatinx, accuracy = .1), '<br>', 
+             'Other: ', percent(pOther, accuracy = .1), '<br>',
              '<br>',
              'Percent college educated: ', percent(per_col_18), '<br>',
              'Regional median educated: ', percent(rm_per_col_18), '<br>',
@@ -495,9 +567,9 @@ sparcc_pal <-
             '#F4C08D', #"#fed98e", #EE924F
             '#EE924F', #"#fe9929", #EE924F
             '#C95123', #"#cc4c02", #C75023
-            "#ffffff"), 
+            "#C0C0C0"), 
         domain = df$Typology, 
-        na.color = "transparent"
+        na.color = '#C0C0C0'
     )
 
 industrial_pal <- 
