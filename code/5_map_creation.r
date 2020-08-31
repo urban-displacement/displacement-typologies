@@ -163,7 +163,7 @@ df <-
                     typ_cat == "['AdvG']" ~ 'Advanced Gentrification',
                     typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive',
                     typ_cat == "['ARG']" ~ 'At Risk of Gentrification',
-                    typ_cat == "['BE']" ~ 'Becoming Exclusive', 
+                    typ_cat == "['BE']"|typ_cat == "['AdvG', 'BE']" ~ 'Becoming Exclusive', 
                     typ_cat == "['EOG']" ~ 'Early/Ongoing Gentrification',
                     typ_cat == "['OD']" ~ 'Low-Income Displacement',
                     typ_cat == "['SAE']" ~ 'Stable/Advanced Exclusive', 
@@ -959,7 +959,7 @@ sanfrancisco <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -122, lat = 37.9, zoom = 9.1) #set an appropriate view for SF
 # # save map
-htmlwidgets::saveWidget(sanfrancisco, file="~/git/displacement-typologies/maps/sanfrancisco_udp_test.html")
+htmlwidgets::saveWidget(sanfrancisco, file="~/git/displacement-typologies/maps/sanfrancisco_udp.html")
 
 # Seattle, WA
 seattle <- 
