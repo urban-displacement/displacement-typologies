@@ -36,8 +36,8 @@ census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
 # --------------------------------------------------------------------------
 
 data <- 
-    bind_rows( # pull in data
-        read_csv('~/git/displacement-typologies/data/outputs/typologies/Atlanta_typology_output.csv') %>% 
+  bind_rows( # pull in data
+    read_csv('~/git/displacement-typologies/data/outputs/typologies/Atlanta_typology_output.csv') %>% 
         mutate(city = 'Atlanta'),
         read_csv('~/git/displacement-typologies/data/outputs/typologies/Denver_typology_output.csv') %>%
         mutate(city = 'Denver'),
@@ -82,6 +82,9 @@ race_vars <-
     'Asian' = 'B03002_006',
     'Latinx' = 'B03002_012')
 
+###
+# Run if updates are required
+###
 # acs_data <- 
 #   get_acs(
 #     geography = 'tract',
@@ -91,9 +94,10 @@ race_vars <-
 #     cache_table = TRUE
 #   )
 # fwrite(acs_data, '~/git/displacement-typologies/data/outputs/downloads/race_acs_data.csv.gz')
+###
 acs_data <- fread('~/git/displacement-typologies/data/outputs/downloads/race_acs_data.csv.gz')
 
-df <- 
+race_df <- 
   acs_data %>%
   select(-ends_with("M")) %>% 
   group_by(GEOID) %>% 
@@ -103,7 +107,7 @@ df <-
          pLatinx = LatinxE/totraceE, 
          pOther = (totraceE - sum(WhiteE, AsianE, BlackE, LatinxE, na.rm = TRUE))/totraceE)
 
-df_nt <- nt(df = df) %>%
+df_nt <- nt(df = race_df) %>%
   mutate(GEOID = as.numeric(GEOID))
 
 #
@@ -155,6 +159,7 @@ df <-
         Typology = 
             factor( # turn to factor for mapping 
                 case_when(
+                    tr_pstudents > .25 ~ "Unavailable or Unreliable Data",
                     typ_cat == "['AdvG']" ~ 'Advanced Gentrification',
                     typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive',
                     typ_cat == "['ARG']" ~ 'At Risk of Gentrification',
@@ -282,7 +287,7 @@ df_sf <-
 
 
 ct <- 
-    fread('~/git/sparcc/data/inputs/sparcc_community_tracts.csv') %>% 
+    fread('~/git/displacement-typologies/data/inputs/sparcc_community_tracts.csv') %>% 
     rename(city = City) %>% 
     mutate(GEOID = as.numeric(GEOID), 
     	cs = "Community Suggested Change") %>% 
@@ -356,85 +361,85 @@ ct <-
     ###add your city here
 red <- 
     rbind(
-        geojson_sf('~/git/sparcc/data/overlays/CODenver1938_1.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/CODenver1938_1.geojson') %>% 
           mutate(city = 'Denver'),
-        geojson_sf('~/git/sparcc/data/overlays/GAAtlanta1938_1.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/GAAtlanta1938_1.geojson') %>% 
           mutate(city = 'Atlanta'),
-        geojson_sf('~/git/sparcc/data/overlays/ILChicago1940_1.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/ILChicago1940_1.geojson') %>% 
           mutate(city = 'Chicago'),
-        geojson_sf('~/git/sparcc/data/overlays/TNMemphis19XX_1.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/TNMemphis19XX_1.geojson') %>% 
           mutate(city = 'Memphis'),
-        geojson_sf('~/git/sparcc/data/overlays/CAOakland1937.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/CAOakland1937.geojson') %>% 
           mutate(city = 'San Francisco'),
-        geojson_sf('~/git/sparcc/data/overlays/CASacramento1937.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/CASacramento1937.geojson') %>% 
           mutate(city = 'San Francisco'),
-        geojson_sf('~/git/sparcc/data/overlays/CASanFrancisco1937.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/CASanFrancisco1937.geojson') %>% 
           mutate(city = 'San Francisco'),
-        geojson_sf('~/git/sparcc/data/overlays/CASanJose1937.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/CASanJose1937.geojson') %>% 
           mutate(city = 'San Francisco'),
-        geojson_sf('~/git/sparcc/data/overlays/CAStockton1938.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/CAStockton1938.geojson') %>% 
           mutate(city = 'San Francisco'),
-        geojson_sf('~/git/sparcc/data/overlays/CALosAngeles1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/CALosAngeles1939.geojson') %>% 
           mutate(city = 'Los Angeles'),
-        geojson_sf('~/git/sparcc/data/overlays/WASeattle1936.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/WASeattle1936.geojson') %>% 
           mutate(city = 'Seattle'), 
-        geojson_sf('~/git/sparcc/data/overlays/WATacoma1937.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/WATacoma1937.geojson') %>% 
           mutate(city = 'Seattle'),
-        geojson_sf('~/git/sparcc/data/overlays/OHCleveland1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/OHCleveland1939.geojson') %>% 
           mutate(city = 'Cleveland'),
-        geojson_sf('~/git/sparcc/data/overlays/OHLorain1937.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/OHLorain1937.geojson') %>% 
           mutate(city = 'Cleveland'),
-        geojson_sf('~/git/sparcc/data/overlays/MAArlington1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MAArlington1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MABelmont1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MABelmont1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MABoston1938.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MABoston1938.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MABraintree1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MABraintree1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MABrockton1937.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MABrockton1937.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MABrookline1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MABrookline1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MACambridge1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MACambridge1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MAChelsea1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MAChelsea1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MADedham1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MADedham1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MAEverett19XX.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MAEverett19XX.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MAHaverhill1937.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MAHaverhill1937.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MALexington19XX.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MALexington19XX.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MAMalden19XX.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MAMalden19XX.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MAMedford19XX.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MAMedford19XX.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MAMelrose1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MAMelrose1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MAMilton1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MAMilton1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MANeedham1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MANeedham1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MANewton1937.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MANewton1937.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MAQuincy1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MAQuincy1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MARevere19XX.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MARevere19XX.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MASaugus19XX.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MASaugus19XX.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MASomerville1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MASomerville1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MAWaltham1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MAWaltham1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MAWatertown1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MAWatertown1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MAWinchester1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MAWinchester1939.geojson') %>% 
           mutate(city = 'Boston'),
-        geojson_sf('~/git/sparcc/data/overlays/MAWinthrop1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/MAWinthrop1939.geojson') %>% 
           mutate(city = 'Boston')
     ) %>%
     mutate(
@@ -460,7 +465,7 @@ red <-
 
 ### Industrial points
 
-industrial <- st_read('~/git/sparcc/data/overlays/industrial.shp') %>% 
+industrial <- st_read('~/git/displacement-typologies/data/overlays/industrial.shp') %>% 
     mutate(site = 
         case_when(
             site_type == 0 ~ "Superfund", 
@@ -469,13 +474,13 @@ industrial <- st_read('~/git/sparcc/data/overlays/industrial.shp') %>%
     filter(state != "CO") %>% 
     st_as_sf() 
 
-hud <- st_read('~/git/sparcc/data/overlays/HUDhousing.shp') %>% 
+hud <- st_read('~/git/displacement-typologies/data/overlays/HUDhousing.shp') %>% 
     st_as_sf() 
 
 ### Rail data
 rail <- 
     st_join(
-        fread('~/git/sparcc/data/inputs/tod_database_download.csv') %>% 
+        fread('~/git/displacement-typologies/data/inputs/tod_database_download.csv') %>% 
             st_as_sf(
                 coords = c('Longitude', 'Latitude'), 
                 crs = 4269
@@ -489,7 +494,7 @@ rail <-
 ### Hospitals
 hospitals <- 
     st_join(
-        fread('~/git/sparcc/data/inputs/Hospitals.csv') %>% 
+        fread('~/git/displacement-typologies/data/inputs/Hospitals.csv') %>% 
             st_as_sf(
                 coords = c('X', 'Y'), 
                 crs = 4269
@@ -508,7 +513,7 @@ hospitals <-
 ### Universities
 university <- 
     st_join(
-        fread('~/git/sparcc/data/inputs/university_HD2016.csv') %>% 
+        fread('~/git/displacement-typologies/data/inputs/university_HD2016.csv') %>% 
             st_as_sf(
                 coords = c('LONGITUD', 'LATITUDE'), 
                 crs = 4269
@@ -530,7 +535,7 @@ states <-
     c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'CA', 'MA', 'NH', 'OH', "WA")
 
 ###
-# Run below if file is missing in "~/git/sparcc/data/overlays/road_map.rds" or needs
+# Run below if file is missing in "~/git/displacement-typologies/data/overlays/road_map.rds" or needs
 #   an update
 # ---
 # road_map <- 
@@ -546,20 +551,20 @@ states <-
 #     st_join(., df_sf %>% select(city), join = st_intersects) %>% 
 #     mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
 #     filter(!is.na(city)) 
-# saveRDS(road_map, "~/git/sparcc/data/overlays/road_map.rds")
+# saveRDS(road_map, "~/git/displacement-typologies/data/overlays/road_map.rds")
 ###
 
-road_map <- readRDS("~/git/sparcc/data/overlays/road_map.rds")
+road_map <- readRDS("~/git/displacement-typologies/data/overlays/road_map.rds")
 
 ### Atlanta Beltline
 beltline <- 
-	st_read("~/git/sparcc/data/overlays/beltline.shp") %>% 
+	st_read("~/git/displacement-typologies/data/overlays/beltline.shp") %>% 
 	mutate(name = "Beltline", 
 		name2 = "Possible Gentrifier")
 
 ### Opportunity Zones
 opp_zone <- 
-  st_read("~/git/sparcc/data/overlays/OpportunityZones/OpportunityZones.gpkg") %>%
+  st_read("~/git/displacement-typologies/data/overlays/OpportunityZones/OpportunityZones.gpkg") %>%
   st_transform(st_crs(ct)) %>% 
   st_join(., df_sf %>% select(city), join = st_intersects) %>% 
   filter(!is.na(city))
@@ -580,7 +585,7 @@ redline_pal <-
         na.color = "transparent"
     )
 
-sparcc_pal <- 
+displacement_typologies_pal <- 
     colorFactor(
         c(
             # '#e3dcf5',
@@ -595,6 +600,7 @@ sparcc_pal <-
             '#F4C08D', #"#fed98e", #EE924F
             '#EE924F', #"#fe9929", #EE924F
             '#C95123', #"#cc4c02", #C75023
+            # "#A9A9A9", # intended for greater student pop
             "#C0C0C0"), 
         domain = df$Typology, 
         na.color = '#C0C0C0'
@@ -644,15 +650,20 @@ map_it <- function(data, city_name, st){
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
         fillOpacity = .5, 
-        color = ~sparcc_pal(Typology), 
+        color = ~displacement_typologies_pal(Typology), 
         stroke = TRUE, 
         weight = .7, 
         opacity = .60, 
+        highlightOptions = highlightOptions(
+          color = "#ff4a4a", 
+          weight = 5,
+          bringToFront = TRUE
+        ), 
         popup = ~popup, 
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
     ) %>%   
     addLegend(
-        pal = sparcc_pal, 
+        pal = displacement_typologies_pal, 
         values = ~Typology, 
         group = "Displacement Typology", 
         title = "Displacement Typology"
@@ -896,7 +907,7 @@ atlanta <-
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_udp.html")
+htmlwidgets::saveWidget(atlanta, file="~/git/displacement-typologies/maps/atlanta_udp.html")
 
 # Chicago, IL
 chicago <- 
@@ -907,7 +918,7 @@ chicago <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_udp.html")
+htmlwidgets::saveWidget(chicago, file="~/git/displacement-typologies/maps/chicago_udp.html")
 
 # Denver, CO
 denver <- 
@@ -917,7 +928,7 @@ denver <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_udp.html")
+htmlwidgets::saveWidget(denver, file="~/git/displacement-typologies/maps/denver_udp.html")
 
 # Memphis, TN
 memphis <- 
@@ -928,7 +939,7 @@ memphis <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
-# htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis_2018.html")
+# htmlwidgets::saveWidget(memphis, file="~/git/displacement-typologies/maps/memphis_2018.html")
 
 # Los Angeles, CA
 losangeles <- 
@@ -938,7 +949,7 @@ losangeles <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -118.244, lat = 34.052, zoom = 10) #set an appropriate view for LA
 # # save map
-htmlwidgets::saveWidget(losangeles, file="~/git/sparcc/maps/losangeles_udp.html")
+htmlwidgets::saveWidget(losangeles, file="~/git/displacement-typologies/maps/losangeles_udp.html")
 
 # San Francisco, CA
 sanfrancisco <- 
@@ -948,7 +959,7 @@ sanfrancisco <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -122, lat = 37.9, zoom = 9.1) #set an appropriate view for SF
 # # save map
-htmlwidgets::saveWidget(sanfrancisco, file="~/git/sparcc/maps/sanfrancisco_udp.html")
+htmlwidgets::saveWidget(sanfrancisco, file="~/git/displacement-typologies/maps/sanfrancisco_udp_test.html")
 
 # Seattle, WA
 seattle <- 
@@ -958,7 +969,7 @@ seattle <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -122.2, lat = 47.56, zoom = 9.5) #set an appropriate view for Seattle
 # # save map
-htmlwidgets::saveWidget(seattle, file="~/git/sparcc/maps/seattle_udp.html")
+htmlwidgets::saveWidget(seattle, file="~/git/displacement-typologies/maps/seattle_udp.html")
 
 # Cleveland, OH
 cleveland <- 
@@ -968,7 +979,7 @@ cleveland <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -81.686, lat = 41.504, zoom = 10) #set an appropriate view for Cleveland
 # # save map
-htmlwidgets::saveWidget(cleveland, file="~/git/sparcc/maps/cleveland_udp.html")
+htmlwidgets::saveWidget(cleveland, file="~/git/displacement-typologies/maps/cleveland_udp.html")
 
 # Boston, MA
 boston <- 
@@ -978,4 +989,4 @@ boston <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -71.060, lat = 42.360, zoom = 10) #set an appropriate view for Boston
 # # save map
-htmlwidgets::saveWidget(boston, file="~/git/sparcc/maps/boston_2018.html")
+htmlwidgets::saveWidget(boston, file="~/git/displacement-typologies/maps/boston_2018.html")
