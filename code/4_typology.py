@@ -432,7 +432,7 @@ df['BE'] = np.where((df['pop00flag']==1)&
                     ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
                      (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
                      (df['change_flag_encoded'] == 3)&
-                     ((df['lostli_18']==1)|(df['per_limove_18']<df['per_limove_12']))&
+                     ((df['lostli_18']==1)&(df['per_limove_18']<df['per_limove_12']))&
                      (df['real_hinc_18']>df['real_hinc_00']), 1, 0)
 
 df['BE'] = np.where((df['pop00flag'].isna())|
