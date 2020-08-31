@@ -1,11 +1,11 @@
 <a href='https://www.urbandisplacement.org/'><img src='.assets/images/blue_udp_logo.png' align="top" height="120" />
 </a>
 
-# Strong, Prosperous, and Resilient Communities Challenge (SPARCC) Project 
+# UDP Displacement Typologies 
  
 ## Overview
  
-This repository holds all the code needed to produce the [SPARCC maps](https://urbandisplacement.org) visualizing neighborhood change in several US regions. We provide this code so that you may be able to replicate this work in your own state/city.
+This repository holds all the code needed to produce the [UDP Displacement Typology maps](https://urbandisplacement.org) visualizing neighborhood change in several US regions. We provide this code so that you may be able to replicate this work in your own state/city.
  
 *Any modified code that is taken from this repo and not reviewed by the Urban Displacement Project is not endorsed by us and should be documented accordingly as not endorsed by the Urban Displacement Project.*
  
@@ -19,15 +19,15 @@ Please feel free to reach out to us for questions, help, or suggestions.
  
 ## Maps
 
-[Atlanta](http://cci-ucb.github.io/sparcc/maps/atlanta_udp.html)  
-[Bay Area](http://cci-ucb.github.io/sparcc/maps/sanfrancisco_udp.html)  
+[Atlanta](http://cci-ucb.github.io/displacement-typologies/maps/atlanta_udp.html)  
+[Bay Area](http://cci-ucb.github.io/displacement-typologies/maps/sanfrancisco_udp.html)  
 Boston - *coming soon*  
-[Chicago](http://cci-ucb.github.io/sparcc/maps/chicago_udp.html)  
-[Cleveland](http://cci-ucb.github.io/sparcc/maps/cleveland_udp.html)  
-[Denver](http://cci-ucb.github.io/sparcc/maps/denver_udp.html)  
-[Los Angeles](http://cci-ucb.github.io/sparcc/maps/losangeles_udp.html)  
-[Memphis](http://cci-ucb.github.io/sparcc/maps/memphis_sparcc.html)  <!-- adjust URL once fixed -->  
-[Seattle Puget Sound](http://cci-ucb.github.io/sparcc/maps/seattle_udp.html)  
+[Chicago](http://cci-ucb.github.io/displacement-typologies/maps/chicago_udp.html)  
+[Cleveland](http://cci-ucb.github.io/displacement-typologies/maps/cleveland_udp.html)  
+[Denver](http://cci-ucb.github.io/displacement-typologies/maps/denver_udp.html)  
+[Los Angeles](http://cci-ucb.github.io/displacement-typologies/maps/losangeles_udp.html)  
+[Memphis](http://cci-ucb.github.io/displacement-typologies/maps/memphis_sparcc.html)  <!-- adjust URL once fixed -->  
+[Seattle Puget Sound](http://cci-ucb.github.io/displacement-typologies/maps/seattle_udp.html)  
 
 ### Typology reference
 
