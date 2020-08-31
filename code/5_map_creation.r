@@ -108,7 +108,8 @@ race_df <-
          pOther = (totraceE - sum(WhiteE, AsianE, BlackE, LatinxE, na.rm = TRUE))/totraceE)
 
 df_nt <- nt(df = race_df) %>%
-  mutate(GEOID = as.numeric(GEOID))
+  mutate(GEOID = as.numeric(GEOID)) %>% 
+  distinct()
 
 #
 # Demographics: Student population and vacancy
@@ -145,7 +146,7 @@ tr_dem <-
     tr_prenters = st_rentoccE/st_unitsE,
     tr_pvacant = st_vacantE/st_unitsE,
     GEOID = as.numeric(GEOID)
-    )
+    )%>% distinct()
 
 #
 # Prep dataframe for mapping
@@ -154,7 +155,7 @@ tr_dem <-
 df <- 
     data %>% 
     left_join(df_nt) %>% 
-    left_join(tr_dem) %>% 
+    left_join(tr_dem) %>% dim()
     mutate( # create typology for maps
         Typology = 
             factor( # turn to factor for mapping 
