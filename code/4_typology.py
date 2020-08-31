@@ -32,12 +32,12 @@ city_name = str(sys.argv[1])
 # Note: If additional cities are added, make sure to change create_lag_vars.r
 # accordingly. 
 
-lag = pd.read_csv('~/git/sparcc/data/outputs/lags/lag.csv')
+lag = pd.read_csv('~/git/displacement-typologies/data/outputs/lags/lag.csv')
 
 home = str(Path.home())
 
-input_path = home+'/git/sparcc/data/inputs/'
-output_path = home+'/git/sparcc/data/outputs/'
+input_path = home+'/git/displacement-typologies/data/inputs/'
+output_path = home+'/git/displacement-typologies/data/outputs/'
 
 typology_input = pd.read_csv(output_path+'/databases/'+city_name.replace(" ", "")+'_database_2018.csv', index_col = 0) ### Read file
 typology_input['geometry'] = typology_input['geometry'].apply(wkt.loads) ### Read geometry as a shp attribute
