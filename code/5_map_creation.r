@@ -73,7 +73,7 @@ data <-
 source("~/git/functions/NeighType_Fun.R")
 # This code is pulled from https://gitlab.com/timathomas/Functions/blob/master/NeighType_Fun.R
 
-states <- c('17', '13', '08', '28', '47', '06', '06', '53', '39', '25', '33')
+states <- c('17', '13', '08', '28', '47', '06', '53', '39', '25', '33')
 
 race_vars <- 
   c('totrace' = 'B03002_001',
@@ -108,8 +108,7 @@ race_df <-
          pOther = (totraceE - sum(WhiteE, AsianE, BlackE, LatinxE, na.rm = TRUE))/totraceE)
 
 df_nt <- nt(df = race_df) %>%
-  mutate(GEOID = as.numeric(GEOID)) %>% 
-  distinct()
+  mutate(GEOID = as.numeric(GEOID)) 
 
 #
 # Demographics: Student population and vacancy
@@ -126,15 +125,15 @@ dem_vars <-
     'st_pov_under' = 'B14006_009', 
     'st_pov_grad' = 'B14006_010')
 
-# tr_dem_acs <- 
+# tr_dem_acs <-
 #   get_acs(
 #     geography = "tract",
 #     state = states,
-#     output = 'wide', 
-#     variables = dem_vars, 
-#     cache_table = TRUE, 
+#     output = 'wide',
+#     variables = dem_vars,
+#     cache_table = TRUE,
 #     year = 2018
-#   ) 
+#   )
 # fwrite(tr_dem_acs, '~/git/displacement-typologies/data/outputs/downloads/tr_dem_acs.csv.gz')
 tr_dem_acs <- fread('~/git/displacement-typologies/data/outputs/downloads/tr_dem_acs.csv.gz')
 
@@ -146,7 +145,7 @@ tr_dem <-
     tr_prenters = st_rentoccE/st_unitsE,
     tr_pvacant = st_vacantE/st_unitsE,
     GEOID = as.numeric(GEOID)
-    )%>% distinct()
+    )
 
 #
 # Prep dataframe for mapping
@@ -155,7 +154,7 @@ tr_dem <-
 df <- 
     data %>% 
     left_join(df_nt) %>% 
-    left_join(tr_dem) %>% dim()
+    left_join(tr_dem) %>% 
     mutate( # create typology for maps
         Typology = 
             factor( # turn to factor for mapping 
@@ -256,23 +255,23 @@ df <-
     data.frame()
 
 # State codes for downloading tract polygons; add your state here
-states <- c("06", "17", "13", "08", "25", "28", "47", "53", "39", "25", "33")
+# states <- c("06", "17", "13", "08", "25", "28", "47", "53", "39", "25", "33")
 
 # Download tracts in each of the shapes in sf (simple feature) class
-# tracts <- 
+# tracts <-
 #     reduce(
 #         map(states, function(x) # purr loop
 #             get_acs(
-#                 geography = "tract", 
-#                 variables = "B01003_001", 
-#                 state = x, 
+#                 geography = "tract",
+#                 variables = "B01003_001",
+#                 state = x,
 #                 geometry = TRUE)
-#         ), 
+#         ),
 #         rbind # bind each of the dataframes together
-#     ) %>% 
-#     select(GEOID) %>% 
-#     mutate(GEOID = as.numeric(GEOID)) %>% 
-#     st_transform(st_crs(4326)) 
+#     ) %>%
+#     select(GEOID) %>%
+#     mutate(GEOID = as.numeric(GEOID)) %>%
+#     st_transform(st_crs(4326))
 # saveRDS(tracts, '~/git/displacement-typologies/data/outputs/downloads/spatial_tracts.rdata')
 
 tracts <- readRDS('~/git/displacement-typologies/data/outputs/downloads/spatial_tracts.rdata')

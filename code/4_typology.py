@@ -288,15 +288,13 @@ data = pd.merge(data,lag[['dp_PChRent','dp_RentGap','GEOID', 'tr_rent_gap', 'rm_
 
 # #### Stable/Advanced Exclusive
 
-
-
 ### ********* Stable/advanced exclusive *************
 df = data
 df['SAE'] = 0
 df['SAE'] = np.where((df['pop00flag']==1)&
                      (df['high_pdmt_medhhinc_00'] == 1)&
                      (df['high_pdmt_medhhinc_18'] == 1)&                 
-                     (df['lmh_flag_encoded'] == 3)&
+                     ((df['lmh_flag_encoded'] == 3)|(df['lmh_flag_encoded'] == 6))&
                      ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2)|
                      (df['change_flag_encoded'] == 3)), 1, 0)
 
@@ -343,12 +341,13 @@ proximity = df[df.geometry.touches(exclusive.unary_union)]
 ### ************* Advanced gentrification **************
 # df = data
 df['AdvG'] = 0
-df['AdvG'] = np.where((df['pop00flag']==1)&
+df['AdvG'] = np.where(
+                    (df['pop00flag']==1)&
                     ((df['mod_pdmt_medhhinc_18'] == 1)|(df['mix_mod_medhhinc_18'] == 1)|
                      (df['mix_high_medhhinc_18'] == 1)|(df['high_pdmt_medhhinc_18'] == 1))&                    
                     ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
                      (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
-                    ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2))&
+                    ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2)|(df['change_flag_encoded'] == 3))&
                     ((df['pctch_real_mhval_00_18'] > 0) | (df['pctch_real_mrent_12_18'] > 0)) & 
                      (
                         # (df['gent_90_00']==1)|
@@ -433,8 +432,7 @@ df['BE'] = np.where((df['pop00flag']==1)&
                     ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
                      (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
                      (df['change_flag_encoded'] == 3)&
-                     (df['lostli_18']==1)&
-                     (df['per_limove_18']<df['per_limove_12'])&
+                     ((df['lostli_18']==1)|(df['per_limove_18']<df['per_limove_12']))&
                      (df['real_hinc_18']>df['real_hinc_00']), 1, 0)
 
 df['BE'] = np.where((df['pop00flag'].isna())|
