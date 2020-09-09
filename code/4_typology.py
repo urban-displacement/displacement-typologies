@@ -23,7 +23,7 @@ import sys
 # Example: python data.py Atlanta
 
 city_name = str(sys.argv[1])
-# city_name = "Seattle"
+# city_name = "San Francisco"
 
 #
 # Run create_lag_vars.r to create lag variables

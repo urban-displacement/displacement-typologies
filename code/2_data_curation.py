@@ -31,7 +31,7 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-# city_name = "Los Angeles"
+# city_name = "Memphis"
 city_name = str(sys.argv[1])
 # merge_type = str(sys.argv[2])
 

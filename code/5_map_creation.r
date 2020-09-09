@@ -38,32 +38,23 @@ census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
 data <- 
   bind_rows( # pull in data
     read_csv('~/git/displacement-typologies/data/outputs/typologies/Atlanta_typology_output.csv') %>% 
-        mutate(city = 'Atlanta') %>% 
-    	select(!X1),
+        mutate(city = 'Atlanta'),
     read_csv('~/git/displacement-typologies/data/outputs/typologies/Denver_typology_output.csv') %>%
-        mutate(city = 'Denver') %>% 
-    	select(!X1),
+        mutate(city = 'Denver'),
 	read_csv('~/git/displacement-typologies/data/outputs/typologies/Chicago_typology_output.csv') %>% 
-        mutate(city = 'Chicago') %>% 
-    	select(!X1),
+        mutate(city = 'Chicago'),
     # read_csv('~/git/displacement-typologies/data/outputs/typologies/Memphis_typology_output.csv') %>% 
-    #     mutate(city = 'Memphis') %>% 
-    	select(!X1),
+    #     mutate(city = 'Memphis'),
 	read_csv('~/git/displacement-typologies/data/outputs/typologies/LosAngeles_typology_output.csv') %>% 
-        mutate(city = 'Los Angeles') %>% 
-    	select(!X1),
+        mutate(city = 'Los Angeles'),
     read_csv('~/git/displacement-typologies/data/outputs/typologies/SanFrancisco_typology_output.csv') %>% 
-        mutate(city = 'San Francisco') %>% 
-    	select(!X1),
+        mutate(city = 'San Francisco')  %>% glimpse(),
 	read_csv('~/git/displacement-typologies/data/outputs/typologies/Seattle_typology_output.csv') %>% 
-        mutate(city = 'Seattle') %>% 
-    	select(!X1),
+        mutate(city = 'Seattle'),
 	read_csv('~/git/displacement-typologies/data/outputs/typologies/Cleveland_typology_output.csv') %>% 
-        mutate(city = 'Cleveland') %>% 
-    	select(!X1)#,
+        mutate(city = 'Cleveland')#,
 	# read_csv('~/git/displacement-typologies/data/outputs/typologies/Boston_typology_output.csv') %>% 
-        # mutate(city = 'Boston') %>% 
-    	# select(!X1)                     
+        # mutate(city = 'Boston')                      
     ) %>% 
     left_join(., 
         read_csv('~/git/displacement-typologies/data/overlays/oppzones.csv') %>% 
