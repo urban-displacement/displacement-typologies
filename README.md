@@ -1,7 +1,7 @@
 <a href='https://www.urbandisplacement.org/'><img src='.assets/images/blue_udp_logo.png' align="top" height="120" />
 </a>
 
-# UDP Displacement Typologies 
+# Displacement Typologies 
  
 ## Overview
  
