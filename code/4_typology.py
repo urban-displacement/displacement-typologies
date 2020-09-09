@@ -10,12 +10,11 @@
 # ==========================================================================
 
 import pandas as pd
+from shapely import wkt
 import geopandas as gpd
 import numpy as np
 import matplotlib.pyplot as plt
-from shapely import wkt
 from pathlib import Path
-from shapely import wkt
 import sys
 
 # ### Choose city and census tracts of interest
