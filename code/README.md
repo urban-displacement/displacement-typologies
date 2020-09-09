@@ -33,7 +33,7 @@ python 2017_3_typology.py Memphis
 Rscript 2017_4_SPARCC_Maps.r
 
 ```
-For all updates, navigate to `sparcc/code/` and run the following scripts. Currently this is set to 2018 ACS pulls. *Any updates will require code edits for the respective city and year.* 
+For the latest typologies using 2018 Census data, navigate to `sparcc/code/` and run the following scripts. Currently this is set to 2018 ACS pulls. *Any updates will require code edits for the respective city and year.* It is highly advised to save all your API data, the US Census API and US Gov data is unstable as of 2020. 
 
 ```
 # 1. data download
@@ -74,7 +74,7 @@ python 4_typology.py Cleveland
 <!-- python 4_typology.py Boston -->
 
 # 5. create maps
-Rscript 5_SPARCC_Maps.r
+Rscript 5_map_creation.r
 
 # (optional) 6. Encrypt the maps
 # To encrypt (on a mac)

@@ -22,7 +22,7 @@ options(scipen = 10) # avoid scientific notation
 # load packages
 if (!require("pacman")) install.packages("pacman")
 if (!require("R.utils")) install.packages("R.utils")
-pacman::p_load(fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet, update = TRUE)
+pacman::p_load(fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
@@ -39,21 +39,21 @@ data <-
   bind_rows( # pull in data
     read_csv('~/git/displacement-typologies/data/outputs/typologies/Atlanta_typology_output.csv') %>% 
         mutate(city = 'Atlanta'),
-        read_csv('~/git/displacement-typologies/data/outputs/typologies/Denver_typology_output.csv') %>%
+    read_csv('~/git/displacement-typologies/data/outputs/typologies/Denver_typology_output.csv') %>%
         mutate(city = 'Denver'),
-        read_csv('~/git/displacement-typologies/data/outputs/typologies/Chicago_typology_output.csv') %>% 
+	read_csv('~/git/displacement-typologies/data/outputs/typologies/Chicago_typology_output.csv') %>% 
         mutate(city = 'Chicago'),
-    #     read_csv('~/git/displacement-typologies/data/outputs/typologies/Memphis_typology_output.csv') %>% 
+    # read_csv('~/git/displacement-typologies/data/outputs/typologies/Memphis_typology_output.csv') %>% 
     #     mutate(city = 'Memphis'),
-        read_csv('~/git/displacement-typologies/data/outputs/typologies/LosAngeles_typology_output.csv') %>% 
+	read_csv('~/git/displacement-typologies/data/outputs/typologies/LosAngeles_typology_output.csv') %>% 
         mutate(city = 'Los Angeles'),
-        read_csv('~/git/displacement-typologies/data/outputs/typologies/SanFrancisco_typology_output.csv') %>% 
-        mutate(city = 'San Francisco'),
-        read_csv('~/git/displacement-typologies/data/outputs/typologies/Seattle_typology_output.csv') %>% 
+    read_csv('~/git/displacement-typologies/data/outputs/typologies/SanFrancisco_typology_output.csv') %>% 
+        mutate(city = 'San Francisco')  %>% glimpse(),
+	read_csv('~/git/displacement-typologies/data/outputs/typologies/Seattle_typology_output.csv') %>% 
         mutate(city = 'Seattle'),
-        read_csv('~/git/displacement-typologies/data/outputs/typologies/Cleveland_typology_output.csv') %>% 
+	read_csv('~/git/displacement-typologies/data/outputs/typologies/Cleveland_typology_output.csv') %>% 
         mutate(city = 'Cleveland')#,
-        # read_csv('~/git/displacement-typologies/data/outputs/typologies/Boston_typology_output.csv') %>% 
+	# read_csv('~/git/displacement-typologies/data/outputs/typologies/Boston_typology_output.csv') %>% 
         # mutate(city = 'Boston')                      
     ) %>% 
     left_join(., 
@@ -63,8 +63,7 @@ data <-
         	opp_zone = tract_type
         	) %>%
         mutate(GEOID = as.numeric(GEOID)) 
-    ) %>% 
-    select(!X1)
+    )
 
 # 
 # Create Neighborhood Racial Typologies for mapping
@@ -160,10 +159,10 @@ df <-
             factor( # turn to factor for mapping 
                 case_when(
                     tr_pstudents > .25 ~ "Unavailable or Unreliable Data",
-                    typ_cat == "['AdvG']" ~ 'Advanced Gentrification',
+                    typ_cat == "['AdvG']"|typ_cat == "['AdvG', 'BE']" ~ 'Advanced Gentrification',
                     typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive',
                     typ_cat == "['ARG']" ~ 'At Risk of Gentrification',
-                    typ_cat == "['BE']"|typ_cat == "['AdvG', 'BE']" ~ 'Becoming Exclusive', 
+                    typ_cat == "['BE']" ~ 'Becoming Exclusive', 
                     typ_cat == "['EOG']" ~ 'Early/Ongoing Gentrification',
                     typ_cat == "['OD']" ~ 'Low-Income Displacement',
                     typ_cat == "['SAE']" ~ 'Stable/Advanced Exclusive', 

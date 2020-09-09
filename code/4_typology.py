@@ -10,12 +10,11 @@
 # ==========================================================================
 
 import pandas as pd
+from shapely import wkt
 import geopandas as gpd
 import numpy as np
 import matplotlib.pyplot as plt
-from shapely import wkt
 from pathlib import Path
-from shapely import wkt
 import sys
 
 # ### Choose city and census tracts of interest
@@ -24,7 +23,7 @@ import sys
 # Example: python data.py Atlanta
 
 city_name = str(sys.argv[1])
-# city_name = "Seattle"
+# city_name = "San Francisco"
 
 #
 # Run create_lag_vars.r to create lag variables
