@@ -13,8 +13,8 @@ pd.set_option('display.max_rows', None)
 pd.options.display.float_format = '{:.2f}'.format # avoid scientific notation
 
 home = str(Path.home())
-input_path = home+'/git/sparcc/data/inputs/'
-output_path = home+'/git/sparcc/data/outputs/'
+input_path = home+'/git/displacement-typologies/data/inputs/'
+output_path = home+'/git/displacement-typologies/data/outputs/'
 
 
 # ### Set API key
@@ -171,7 +171,7 @@ census_00_filtered = filter_FIPS(census_00_xwalked)
 
 
 # Below is the Google File Drive Stream pathway for a mac. 
-# input_path = '~/git/sparcc/data/inputs/'
+# input_path = '~/git/displacement-typologies/data/inputs/'
 # output_path = output_path
 shp_folder = input_path+'shp/'+city_name.replace(" ", "")+'/'
 # data_1990 = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_90_10_2018.csv', index_col = 0) 

@@ -26,8 +26,8 @@ pd.set_option('display.max_rows', None)
 pd.options.display.float_format = '{:.2f}'.format # avoid scientific notation
 
 home = str(Path.home())
-input_path = home+'/git/sparcc/data/inputs/'
-output_path = home+'/git/sparcc/data/outputs/'
+input_path = home+'/git/displacement-typologies/data/inputs/'
+output_path = home+'/git/displacement-typologies/data/outputs/'
 
 
 # ### Set API key
@@ -45,7 +45,7 @@ c = census.Census(key)
 # Example: python data.py Atlanta
 
 city_name = str(sys.argv[1])
-# city_name = 'Los Angeles'
+# city_name = 'Memphis'
 # These are the counties
 #If reproducing for another city, add elif for that city & desired counties here
 

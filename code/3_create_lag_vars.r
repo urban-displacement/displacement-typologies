@@ -1,5 +1,5 @@
 # ==========================================================================
-# SPARCC data setup
+# displacement-typologies data setup
 # ==========================================================================
 
 if(!require(pacman)) install.packages("pacman")
@@ -14,7 +14,7 @@ census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
 # Note: Adjust the cities below if there are additional cities - add your city here
 
 # city_names <- commandArgs(trailingOnly = TRUE)
-data_dir <- "~/git/sparcc/data/outputs/databases/"
+data_dir <- "~/git/displacement-typologies/data/outputs/databases/"
 csv_files <- fs::dir_ls(data_dir, regexp = "2018.csv$")
 
 # df <- csv_files %>% 
@@ -30,35 +30,35 @@ csv_files <- fs::dir_ls(data_dir, regexp = "2018.csv$")
 
 df <- 
     bind_rows(
-            read_csv("~/git/sparcc/data/outputs/databases/Atlanta_database_2018.csv") %>% 
+            read_csv("~/git/displacement-typologies/data/outputs/databases/Atlanta_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Atlanta"),
-            read_csv("~/git/sparcc/data/outputs/databases/Denver_database_2018.csv") %>% 
+            read_csv("~/git/displacement-typologies/data/outputs/databases/Denver_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Denver"),
-            read_csv("~/git/sparcc/data/outputs/databases/Chicago_database_2018.csv") %>% 
+            read_csv("~/git/displacement-typologies/data/outputs/databases/Chicago_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Chicago"),
-            # read_csv("~/git/sparcc/data/outputs/databases/Memphis_database_2018.csv") %>% 
+            # read_csv("~/git/displacement-typologies/data/outputs/databases/Memphis_database_2018.csv") %>% 
             # select(!X1) %>% 
             # mutate(city = "Memphis"),
-            read_csv("~/git/sparcc/data/outputs/databases/LosAngeles_database_2018.csv") %>% 
+            read_csv("~/git/displacement-typologies/data/outputs/databases/LosAngeles_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Los Angeles") %>% 
             mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric)), # temp fix
-            read_csv("~/git/sparcc/data/outputs/databases/SanFrancisco_database_2018.csv") %>% 
+            read_csv("~/git/displacement-typologies/data/outputs/databases/SanFrancisco_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "San Francisco") %>% 
             mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric)),
-            read_csv("~/git/sparcc/data/outputs/databases/Seattle_database_2018.csv") %>% 
+            read_csv("~/git/displacement-typologies/data/outputs/databases/Seattle_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Seattle") %>% 
             mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric)),
-            read_csv("~/git/sparcc/data/outputs/databases/Cleveland_database_2018.csv") %>% 
+            read_csv("~/git/displacement-typologies/data/outputs/databases/Cleveland_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Cleveland") %>% 
             mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric))
-            # read_csv("~/git/sparcc/data/outputs/databases/Boston_database.csv") %>%
+            # read_csv("~/git/displacement-typologies/data/outputs/databases/Boston_database.csv") %>%
             # select(!X1) %>%
             # mutate(city = "Boston")
     )
@@ -258,19 +258,19 @@ puma <-
 
 
 #add your state FIPS here
-# drive_download("~/CCI Docs/Current Projects/SPARCC/Data/Inputs/shp/US_puma_2017.gpkg", overwrite = TRUE)
+# drive_download("~/CCI Docs/Current Projects/displacement-typologies/Data/Inputs/shp/US_puma_2017.gpkg", overwrite = TRUE)
 
 # saveRDS(st_read("US_puma_2017.gpkg") %>% #add your state here
 #     filter(STATEFP10 %in% c('17', '13', '08', '28', '47', '06', '53', '39', '25', '33')) %>% 
 #     # st_set_crs(102003) %>% 
 #     st_transform(4269) %>% 
 #     mutate(sqmile = ALAND10/2589988), 
-#     "~/git/sparcc/data/inputs/nhgispuma.RDS"
+#     "~/git/displacement-typologies/data/inputs/nhgispuma.RDS"
 # )
 
 # puma <-  
 #     st_join(
-#         readRDS("~/git/sparcc/data/inputs/nhgispuma.RDS") %>% 
+#         readRDS("~/git/displacement-typologies/data/inputs/nhgispuma.RDS") %>% 
 #             filter(STATEFP10 == "17", PUMACE10 == "03413") %>% glimpse(), 
 #         puma_df %>%
 #             mutate(GEOID10 = as.factor(GEOID))
@@ -291,7 +291,7 @@ stsf <-
 
 lag <- left_join(lag, stsf)
 
-# saveRDS(df2, "~/git/sparcc/data/rentgap.rds")
-fwrite(lag, "~/git/sparcc/data/outputs/lags/lag.csv")
+# saveRDS(df2, "~/git/displacement-typologies/data/rentgap.rds")
+fwrite(lag, "~/git/displacement-typologies/data/outputs/lags/lag.csv")
 
 # df2 %>% filter(GEOID == 13121006000) %>% glimpse()
