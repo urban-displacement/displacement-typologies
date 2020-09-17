@@ -31,4 +31,4 @@ Boston - *coming soon*
 
 ### Typology reference
 
-<a href='https://www.urbandisplacement.org/'><img src='.assets/images/typology_sheet.png'/></a>
+<a href='https://www.urbandisplacement.org/'><img src='.assets/images/typology_sheet_2018.png'/></a>
