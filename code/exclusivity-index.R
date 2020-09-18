@@ -1,24 +1,38 @@
-library(pacman)
-p_load(tidyr, dplyr, tigris, tidycensus, yaml)
+# ==========================================================================
+# Exclusivity index dev
+# Developed by Alex Ramiller and Tim Thomas
+# 2020.09.18
+# ==========================================================================
+
+#
+# Load packages
+# --------------------------------------------------------------------------
+
+if(!require(pacman)) install.packages("pacman")
+p_load(tidyr, tigris, tidycensus, yaml, tidyverse)
 options(tigris_class = "sf",
         tigris_use_cache = TRUE)
-select <- dplyr::select
 
-census_api_key(read_yaml("/Users/ajramiller/census.yaml"))
+# census_api_key(read_yaml("/Users/ajramiller/census.yaml"))
+census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
 
+# Census variables
 acs2018 <- load_variables(2018, "acs5", cache = TRUE)
 
+#
+# Function dev.
+# --------------------------------------------------------------------------
 closest <- function(x, limits) {
   limits[which.min(abs(limits - x))]
 }
 
-exclusivity_measure <- function(state, counties) {
+exclusivity_measure <- function(state, counties, year = NULL) {
   income <- 
     get_acs(geography = "county",
             table = "B19001",
             state = state,
-            year = 2018,
-            key = CENSUS_API_KEY,
+            year = year,
+            # key = CENSUS_API_KEY,
             cache_table = TRUE) %>% 
     filter(GEOID %in% paste0(state, counties)) %>%
     left_join(acs2018, by = c("variable" = "name"))
@@ -28,7 +42,7 @@ exclusivity_measure <- function(state, counties) {
             variables = "B19013_001",
             state = state,
             county = counties,
-            year = 2018,
+            year = year,
             key = CENSUS_API_KEY,
             cache_table = TRUE)
   
@@ -41,14 +55,14 @@ exclusivity_measure <- function(state, counties) {
                           "B25085_021", "B25085_022", "B25085_023", "B25085_024"),
             state = state,
             county = counties,
-            year = 2018,
+            year = year,
             key = CENSUS_API_KEY,
             cache_table = TRUE),
     get_acs(geography = "tract",
             variables = c("B25085_025", "B25085_026", "B25085_027"),
             state = state,
             county = counties,
-            year = 2018,
+            year = year,
             key = CENSUS_API_KEY,
             cache_table = TRUE)) %>%
     left_join(acs2018, by = c("variable" = "name")) %>%
@@ -63,14 +77,14 @@ exclusivity_measure <- function(state, counties) {
                           "B25075_021", "B25075_022", "B25075_023", "B25075_024"),
             state = state,
             county = counties,
-            year = 2018,
+            year = year,
             key = CENSUS_API_KEY,
             cache_table = TRUE),
     get_acs(geography = "tract",
             variables = c("B25075_025", "B25075_026", "B25075_027"),
             state = state,
             county = counties,
-            year = 2018,
+            year = year,
             key = CENSUS_API_KEY,
             cache_table = TRUE)) %>%
     left_join(acs2018, by = c("variable" = "name")) %>%
@@ -85,14 +99,14 @@ exclusivity_measure <- function(state, counties) {
                           "B25063_021", "B25063_022", "B25063_023", "B25063_024", "B25063_025"),
             state = state,
             county = counties,
-            year = 2018,
+            year = year,
             key = CENSUS_API_KEY,
             cache_table = TRUE),
     get_acs(geography = "tract",
             variables = "B25063_026",
             state = state,
             county = counties,
-            year = 2018,
+            year = year,
             key = CENSUS_API_KEY,
             cache_table = TRUE)) %>%
     left_join(acs2018, by = c("variable" = "name")) %>%
@@ -122,7 +136,7 @@ exclusivity_measure <- function(state, counties) {
       filter(income_limit <= closest(1.2*ami, income_limit) &
                income_limit > 0) %>%
       group_by(GEOID) %>%
-      summarize(nonhigh = sum(estimate)) %>%
+      summarize(middle = sum(estimate)) %>%
     left_join(
       price %>% 
         filter(income_limit <= closest(0.8*ami, income_limit) &
@@ -155,7 +169,7 @@ exclusivity_measure <- function(state, counties) {
       filter(income_limit <= closest(1.2*ami, income_limit) &
                income_limit > 0) %>%
       group_by(GEOID) %>%
-      summarize(nonhigh = sum(estimate)) %>%
+      summarize(middle = sum(estimate)) %>%
     left_join(
       value %>% 
         filter(income_limit <= closest(0.8*ami, income_limit) &
@@ -188,7 +202,7 @@ exclusivity_measure <- function(state, counties) {
         filter(income_limit <= closest(1.2*ami, income_limit) &
                  income_limit > 0) %>%
         group_by(GEOID) %>%
-        summarize(nonhigh = sum(estimate)) %>%
+        summarize(middle = sum(estimate)) %>%
     left_join(
       rent %>% 
         filter(income_limit <= closest(0.8*ami, income_limit) &
@@ -220,7 +234,7 @@ exclusivity_measure <- function(state, counties) {
                        filter(limit > closest(1.2*ami, income_limit)) %>%
                        select(estimate))/sum(income$estimate[income$limit == 0])
   
-  nonhigh_income <- sum(income %>% 
+  middle_income <- sum(income %>% 
                           filter(limit <= closest(1.2*ami, income_limit) &
                                    limit > 0) %>%
                           select(estimate))/sum(income$estimate[income$limit == 0])
@@ -242,33 +256,33 @@ exclusivity_measure <- function(state, counties) {
   
   tract_counts <- bind_rows(price_counts, value_counts) %>%
     group_by(GEOID) %>% summarize_all(~sum(.)) %>%
-    mutate(high_own = (total - nonhigh)/total,
-           nonhigh_own = nonhigh/total,
+    mutate(high_own = (total - middle)/total,
+           middle_own = middle/total,
            low_own = low/total,
            very_low_own = very_low/total,
            extremely_low_own = extremely_low/total) %>%
-    select(-nonhigh, -low, -very_low, -extremely_low) %>%
+    select(-middle, -low, -very_low, -extremely_low) %>%
     rename(own = total) %>%
     mutate(#high_ratio = high/high_income,
-           #nonhigh_ratio = nonhigh/nonhigh_income,
+           #middle_ratio = middle/middle_income,
            #low_ratio = low/low_income,
            #very_low_ratio = very_low/very_low_income,
            #extremely_low_ratio = extremely_low/extremely_low_income,
            high_own_access = high_own*high_income,
-           nonhigh_own_access = nonhigh_own*nonhigh_income,
+           middle_own_access = middle_own*middle_income,
            low_own_access = low_own*low_income,
            very_low_own_access = very_low_own*very_low_income,
            extremely_low_own_access = extremely_low_own*extremely_low_income) %>%
     left_join(rent_counts %>%
-                mutate(high_rent = (total - nonhigh)/total,
-                       nonhigh_rent = nonhigh/total,
+                mutate(high_rent = (total - middle)/total,
+                       middle_rent = middle/total,
                        low_rent = low/total,
                        very_low_rent = very_low/total,
                        extremely_low_rent = extremely_low/total) %>%
-                select(-nonhigh, -low, -very_low, -extremely_low) %>%
+                select(-middle, -low, -very_low, -extremely_low) %>%
                 rename(rent = total) %>%
                 mutate(high_rent_access = high_rent*high_income,
-                       nonhigh_rent_access = nonhigh_rent*nonhigh_income,
+                       middle_rent_access = middle_rent*middle_income,
                        low_rent_access = low_rent*low_income,
                        very_low_rent_access = very_low_rent*very_low_income,
                        extremely_low_rent_access = extremely_low_rent*extremely_low_income
@@ -277,11 +291,19 @@ exclusivity_measure <- function(state, counties) {
   tracts(state, counties) %>% left_join(tract_counts)
 }
 
-#king <- exclusivity_measure("53", "033")
-puget <- exclusivity_measure("53", c("033", "053", "061"))
-bay5 <- exclusivity_measure("06", c("001", "013", "041", "075", "081"))
-bay9 <- exclusivity_measure("06", c("001", "013", "041", "055", "075", "081", "085", "095", "097"))
+#
+# Create measure
+# --------------------------------------------------------------------------
 
+#king <- exclusivity_measure("53", "033")
+puget <- exclusivity_measure("53", c("033", "053", "061"), 2018)
+bay5 <- exclusivity_measure("06", c("001", "013", "041", "075", "081"), 2018)
+bay9 <- exclusivity_measure("06", c("001", "013", "041", "055", "075", "081", "085", "095", "097"), 2018)
+
+
+#
+# Plot measures
+# --------------------------------------------------------------------------
 
 #plot_exclusivity_ratio <- function(data, variable){
 #  plot(data[variable], 
@@ -293,17 +315,26 @@ plot_exclusivity_access <- function(data, variable, title){
   plot(data[variable], lwd = 0.25, main = title)                  
 }
 
-plot_exclusivity_access(puget, "high_own_access", "Access (>120% of AMI)")
-plot_exclusivity_access(puget, "high_rent_access", "Access (>120% of AMI)")
-plot_exclusivity_access(puget, "nonhigh_own_access", "Homeownership Access (<120% of AMI)")
-plot_exclusivity_access(puget, "nonhigh_rent_access", "Renter Access (<120% of AMI)")
-plot_exclusivity_access(puget, "low_access", "Access (<80% of AMI)")
-plot_exclusivity_access(puget, "very_low_access", "Access (<50% of AMI)")
-plot_exclusivity_access(puget, "extremely_low_access", "Access (<30% of AMI)")
+plot_exclusivity_access(puget, "high_own_access", "Homeownership Access (>120% of AMI)")
+plot_exclusivity_access(puget, "high_rent_access", "Renter Access (>120% of AMI)")
+plot_exclusivity_access(puget, "middle_own_access", "Homeownership Access (<120% of AMI)")
+plot_exclusivity_access(puget, "middle_rent_access", "Renter Access (<120% of AMI)")
+plot_exclusivity_access(puget, "low_own_access", "Homeownership Access (<80% of AMI)")
+plot_exclusivity_access(puget, "low_rent_access", "Renter Access (<80% of AMI)")
+plot_exclusivity_access(puget, "very_low_own_access", "Homeownership Access (<50% of AMI)")
+plot_exclusivity_access(puget, "very_low_rent_access", "Renter Access (<50% of AMI)")
+plot_exclusivity_access(puget, "extremely_low_own_access", "Homeownership Access (<30% of AMI)")
+plot_exclusivity_access(puget, "extremely_low_rent_access", "Renter Access (<30% of AMI)")
 
-plot_exclusivity_access(bay9, "high_access", "Access (>120% of AMI)")
-plot_exclusivity_access(bay9, "nonhigh_own_access", "Homeownership Access (<120% of AMI)")
-plot_exclusivity_access(bay9, "nonhigh_rent_access", "Renter Access (<120% of AMI)")
-plot_exclusivity_access(bay9, "low_access", "Access (<80% of AMI)")
-plot_exclusivity_access(bay9, "very_low_access", "Access (<50% of AMI)")
-plot_exclusivity_access(bay9, "extremely_low_access", "Access (<30% of AMI)")
+plot_exclusivity_access(bay9, "high_own_access", "Homeownership Access (>120% of AMI)")
+plot_exclusivity_access(bay9, "middle_own_access", "Homeownership Access (<120% of AMI)")
+plot_exclusivity_access(bay9, "middle_rent_access", "Renter Access (<120% of AMI)")
+plot_exclusivity_access(bay9, "low_rent_access", "Renter Access (<80% of AMI)")
+plot_exclusivity_access(bay9, "very_low_rent_access", "Renter Access (<50% of AMI)")
+plot_exclusivity_access(bay9, "extremely_low_rent_access", "Renter Access (<30% of AMI)")
+
+# ==========================================================================
+# Future considerations and improvements
+# ==========================================================================
+# 1. how to account for number of homes in a tract
+#   * consider a competition index: (# homes @ x value) / (# of movers at x income)
