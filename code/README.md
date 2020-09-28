@@ -18,17 +18,17 @@ Each of the files are named in order of operation. To run the code, do the follo
 For the SPARCC released maps, which reflect 2017 ACS data, navigate to `sparcc/code/sparcc_code` and execute the following commands in your terminal: 
 
 ```
-python 2017_1_data.py Atlanta
-python 2017_1_data.py Chicago
-python 2017_1_data.py Denver
-python 2017_1_data.py Memphis
+python3 sparcc-2017-1-data.py Atlanta
+python3 sparcc-2017-1-data.py Chicago
+python3 sparcc-2017-1-data.py Denver
+python3 sparcc-2017-1-data.py Memphis
 
 Rscript 2017_2_create_lag_vars.r
 
-python 2017_3_typology.py Atlanta
-python 2017_3_typology.py Chicago
-python 2017_3_typology.py Denver
-python 2017_3_typology.py Memphis
+python3 2017_3_typology.py Atlanta
+python3 2017_3_typology.py Chicago
+python3 2017_3_typology.py Denver
+python3 2017_3_typology.py Memphis
 
 Rscript 2017_4_SPARCC_Maps.r
 

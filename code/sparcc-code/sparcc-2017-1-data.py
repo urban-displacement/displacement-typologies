@@ -401,7 +401,7 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
 #                                           'B19013_001E':'hinc_10',})
 
 
-# ### Decennial Census 2000 Variables
+### Decennial Census 2000 Variables
 
 var_sf1=['P004001',
          'P004005',
