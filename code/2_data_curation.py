@@ -29,10 +29,15 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-#TIM
-# city_name = "Memphis"
+### Begin City Name feature ###
+# When editing and testing the code line by line, uncomment the line below and 
+# change the city name (e.g. change from "Memphis" to "your city")
+#
+#city_name = "Memphis" #input city of interest here
+#
+# The line below is a system argument to define the city name from the command prompt
 city_name = str(sys.argv[1])
-# merge_type = str(sys.argv[2])
+### End City Name Feature ###
 
 # ==========================================================================
 # ==========================================================================
@@ -152,12 +157,6 @@ census_00_xwalked = crosswalk_files (census_00, xwalk_00_10,  counts, medians, d
 
 census_90_filtered = filter_FIPS(census_90_xwalked)
 census_00_filtered = filter_FIPS(census_00_xwalked)
-
-#TIM
-# census_90_filtered.to_csv(output_path+'crosswalks/'+city_name.replace(" ", "")+'census_90_10_2018.csv')
-# census_00_filtered.to_csv(output_path+'crosswalks/'+city_name.replace(" ", "")+'census_00_10_2018.csv')
-
-
 
 # ==========================================================================
 # ==========================================================================
@@ -379,8 +378,7 @@ census = income_interpolation (census, '90', 0.8, rm_hinc_90, 'hh_00', 'I', 'inc
 income_col = census.columns[census.columns.str[0:2]=='I_'] 
 census = census.drop(columns = income_col)
 
-#TIM - why this many #s?
-# ###### Generate income categories
+# ### Generate income categories
 
 def income_categories (df, year, mhinc, hinc):
     df['hinc_'+year] = np.where(df['hinc_'+year]<0, 0, df['hinc_'+year])  
@@ -482,7 +480,6 @@ census['real_hinc_18'] = census['hinc_18']
 # end change
 # ==========================================================================
 
-#TIM - does this need more explanation/cleaning up?
 # #### Demographics
 
 # bk - bookmark
@@ -529,11 +526,9 @@ df['per_col_90'] = (df['total_25_col_bd_90']+df['total_25_col_gd_90'])/(df['tota
 ### 2000
 df['male_25_col_00'] = (df['male_25_col_bd_00']+
                         df['male_25_col_md_00']+
-#                         df['male_25_col_psd_00']+
                         df['male_25_col_phd_00'])
 df['female_25_col_00'] = (df['female_25_col_bd_00']+
                           df['female_25_col_md_00']+
-#                           df['female_25_col_psd_00']+
                           df['female_25_col_phd_00'])
 df['total_25_col_00'] = df['male_25_col_00']+df['female_25_col_00']
 df['per_col_00'] = df['total_25_col_00']/df['total_25_00']
@@ -547,7 +542,7 @@ df['per_col_18'] = (df['total_25_col_bd_18']+
 ### Housing units built
 df['per_units_pre50_18'] = (df['units_40_49_built_18']+df['units_39_early_built_18'])/df['tot_units_built_18']
 
-# #### Percent of people who have moved who are low-income
+#### Percent of people who have moved who are low-income
 
 def income_interpolation_movein (census, year, cutoff, rm_iinc):
     # SUM EVERY CATEGORY BY INCOME
@@ -605,8 +600,8 @@ census = income_interpolation_movein (census, '12', 0.8, rm_iinc_12)
 
 len(census)
 
-#TIM - do we need to explain why we are using PUMS data here?
 # #### Housing Affordability
+# CARSON - Explain slightly
 
 def filter_PUMS(df, FIPS):
     if (city_name not in ('Memphis', 'Boston')):
@@ -756,16 +751,7 @@ census = census.merge(pums[['FIPS', 'lmh_flag_encoded', 'lmh_flag_category']], o
 
 len(census)
 
-# #### Market Type
-
-#TIM - these change blocks, should we keep them? 
-
-# ==========================================================================
-# Change: 
-# 2020.03.29 - add 2012 to 2018 changes - tim thomas
-# bk
-# start change
-# ==========================================================================
+# #### Market Type 
 
 census['pctch_real_mhval_00_18'] = (census['real_mhval_18']-census['real_mhval_00'])/census['real_mhval_00']
 census['pctch_real_mrent_12_18'] = (census['real_mrent_18']-census['real_mrent_12'])/census['real_mrent_12']
@@ -778,13 +764,6 @@ census['rent_increase'] = np.where((census['pctch_real_mrent_12_18']>=0.05)&
                                           (census['pctch_real_mrent_12_18']<rm_pctch_real_mrent_12_18_increase), 1, 0)
 census['rent_rapid_increase'] = np.where((census['pctch_real_mrent_12_18']>=0.05)&
                                           (census['pctch_real_mrent_12_18']>=rm_pctch_real_mrent_12_18_increase), 1, 0)
-
-# end change
-# ==========================================================================
-# Note:
-# We're keeping 2000 to 2018 because it's a one year decennial change vs a 5 year change from 2013 to 2018. 
-# I'm afraid using 2 acs 5-years back to back will not be sufficent in capturing change. 
-# ==========================================================================
 
 census['house_decrease'] = np.where((census['pctch_real_mhval_00_18']<=-0.05), 1, 0)
 census['house_marginal'] = np.where((census['pctch_real_mhval_00_18']>-0.05)&
@@ -817,7 +796,6 @@ len(census)
 
 # ### Zillow Data 
 
-#TIM - why so many hashmarks?
 # ###### Load data
 
 def filter_ZILLOW(df, FIPS):
@@ -937,9 +915,6 @@ pctch_rm_real_mrent_12_18 = (rm_real_mrent_18-rm_real_mrent_12)/rm_real_mrent_12
 pctch_rm_real_hinc_90_00 = (rm_real_hinc_00-rm_real_hinc_90)/rm_real_hinc_90
 pctch_rm_real_hinc_00_18 = (rm_real_hinc_18-rm_real_hinc_00)/rm_real_hinc_00
 
-# End Change
-# ==========================================================================
-
 
 # #### Absolute changes
 
@@ -1007,7 +982,7 @@ census_zillow_tract_list.describe()
 
 ### Filter only existing rail
 rail = rail[rail['Year Opened']=='Pre-2000'].reset_index(drop = True)
-# rail.Agency.unique()
+
 ### Filter by city
 rail = rail[rail['Agency'].isin(rail_agency)].reset_index(drop = True)
 rail = gpd.GeoDataFrame(rail, geometry=[Point(xy) for xy in zip (rail['Longitude'], rail['Latitude'])])
@@ -1073,8 +1048,10 @@ city_shp['presence_ph_LIHTC'] = city_shp.intersects(presence_ph_LIHTC.unary_unio
 # End Map Plot 
 ######
 
-#TIM - Where should these be put? They seem a little out of place?
-#Fixes
+# ==========================================================================
+# Merge Census and Zillow Data 
+# ==========================================================================
+
 city_shp['GEOID'] = city_shp['GEOID'].astype('int64')
 
 census_zillow = census_zillow.merge(city_shp[['GEOID','geometry','rail', 

@@ -13,7 +13,6 @@ pacman::p_load(colorout, googledrive, bit64, fs, data.table, tigris, tidycensus,
 # ### Set API key
 census_api_key('') #enter your own key here
 
-#TIM - Do we want to use this convention for all?
 # ==========================================================================
 # Pull in data
 # ==========================================================================
@@ -135,9 +134,11 @@ tr_rents <-
     filter(row_number()==1) %>% 
     ungroup()
 
-#TIM - Where do you add state?
-# Pull in state tracts shapefile and unite them into one shapefile.
-#Add your state here
+# If you have more than one state, use the following 
+# code to knit together multiple states
+#To add your state, duplicate the second to last line (including %>%) and add state
+# abbreviation in "" (after 'tracts(')
+
 gc()
 
 states <- 
