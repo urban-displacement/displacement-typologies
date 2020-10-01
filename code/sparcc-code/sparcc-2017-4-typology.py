@@ -24,7 +24,7 @@ import sys
 # Example: python data.py Atlanta
 
 city_name = str(sys.argv[1])
-# city_name = "Atlanta"
+# city_name = "Memphis"
 
 #
 # Run create_lag_vars.r to create lag variables
@@ -32,14 +32,13 @@ city_name = str(sys.argv[1])
 # Note: If additional cities are added, make sure to change create_lag_vars.r
 # accordingly. 
 
-lag = pd.read_csv('~/git/sparcc/data/outputs/lag_2017.csv')
+lag = pd.read_csv('~/git/displacement-typologies/data/outputs/lags/lag_2017.csv')
 
 home = str(Path.home())
+input_path = home+'/git/displacement-typologies/data/inputs/'
+output_path = home+'/git/displacement-typologies/data/outputs/'
 
-input_path = home+'/git/sparcc/data/inputs/'
-output_path = home+'/git/sparcc/data/outputs/'
-
-typology_input = pd.read_csv(output_path+city_name+'_database_2017.csv', index_col = 0) ### Read file
+typology_input = pd.read_csv(output_path+'databases/'+city_name+'_database_2017.csv', index_col = 0) ### Read file
 typology_input['geometry'] = typology_input['geometry'].apply(wkt.loads) ### Read geometry as a shp attribute
 geo_typology_input  = gpd.GeoDataFrame(typology_input, geometry='geometry') ### Create the gdf
 data = geo_typology_input.copy(deep=True)
@@ -55,11 +54,7 @@ data = geo_typology_input.copy(deep=True)
 
 data.groupby('inc_cat_medhhinc_17').count()['FIPS']
 
-
-
-
 data.groupby('inc_cat_medhhinc_00').count()['FIPS']
-
 
 # ## Run Typology Method
 
@@ -67,13 +62,8 @@ data.groupby('inc_cat_medhhinc_00').count()['FIPS']
 
 # #### Flag for sufficient pop in tract by 2000
 
-
-
 ### The input file has a flag for 2017 population, but this step will generate the same flag for 2000
 data['pop00flag'] = np.where((data['pop_00'] >500), 1, 0)
-
-
-
 
 # print('POPULATION OVER 500 FOR YEAR 2000')
 # ax = data.plot(color = 'white')
@@ -81,10 +71,7 @@ data['pop00flag'] = np.where((data['pop_00'] >500), 1, 0)
 # plt.show()
 # print('There are ', len(data[data['pop00flag']==0]), 'census tract with pop<500 in 2000')
 
-
 # ### Vulnerability to Gentrification
-
-
 
 ### Vulnerable to gentrification index, for both '90 and '00 - make it a flag
 
@@ -180,18 +167,12 @@ data['hotmarket_17'] = np.where((data['aboverm_pctch_real_mhval_00_17']==1)|
 data['hotmarket_17'] = np.where((data['aboverm_pctch_real_mhval_00_17'].isna())|
                                   (data['aboverm_pctch_real_mrent_12_17'].isna()), np.nan, data['hotmarket_17'])
 
-
-
-
 # print('HOT MARKET 2017')
 # ax = data.plot(color = 'white')
 # ax = data[~data['hotmarket_17'].isna()].plot(ax = ax, column = 'hotmarket_17', legend = True)
 # plt.show()
 # print('There are ', data['hotmarket_17'].isna().sum(), 'census tract with NaN as data')
 # print('There are ', (data['hotmarket_17']==1).sum(), 'census tracts with hot market in 2017')
-
-
-
 
 # print('HOT MARKET 2000')
 # ax = data.plot(color = 'white')
@@ -202,8 +183,6 @@ data['hotmarket_17'] = np.where((data['aboverm_pctch_real_mhval_00_17'].isna())|
 
 
 # ### Gentrification
-
-
 
 ### 2 out of 3 required
 ### 1990 - 2000
@@ -255,6 +234,7 @@ data['gent_00_17_urban'] = np.where((data['vul_gent_00']==1)&
 
 # Add lag variables
 data = pd.merge(data,lag[['dp_PChRent','dp_RentGap','GEOID', 'tr_rent_gap', 'rm_rent_gap', 'dense']],on='GEOID')
+
 
 # print('GENTRIFICATION 1990 - 2000')
 # ax = data.plot(color = 'white')
@@ -690,8 +670,6 @@ df['typ_cat'] = cat_i
 df.groupby('typ_cat').count()['FIPS']
 
 
-
-
 print('TYPOLOGIES')
 
 # f, ax = plt.subplots(1, figsize=(8, 8))
@@ -711,5 +689,5 @@ print('TYPOLOGIES')
 
 df['FIPS'] = df['FIPS'].astype(str)
 df = df.drop(columns = 'geometry')
-df.to_csv(output_path+city_name+'_typology_output_2017.csv')
+df.to_csv(output_path+'typologies/'+city_name+'_typology_output_2017.csv')
 

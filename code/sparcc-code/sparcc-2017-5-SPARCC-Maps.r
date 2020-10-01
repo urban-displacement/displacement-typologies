@@ -21,7 +21,8 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-p_load(colorout, fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
+devtools::install_github("timathomas/urbandemographics")
+p_load(urbandemographics, fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
@@ -36,23 +37,105 @@ options(tigris_use_cache = TRUE)
 
 data <- 
     bind_rows( # pull in data
-        read_csv('~/git/sparcc/data/outputs/typologies/Atlanta_typology_output_2017.csv') %>% 
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Atlanta_typology_output_2017.csv') %>% 
         mutate(city = 'Atlanta'),
-        read_csv('~/git/sparcc/data/outputs/typologies/Denver_typology_output_2017.csv') %>%
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Denver_typology_output_2017.csv') %>%
         mutate(city = 'Denver'),
-        read_csv('~/git/sparcc/data/outputs/typologies/Chicago_typology_output_2017.csv') %>% 
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Chicago_typology_output_2017.csv') %>% 
         mutate(city = 'Chicago'),
-        read_csv('~/git/sparcc/data/outputs/typologies/Memphis_typology_output_2017.csv') %>% 
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Memphis_typology_output_2017.csv') %>% 
         mutate(city = 'Memphis')
     ) %>% 
     left_join(., 
-        read_csv('~/git/sparcc/data/overlays/oppzones.csv') %>% 
+        read_csv('~/git/displacement-typologies/data/overlays/oppzones.csv') %>% 
         select(
         	GEOID = geoid, 
         	opp_zone = tract_type
         	) %>%
         mutate(GEOID = as.numeric(GEOID)) 
     )
+
+# 
+# Create Neighborhood Racial Typologies for mapping
+# --------------------------------------------------------------------------
+
+source("~/git/functions/NeighType_Fun.R")
+# This code is pulled from https://github.com/timathomas/functions/blob/master/NeighType_Fun.R
+
+states <- c('17', '13', '08', '28', '47', '06', '53', '39', '25', '33')
+
+race_vars <- 
+  c('totrace' = 'B03002_001',
+    'White' = 'B03002_003',
+    'Black' = 'B03002_004',
+    'Asian' = 'B03002_006',
+    'Latinx' = 'B03002_012')
+
+###
+# Run if updates are required
+###
+# acs_data <- 
+#   get_acs(
+#     geography = 'tract',
+#     variables = race_vars,
+#     state = states,
+#     output = 'wide',
+#     cache_table = TRUE
+#   )
+# fwrite(acs_data, '~/git/displacement-typologies/data/outputs/downloads/race_acs_data.csv.gz')
+###
+acs_data <- fread('~/git/displacement-typologies/data/outputs/downloads/race_acs_data.csv.gz')
+
+race_df <- 
+  acs_data %>%
+  select(-ends_with("M")) %>% 
+  group_by(GEOID) %>% 
+  mutate(pWhite = WhiteE/totraceE, 
+         pAsian = AsianE/totraceE, 
+         pBlack = BlackE/totraceE, 
+         pLatinx = LatinxE/totraceE, 
+         pOther = (totraceE - sum(WhiteE, AsianE, BlackE, LatinxE, na.rm = TRUE))/totraceE)
+
+df_nt <- nt(df = race_df) %>%
+  mutate(GEOID = as.numeric(GEOID)) 
+
+#
+# Demographics: Student population and vacancy
+# --------------------------------------------------------------------------
+
+dem_vars <- 
+  c('st_units' = 'B25001_001',
+    'st_vacant' = 'B25002_003', 
+    'st_ownocc' = 'B25003_002', 
+    'st_rentocc' = 'B25003_003',
+    'st_totenroll' = 'B14007_001',
+    'st_colenroll' = 'B14007_017',
+    'st_proenroll' = 'B14007_018',
+    'st_pov_under' = 'B14006_009', 
+    'st_pov_grad' = 'B14006_010')
+
+# tr_dem_acs <-
+#   get_acs(
+#     geography = "tract",
+#     state = states,
+#     output = 'wide',
+#     variables = dem_vars,
+#     cache_table = TRUE,
+#     year = 2018
+#   )
+# fwrite(tr_dem_acs, '~/git/displacement-typologies/data/outputs/downloads/tr_dem_acs.csv.gz')
+tr_dem_acs <- fread('~/git/displacement-typologies/data/outputs/downloads/tr_dem_acs.csv.gz')
+
+tr_dem <- 
+  tr_dem_acs %>% 
+  group_by(GEOID) %>% 
+  mutate(
+    tr_pstudents = sum(st_colenrollE, st_proenrollE, na.rm = TRUE)/st_totenrollE, 
+    tr_prenters = st_rentoccE/st_unitsE,
+    tr_pvacant = st_vacantE/st_unitsE,
+    GEOID = as.numeric(GEOID)
+    )
+
 
 #
 # Prep dataframe for mapping
@@ -124,15 +207,24 @@ df <-
              '<b><i><u>Demographics</u></i></b><br>', 
              'Tract population: ', comma(pop_17), '<br>', 
              'Tract household count: ', comma(hh_17), '<br>', 
+             'Percent renter occupied: ', percent(tr_prenters, accuracy = .1), '<br>',
+             'Percent vacant homes: ', percent(tr_pvacant, accuracy = .1), '<br>',
              'Tract median income: ', dollar(real_hinc_17), '<br>', 
-             'Percent low income hh: ', percent(per_all_li_17), '<br>', 
-             'Percent change in LI: ', percent(per_ch_li), '<br>',
+             'Percent low income hh: ', percent(per_all_li_17, accuracy = .1), '<br>', 
+             'Percent change in LI: ', percent(per_ch_li, accuracy = .1), '<br>',
              '<br>',
-             'Percent non-White: ', percent(per_nonwhite_17), '<br>',
-             'Regional median non-White: ', percent(rm_per_nonwhite_17), '<br>',
+             'Percent POC: ', percent(per_nonwhite_17, accuracy = .1), '<br>',
+             'Regional median POC: ', percent(rm_per_nonwhite_17, accuracy = .1), '<br>',
+             'Tract racial typology: ', NeighType, '<br>', 
+             'White: ', percent(pWhite, accuracy = .1), '<br>', 
+             'Black: ', percent(pBlack, accuracy = .1), '<br>', 
+             'Asian: ', percent(pAsian, accuracy = .1), '<br>', 
+             'Latinx: ', percent(pLatinx, accuracy = .1), '<br>', 
+             'Other: ', percent(pOther, accuracy = .1), '<br>',
              '<br>',
-             'Percent college educated: ', percent(per_col_17), '<br>',
-             'Regional median educated: ', percent(rm_per_col_17), '<br>',
+             'Percent students: ', percent(tr_pstudents, accuracy = .1), '<br>',
+             'Percent college educated: ', percent(per_col_17, accuracy = .1), '<br>',
+             'Regional median educated: ', percent(rm_per_col_17, accuracy = .1), '<br>',
             '<br>',
             # risk factors
              '<b><i><u>Risk Factors</u></i></b><br>', 
@@ -180,7 +272,7 @@ df_sf <-
 
 
 ct <- 
-    fread('~/git/sparcc/data/inputs/sparcc_community_tracts.csv') %>% 
+    fread('~/git/displacement-typologies/data/inputs/displacement-typologies_community_tracts.csv') %>% 
     rename(city = City) %>% 
     mutate(GEOID = as.numeric(GEOID), 
     	cs = "Community Suggested Change") %>% 
@@ -246,15 +338,15 @@ ct <-
     ###add your city here
 red <- 
     rbind(
-        geojson_sf('~/git/sparcc/data/overlays/CODenver1938_1.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/CODenver1938_1.geojson') %>% 
         mutate(city = 'Denver'),
-        geojson_sf('~/git/sparcc/data/overlays/GAAtlanta1938_1.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/GAAtlanta1938_1.geojson') %>% 
         mutate(city = 'Atlanta'),
-        geojson_sf('~/git/sparcc/data/overlays/ILChicago1940_1.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/ILChicago1940_1.geojson') %>% 
         mutate(city = 'Chicago'),
-        geojson_sf('~/git/sparcc/data/overlays/TNMemphis19XX_1.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/TNMemphis19XX_1.geojson') %>% 
         mutate(city = 'Memphis'),
-        geojson_sf('~/git/sparcc/data/overlays/CALosAngeles1939.geojson') %>% 
+        geojson_sf('~/git/displacement-typologies/data/overlays/CALosAngeles1939.geojson') %>% 
         mutate(city = 'Los Angeles')
     ) %>% 
     mutate(
@@ -280,7 +372,7 @@ red <-
 
 ### Industrial points
 
-industrial <- st_read('~/git/sparcc/data/overlays/industrial.shp') %>% 
+industrial <- st_read('~/git/displacement-typologies/data/overlays/industrial.shp') %>% 
     mutate(site = 
         case_when(
             site_type == 0 ~ "Superfund", 
@@ -289,13 +381,13 @@ industrial <- st_read('~/git/sparcc/data/overlays/industrial.shp') %>%
     filter(state != "CO") %>% 
     st_as_sf() 
 
-hud <- st_read('~/git/sparcc/data/overlays/HUDhousing.shp') %>% 
+hud <- st_read('~/git/displacement-typologies/data/overlays/HUDhousing.shp') %>% 
     st_as_sf() 
 
 ### Rail data
 rail <- 
     st_join(
-        fread('~/git/sparcc/data/inputs/tod_database_download.csv') %>% 
+        fread('~/git/displacement-typologies/data/inputs/tod_database_download.csv') %>% 
             st_as_sf(
                 coords = c('Longitude', 'Latitude'), 
                 crs = 4269
@@ -309,7 +401,7 @@ rail <-
 ### Hospitals
 hospitals <- 
     st_join(
-        fread('~/git/sparcc/data/inputs/Hospitals.csv') %>% 
+        fread('~/git/displacement-typologies/data/inputs/Hospitals.csv') %>% 
             st_as_sf(
                 coords = c('X', 'Y'), 
                 crs = 4269
@@ -328,7 +420,7 @@ hospitals <-
 ### Universities
 university <- 
     st_join(
-        fread('~/git/sparcc/data/inputs/university_HD2016.csv') %>% 
+        fread('~/git/displacement-typologies/data/inputs/university_HD2016.csv') %>% 
             st_as_sf(
                 coords = c('LONGITUD', 'LATITUDE'), 
                 crs = 4269
@@ -365,13 +457,13 @@ road_map <-
 
 ### Atlanta Beltline
 beltline <- 
-	st_read("~/git/sparcc/data/overlays/beltline.shp") %>% 
+	st_read("~/git/displacement-typologies/data/overlays/beltline.shp") %>% 
 	mutate(name = "Beltline", 
 		name2 = "Possible Gentrifier")
 
 ### Opportunity Zones
 opp_zone <- 
-  st_read("~/git/sparcc/data/overlays/OpportunityZones/OpportunityZones.gpkg") %>%
+  st_read("~/git/displacement-typologies/data/overlays/OpportunityZones/OpportunityZones.gpkg") %>%
   st_transform(st_crs(ct)) %>% 
   st_join(., df_sf %>% select(city), join = st_intersects) %>% 
   filter(!is.na(city))
@@ -392,7 +484,7 @@ redline_pal <-
         na.color = "transparent"
     )
 
-sparcc_pal <- 
+displacement-typologies_pal <- 
     colorFactor(
         c(
             # '#e3dcf5',
@@ -456,7 +548,7 @@ map_it <- function(city_name, st){
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
         fillOpacity = .5, 
-        color = ~sparcc_pal(Typology), 
+        color = ~displacement-typologies_pal(Typology), 
         stroke = TRUE, 
         weight = .7, 
         opacity = .60, 
@@ -464,7 +556,7 @@ map_it <- function(city_name, st){
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
     ) %>%   
     addLegend(
-        pal = sparcc_pal, 
+        pal = displacement-typologies_pal, 
         values = ~Typology, 
         group = "Displacement Typology", 
         title = "Displacement Typology"
@@ -695,7 +787,7 @@ addPolylines(
 
 
 #
-# City specific SPARCC map; add your city here
+# City specific displacement-typologies map; add your city here
 # --------------------------------------------------------------------------
 
 # Atlanta, GA
@@ -709,7 +801,7 @@ atlanta <-
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-htmlwidgets::saveWidget(atlanta, file="~/git/sparcc/maps/atlanta_sparcc.html")
+htmlwidgets::saveWidget(atlanta, file="~/git/displacement-typologies/maps/atlanta_displacement-typologies.html")
 
 # Chicago, IL
 chicago <- 
@@ -720,7 +812,7 @@ chicago <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-htmlwidgets::saveWidget(chicago, file="~/git/sparcc/maps/chicago_sparcc.html")
+htmlwidgets::saveWidget(chicago, file="~/git/displacement-typologies/maps/chicago_displacement-typologies.html")
 
 # Denver, CO
 denver <- 
@@ -730,7 +822,7 @@ denver <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing") %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(denver, file="~/git/sparcc/maps/denver_sparcc.html")
+htmlwidgets::saveWidget(denver, file="~/git/displacement-typologies/maps/denver_displacement-typologies.html")
 
 # Memphis, TN
 memphis <- 
@@ -741,4 +833,4 @@ memphis <-
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(memphis, file="~/git/sparcc/maps/memphis_sparcc.html")
+htmlwidgets::saveWidget(memphis, file="~/git/displacement-typologies/maps/memphis_displacement-typologies.html")
