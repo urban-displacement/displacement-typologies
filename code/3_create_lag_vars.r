@@ -1,32 +1,26 @@
 # ==========================================================================
-# displacement-typologies data setup
+# ==========================================================================
+# ==========================================================================
+# Displacement Typologies Data Setup
+# ==========================================================================
+# ==========================================================================
 # ==========================================================================
 
 if(!require(pacman)) install.packages("pacman")
 pacman::p_load(colorout, googledrive, bit64, fs, data.table, tigris, tidycensus, tidyverse, spdep)
 # options(width = Sys.getenv('COLUMNS'))
 
-census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
+# ### Set API key
+census_api_key('') #enter your own key here
 
+#TIM - Do we want to use this convention for all?
 # ==========================================================================
 # Pull in data
 # ==========================================================================
 # Note: Adjust the cities below if there are additional cities - add your city here
 
-# city_names <- commandArgs(trailingOnly = TRUE)
 data_dir <- "~/git/displacement-typologies/data/outputs/databases/"
 csv_files <- fs::dir_ls(data_dir, regexp = "2018.csv$")
-
-# df <- csv_files %>% 
-#     map_dfr(read_csv) 
-
-# tr_rents18 <- 
-#     map_dfr(st, function(state){
-#         tr_rent(year = 2018, state) %>% 
-#         mutate(COUNTY = substr(GEOID, 1, 5))
-#     })
-
-#     })
 
 df <- 
     bind_rows(
@@ -39,9 +33,6 @@ df <-
             read_csv("~/git/displacement-typologies/data/outputs/databases/Chicago_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Chicago"),
-            # read_csv("~/git/displacement-typologies/data/outputs/databases/Memphis_database_2018.csv") %>% 
-            # select(!X1) %>% 
-            # mutate(city = "Memphis"),
             read_csv("~/git/displacement-typologies/data/outputs/databases/LosAngeles_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Los Angeles") %>% 
@@ -57,7 +48,10 @@ df <-
             read_csv("~/git/displacement-typologies/data/outputs/databases/Cleveland_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Cleveland") %>% 
-            mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric))
+            mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric)),
+            # read_csv("~/git/displacement-typologies/data/outputs/databases/Memphis_database_2018.csv") %>% 
+            # select(!X1) %>% 
+            # mutate(city = "Memphis"),
             # read_csv("~/git/displacement-typologies/data/outputs/databases/Boston_database.csv") %>%
             # select(!X1) %>%
             # mutate(city = "Boston")
@@ -131,7 +125,7 @@ tr_rents <-
                 is.na(medrent12) ~ median(medrent12, na.rm = TRUE),
                 TRUE ~ medrent12),
         tr_chrent = tr_medrent18 - tr_medrent12,
-        tr_pchrent = (tr_medrent18 - tr_medrent12)/tr_medrent12, 
+        tr_pchrent = (tr_medrent18 - tr_medrent12)/tr_medrent12,
 ### CHANGE THIS TO INCLUDE RM of region rather than county
         rm_medrent18 = median(tr_medrent18, na.rm = TRUE), 
         rm_medrent12 = median(tr_medrent12, na.rm = TRUE)) %>% 
@@ -141,8 +135,9 @@ tr_rents <-
     filter(row_number()==1) %>% 
     ungroup()
 
+#TIM - Where do you add state?
 # Pull in state tracts shapefile and unite them into one shapefile.
-    #Add your state here
+#Add your state here
 gc()
 
 states <- 
@@ -256,28 +251,6 @@ puma <-
         ) %>% 
     rename(PUMAID = GEOID)
 
-
-#add your state FIPS here
-# drive_download("~/CCI Docs/Current Projects/displacement-typologies/Data/Inputs/shp/US_puma_2017.gpkg", overwrite = TRUE)
-
-# saveRDS(st_read("US_puma_2017.gpkg") %>% #add your state here
-#     filter(STATEFP10 %in% c('17', '13', '08', '28', '47', '06', '53', '39', '25', '33')) %>% 
-#     # st_set_crs(102003) %>% 
-#     st_transform(4269) %>% 
-#     mutate(sqmile = ALAND10/2589988), 
-#     "~/git/displacement-typologies/data/inputs/nhgispuma.RDS"
-# )
-
-# puma <-  
-#     st_join(
-#         readRDS("~/git/displacement-typologies/data/inputs/nhgispuma.RDS") %>% 
-#             filter(STATEFP10 == "17", PUMACE10 == "03413") %>% glimpse(), 
-#         puma_df %>%
-#             mutate(GEOID10 = as.factor(GEOID))
-#     ) %>% 
-#     mutate(puma_density = estimate/sqmile) %>% 
-#     select(puma_density)
-
 stsf <- 
     stsp %>% 
     st_as_sf() %>% 
@@ -290,8 +263,10 @@ stsf <-
     mutate(GEOID = as.numeric(GEOID))
 
 lag <- left_join(lag, stsf)
+                  
+# ==========================================================================
+# SAVE DATA
+# ==========================================================================
 
 # saveRDS(df2, "~/git/displacement-typologies/data/rentgap.rds")
 fwrite(lag, "~/git/displacement-typologies/data/outputs/lags/lag.csv")
-
-# df2 %>% filter(GEOID == 13121006000) %>% glimpse()

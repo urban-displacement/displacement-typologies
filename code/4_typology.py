@@ -9,6 +9,10 @@
 # ==========================================================================
 # ==========================================================================
 
+# ==========================================================================
+# IMPORT LIBRARIES
+# ==========================================================================
+
 import pandas as pd
 from shapely import wkt
 import geopandas as gpd
@@ -17,13 +21,17 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import sys
 
+# ==========================================================================
+# CHOOSE CITY 
+# ==========================================================================
+# Note: Code is set up to run one city at a time
+
 # ### Choose city and census tracts of interest
 # To get city data, run the following code in the terminal
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
 city_name = str(sys.argv[1])
-# city_name = "San Francisco"
 
 #
 # Run create_lag_vars.r to create lag variables
@@ -571,16 +579,18 @@ df['EOG'] = np.where((df['pop00flag'].isna())|
                      (df['rent_abrm_ch'].isna())|
                      (df['rent_50pct_ch'].isna()), np.nan, df['EOG'])
 
-
-
-
+######
+# Begin Map Plot 
+######
 # print('EARLY/ONGOING GENTRIFICATION')
 # ax = data.plot(color = 'white')
 # ax = data[~data['EOG'].isna()].plot(ax = ax, column = 'EOG', legend = True)
 # plt.show()
 # print('There are ', data['EOG'].isna().sum(), 'census tract with NaN as data')
 # print('There are ',str((data['EOG']==1).sum()), 'Early/Ongoing Gentrification CT')
-
+######
+# End Map Plot 
+######
 
 # #### Ongoing Displacement
 

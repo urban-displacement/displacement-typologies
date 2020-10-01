@@ -1,3 +1,5 @@
+# ### Import libraries
+
 import census
 import pandas as pd
 import numpy as np
@@ -16,21 +18,18 @@ home = str(Path.home())
 input_path = home+'/git/displacement-typologies/data/inputs/'
 output_path = home+'/git/displacement-typologies/data/outputs/'
 
-
 # ### Set API key
-
-
 
 # key = '4c26aa6ebbaef54a55d3903212eabbb506ade381'
 key = '63217a192c5803bfc72aab537fe4bf19f6058326'
 c = census.Census(key)
-
 
 # ### Choose city and census tracts of interest
 # To get city data, run the following code in the terminal
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
+#TIM
 # city_name = "Memphis"
 city_name = str(sys.argv[1])
 # merge_type = str(sys.argv[2])
@@ -45,7 +44,7 @@ city_name = str(sys.argv[1])
 
 # ### Read files
 # 
-# Most of the input files are located on google drive and . I suggest downloading [Google's Drive File Stream](https://support.google.com/a/answer/7491144?utm_medium=et&utm_source=aboutdrive&utm_content=getstarted&utm_campaign=en_us) app, which doesn't download all Google Drive items to your computer, but rather pulls them as necessary. This will save a lot of space but compromises speed. 
+# Most of the input files are located on google drive and I suggest downloading [Google's Drive File Stream](https://support.google.com/a/answer/7491144?utm_medium=et&utm_source=aboutdrive&utm_content=getstarted&utm_campaign=en_us) app, which doesn't download all Google Drive items to your computer, but rather pulls them as necessary. This will save a lot of space but compromises speed. 
 
 # Data files
 census_90 = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_90_2018.csv', index_col = 0)
@@ -57,8 +56,6 @@ xwalk_00_10 = pd.read_csv(input_path+'crosswalk_2000_2010.csv')
 
 
 # ### Choose city and census tracts of interest
-
-
 
 #add elif for your city here
 
@@ -91,6 +88,7 @@ elif city_name == 'Boston':
     FIPS = {'25': ['009', '017', '021', '023', '025'], '33': ['015', '017']}
 else:
     print ('There is not information for the selected city')
+
 # ### Creates filter function
 # Note - Memphis is different bc it's located in 2 states
 
@@ -133,8 +131,6 @@ def crosswalk_files (df, xwalk, counts, medians, df_fips_base, xwalk_fips_base, 
 
 ###### 1990 Census Data
 
-
-
 counts = census_90.columns.drop(['county', 'state', 'tract', 'mrent_90', 'mhval_90', 'hinc_90', 'FIPS'])
 medians = ['mrent_90', 'mhval_90', 'hinc_90']
 df_fips_base = 'FIPS'
@@ -152,14 +148,16 @@ xwalk_fips_base = 'trtid00'
 xwalk_fips_horizon = 'trtid10'
 census_00_xwalked = crosswalk_files (census_00, xwalk_00_10,  counts, medians, df_fips_base, xwalk_fips_base, xwalk_fips_horizon )
 
-
 # ###### Filters and exports data
 
 census_90_filtered = filter_FIPS(census_90_xwalked)
 census_00_filtered = filter_FIPS(census_00_xwalked)
 
+#TIM
 # census_90_filtered.to_csv(output_path+'crosswalks/'+city_name.replace(" ", "")+'census_90_10_2018.csv')
 # census_00_filtered.to_csv(output_path+'crosswalks/'+city_name.replace(" ", "")+'census_00_10_2018.csv')
+
+
 
 # ==========================================================================
 # ==========================================================================
@@ -174,9 +172,7 @@ census_00_filtered = filter_FIPS(census_00_xwalked)
 # input_path = '~/git/displacement-typologies/data/inputs/'
 # output_path = output_path
 shp_folder = input_path+'shp/'+city_name.replace(" ", "")+'/'
-# data_1990 = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_90_10_2018.csv', index_col = 0) 
 data_1990 = census_90_filtered
-# data_2000 = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_00_10_2018.csv', index_col = 0)
 data_2000 = census_00_filtered
 acs_data = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_summ_2018.csv', index_col = 0)
 acs_data = acs_data.drop(columns = ['county_y', 'state_y', 'tract_y'])
@@ -210,6 +206,7 @@ hospitals = pd.read_csv(input_path+'Hospitals.csv')
 
 ### Universities
 university = pd.read_csv(input_path+'university_HD2016.csv')
+
 ### LIHTC
 lihtc = pd.read_csv(input_path+'LowIncome_Housing_Tax_Credit_Properties.csv')
 
@@ -220,6 +217,7 @@ pub_hous = pd.read_csv(input_path+'Public_Housing_Buildings.csv.gz')
 #add elif for your city here
 #Pull cartographic boundary files from here: 
 #https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.2017.html
+
 if city_name == 'Memphis':
     shp_name = 'cb_2018_47_tract_500k.shp'
 elif city_name == 'Chicago':
@@ -301,7 +299,6 @@ elif city_name == 'Boston':
 else:
     print ('There is no information for the selected city')
 
-
 # ### Merge census data in single file
 
 census = acs_data.merge(data_2000, on = 'FIPS', how = 'outer').merge(data_1990, on = 'FIPS', how = 'outer')
@@ -310,6 +307,7 @@ census = acs_data.merge(data_2000, on = 'FIPS', how = 'outer').merge(data_1990, 
 
 # #### CPI indexing values
 ### This is based on the yearly CPI average
+### Add in new CPI based on current year: https://www.bls.gov/data/inflation_calculator.htm
 CPI_89_18 = 2.08
 CPI_99_18 = 1.53
 CPI_12_18 = 1.11
@@ -317,7 +315,7 @@ CPI_12_18 = 1.11
 ### This is used for the Zillow data, where january values are compared
 CPI_0115_0119 = 1.077
 
-# #### Income
+# #### Income Interpolation
 
 census['hinc_18'][census['hinc_18']<0]=np.nan
 census['hinc_00'][census['hinc_00']<0]=np.nan
@@ -331,6 +329,9 @@ rm_iinc_18 = np.nanmedian(census['iinc_18'])
 rm_iinc_12 = np.nanmedian(census['iinc_12'])
 
 print(rm_hinc_18, rm_hinc_00, rm_hinc_90, rm_iinc_18, rm_iinc_12)
+
+### Interpolation 
+### This function interpolates population counts using income buckets provided by the Census
 
 def income_interpolation (census, year, cutoff, mhinc, tot_var, var_suffix, out):
     name = []
@@ -378,6 +379,7 @@ census = income_interpolation (census, '90', 0.8, rm_hinc_90, 'hh_00', 'I', 'inc
 income_col = census.columns[census.columns.str[0:2]=='I_'] 
 census = census.drop(columns = income_col)
 
+#TIM - why this many #s?
 # ###### Generate income categories
 
 def income_categories (df, year, mhinc, hinc):
@@ -480,6 +482,7 @@ census['real_hinc_18'] = census['hinc_18']
 # end change
 # ==========================================================================
 
+#TIM - does this need more explanation/cleaning up?
 # #### Demographics
 
 # bk - bookmark
@@ -488,16 +491,17 @@ df = census
 
 ### % of non-white
 
-###
-df['per_nonwhite_18'] = 1 - df['white_18']/df['pop_18']
-
 ### 1990
 df['per_nonwhite_90'] = 1 - df['white_90']/df['pop_90']
 
 ### 2000
 df['per_nonwhite_00'] = 1 - df['white_00']/df['pop_00']
 
+### 2018
+df['per_nonwhite_18'] = 1 - df['white_18']/df['pop_18']
+
 ### % of owner and renter-occupied housing units
+
 ### 1990
 df['hu_90'] = df['ohu_90']+df['rhu_90']
 df['per_rent_90'] = df['rhu_90']/df['hu_90']
@@ -601,6 +605,7 @@ census = income_interpolation_movein (census, '12', 0.8, rm_iinc_12)
 
 len(census)
 
+#TIM - do we need to explain why we are using PUMS data here?
 # #### Housing Affordability
 
 def filter_PUMS(df, FIPS):
@@ -753,6 +758,8 @@ len(census)
 
 # #### Market Type
 
+#TIM - these change blocks, should we keep them? 
+
 # ==========================================================================
 # Change: 
 # 2020.03.29 - add 2012 to 2018 changes - tim thomas
@@ -760,43 +767,15 @@ len(census)
 # start change
 # ==========================================================================
 
-# census['pctch_real_mhval_00_18'] = (census['real_mhval_18']-census['real_mhval_00'])/census['real_mhval_00']
-# census['pctch_real_mrent_00_18'] = (census['real_mrent_18']-census['real_mrent_00'])/census['real_mrent_00']
 census['pctch_real_mhval_00_18'] = (census['real_mhval_18']-census['real_mhval_00'])/census['real_mhval_00']
-# census['pctch_real_mhval_12_18'] = (census['real_mhval_18']-census['real_mhval_12'])/census['real_mhval_12']
 census['pctch_real_mrent_12_18'] = (census['real_mrent_18']-census['real_mrent_12'])/census['real_mrent_12']
-
-# rm_pctch_real_mhval_00_18_increase=np.nanmedian(census['pctch_real_mhval_00_18'][census['pctch_real_mhval_00_18']>0.05])
-# rm_pctch_real_mrent_00_18_increase=np.nanmedian(census['pctch_real_mrent_00_18'][census['pctch_real_mrent_00_18']>0.05])
 rm_pctch_real_mhval_00_18_increase=np.nanmedian(census['pctch_real_mhval_00_18'][census['pctch_real_mhval_00_18']>0.05])
-# rm_pctch_real_mhval_12_18_increase=np.nanmedian(census['pctch_real_mhval_12_18'][census['pctch_real_mhval_12_18']>0.05])
 rm_pctch_real_mrent_12_18_increase=np.nanmedian(census['pctch_real_mrent_12_18'][census['pctch_real_mrent_12_18']>0.05])
-
-# rm_pctch_real_mhval_00_18_increase=np.nanmedian(census['pctch_real_mhval_00_18'])
-# rm_pctch_real_mrent_00_18_increase=np.nanmedian(census['pctch_real_mrent_00_18'])
-
-
-
-
-# census['rent_decrease'] = np.where((census['pctch_real_mrent_00_18']<=-0.05), 1, 0)
-
-# census['rent_marginal'] = np.where((census['pctch_real_mrent_00_18']>-0.05)&
-#                                           (census['pctch_real_mrent_00_18']<0.05), 1, 0)
-
-# census['rent_increase'] = np.where((census['pctch_real_mrent_00_18']>=0.05)&
-#                                           (census['pctch_real_mrent_00_18']<rm_pctch_real_mrent_00_18_increase), 1, 0)
-
-# census['rent_rapid_increase'] = np.where((census['pctch_real_mrent_00_18']>=0.05)&
-#                                           (census['pctch_real_mrent_00_18']>=rm_pctch_real_mrent_00_18_increase), 1, 0)
-
 census['rent_decrease'] = np.where((census['pctch_real_mrent_12_18']<=-0.05), 1, 0)
-
 census['rent_marginal'] = np.where((census['pctch_real_mrent_12_18']>-0.05)&
                                           (census['pctch_real_mrent_12_18']<0.05), 1, 0)
-
 census['rent_increase'] = np.where((census['pctch_real_mrent_12_18']>=0.05)&
                                           (census['pctch_real_mrent_12_18']<rm_pctch_real_mrent_12_18_increase), 1, 0)
-
 census['rent_rapid_increase'] = np.where((census['pctch_real_mrent_12_18']>=0.05)&
                                           (census['pctch_real_mrent_12_18']>=rm_pctch_real_mrent_12_18_increase), 1, 0)
 
@@ -808,17 +787,13 @@ census['rent_rapid_increase'] = np.where((census['pctch_real_mrent_12_18']>=0.05
 # ==========================================================================
 
 census['house_decrease'] = np.where((census['pctch_real_mhval_00_18']<=-0.05), 1, 0)
-
 census['house_marginal'] = np.where((census['pctch_real_mhval_00_18']>-0.05)&
                                           (census['pctch_real_mhval_00_18']<0.05), 1, 0)
-
 census['house_increase'] = np.where((census['pctch_real_mhval_00_18']>=0.05)&
                                           (census['pctch_real_mhval_00_18']<rm_pctch_real_mhval_00_18_increase), 1, 0)
-
 census['house_rapid_increase'] = np.where((census['pctch_real_mhval_00_18']>=0.05)&
                                           (census['pctch_real_mhval_00_18']>=rm_pctch_real_mhval_00_18_increase), 1, 0)
 
-## Note change: original didn't have house*** == 1
 census['tot_decrease'] = np.where((census['rent_decrease']==1)|(census['house_decrease']==1), 1, 0)
 census['tot_marginal'] = np.where((census['rent_marginal']==1)|(census['house_marginal']==1), 1, 0)
 census['tot_increase'] = np.where((census['rent_increase']==1)|(census['house_increase']==1), 1, 0)
@@ -840,7 +815,10 @@ census.groupby(['change_flag_category', 'lmh_flag_category']).count()['FIPS']
 
 len(census)
 
-# ###### Load Zillow data
+# ### Zillow Data 
+
+#TIM - why so many hashmarks?
+# ###### Load data
 
 def filter_ZILLOW(df, FIPS):
     if (city_name not in ('Memphis', 'Boston')):
@@ -868,10 +846,6 @@ zillow_xwalk = pd.read_csv(input_path+'TRACT_ZIP_032015.csv')
 zillow['ch_zillow_12_18'] = zillow['2018-01'] - zillow['2012-01']*CPI_12_18
 zillow['per_ch_zillow_12_18'] = zillow['ch_zillow_12_18']/zillow['2012-01']
 zillow = zillow[zillow['State'].isin(state_init)].reset_index(drop = True)
-
-####### CHANGE HERE: original code commented out below; changed from outer to inner merge
-
-# zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = 'inner')
 zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = "inner")
 zillow = zillow.rename(columns = {'TRACT':'FIPS'})
 
@@ -888,11 +862,10 @@ print(percentile_90)
 ### Create flags
 ### Change over 50% of change in region
 zillow['ab_50pct_ch'] = np.where(zillow['per_ch_zillow_12_18']>0.5, 1, 0)
+
 ### Change over 90th percentile change
 zillow['ab_90percentile_ch'] = np.where(zillow['per_ch_zillow_12_18']>percentile_90, 1, 0)
-
 census_zillow = census.merge(zillow[['FIPS', 'per_ch_zillow_12_18', 'ab_50pct_ch', 'ab_90percentile_ch']], on = 'FIPS')
-
 census_zillow.head()
 census_zillow.info() # for SF: inner = 2109, outer = 0, left = 2129, right = 0
 census.info() # 2138
@@ -905,6 +878,7 @@ census_zillow['rent_90percentile_ch'] = np.where(census_zillow['pctch_real_mrent
 # census_zillow[['rent_90percentile_ch', 'real_mrent_12', 'real_mrent_18']]
 
 # End change
+
 # ==========================================================================
 
 # #### Regional medians
@@ -1028,6 +1002,7 @@ city_poly = city_poly.reset_index(drop = True)
 
 census_zillow_tract_list.describe()
 
+#TIM
 # ###### Rail
 
 ### Filter only existing rail
@@ -1061,115 +1036,7 @@ rail_buffer_wgs = rail_buffer.to_crs(epsg=4326)
 ### crate flag
 city_shp['rail'] = np.where(city_shp.intersects(rail_buffer_wgs.unary_union) == True, 1, 0)
 
-
-
-
-# if city_name != 'Memphis':
-    # ax = city_shp.plot('rail')
-    # rail.plot(ax = ax, color = 'red')
-    # plt.show()
-
-
-# ###### Anchor institution
-
-
-
-### Hospitals
-#hospitals = pd.read_csv(input_path+'Hospitals.csv')
-
-### Universities
-#university = pd.read_csv(input_path+'university_HD2016.csv')
-
-
-
-
-### Filter for state of interest
-#hospitals = hospitals[hospitals['STATE'].isin(state_init)]
-
-
-
-
-### Convert to geodataframe
-#hospitals = gpd.GeoDataFrame(hospitals, geometry=[Point(xy) for xy in zip (hospitals['X'], hospitals['Y'])])
-
-### Filter to hospitals with 100+ beds
-#hosp_type = ["GENERAL MEDICAL AND SURGICAL HOSPITALS", "CHILDREN'S HOSPITALS, GENERAL"]
-#hospitals = hospitals[hospitals['NAICS_DESC'].isin(hosp_type)]
-#hospitals = hospitals[['geometry']]
-#hospitals = hospitals.reset_index(drop = True)
-
-
-
-
-### Filter for state of interest
-#university = university[university['STABBR'].isin(state_init)]
-    
-### Convert to geodataframe
-#university = gpd.GeoDataFrame(university, geometry=[Point(xy) for xy in zip (university['LONGITUD'], university['LATITUDE'])])
-
-### Filter by institution size
-#university = university[university['INSTSIZE']>1].reset_index(drop = True)
-
-### Keep only geometry type
-#university = university[['geometry']]
-
-
-
-
-### Keep only records within shapefile
-### this step optimizes the flagging of census_zillow tracts that contain the point of interest
-
-### Hospitals
-#hospitals = hospitals[hospitals['geometry'].within(city_poly.loc[0, 'geometry'])].reset_index(drop = True)
-
-### Universities
-#university = university[university['geometry'].within(city_poly.loc[0, 'geometry'])].reset_index(drop = True)
-
-
-
-
-### Create anchor institution variable
-#anchor_institutions = university.append(hospitals).reset_index(drop = True)
-
-
-
-
-### Create half mile buffer
-
-### sets coordinate system to WGS84
-#anchor_institutions.crs = {'init' :'epsg:4326'}
-
-### creates UTM projection
-### zone is defined under define city specific variables
-#projection = '+proj=utm +zone='+zone+', +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
-
-### project to UTM coordinate system
-#anchor_institutions_proj = anchor_institutions.to_crs(projection)
-
-### create buffer around anchor institution in meters
-#anchor_institutions_buffer = anchor_institutions_proj.buffer(804.672)
-
-### convert buffer back to WGS84
-#anchor_institutions_buffer_wgs = anchor_institutions_buffer.to_crs(epsg=4326)
-
-
-
-
-### check whether census_zillow tract contains hospital station
-### and create anchor institution flag
-#city_shp['anchor_institution'] = city_shp.intersects(anchor_institutions_buffer_wgs.unary_union)
-
-
-
-
-# ax = city_shp.plot(column = 'anchor_institution')
-# anchor_institutions_buffer_wgs.plot(ax = ax)
-# plt.show()
-
-
 # ###### Subsidized housing
-
-
 
 ### LIHTC
 lihtc = pd.read_csv(input_path+'LowIncome_Housing_Tax_Credit_Properties.csv')
@@ -1191,28 +1058,24 @@ pub_hous = pub_hous[pub_hous['geometry'].within(city_poly.loc[0, 'geometry'])].r
 ### merge datasets
 presence_ph_LIHTC = lihtc[['geometry']].append(pub_hous[['geometry']])
 
-
-
-
 ### check whether census_zillow tract contains public housing or LIHTC station
 ### and create public housing flag
 city_shp['presence_ph_LIHTC'] = city_shp.intersects(presence_ph_LIHTC.unary_union)
 
-
-
-
+######
+# Begin Map Plot 
+######
 # ax = city_shp.plot(color = 'grey')
 # city_shp.plot(ax = ax, column = 'presence_ph_LIHTC')
 # presence_ph_LIHTC.plot(ax = ax)
 # plt.show()
+######
+# End Map Plot 
+######
 
-
-
-
+#TIM - Where should these be put? They seem a little out of place?
+#Fixes
 city_shp['GEOID'] = city_shp['GEOID'].astype('int64')
-
-
-
 
 census_zillow = census_zillow.merge(city_shp[['GEOID','geometry','rail', 
 	# 'anchor_institution', 
