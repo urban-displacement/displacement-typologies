@@ -175,47 +175,47 @@ exclusivity_measure <- function(state, counties) {
         select(GEOID, total = estimate)
     )
   
-  high_income <- sum(income %>% 
+  co_high_income <- sum(income %>% 
                        filter(limit > closest(1.2*ami, income$limit)) %>%
                        select(estimate))/sum(income$estimate[income$limit == 0])
   
-  middle_income <- sum(income %>% 
+  co_middle_income <- sum(income %>% 
                           filter(limit <= closest(1.2*ami, income$limit) &
                                    limit > 0) %>%
                           select(estimate))/sum(income$estimate[income$limit == 0])
   
-  low_income <- sum(income %>% 
+  co_low_income <- sum(income %>% 
                       filter(limit <= closest(0.8*ami, income$limit) &
                                limit > 0) %>%
                       select(estimate))/sum(income$estimate[income$limit == 0])
   
-  very_low_income <- sum(income %>% 
+  co_very_low_income <- sum(income %>% 
                            filter(limit <= closest(0.5*ami, income$limit) &
                                     limit > 0) %>%
                            select(estimate))/sum(income$estimate[income$limit == 0])
   
-  extremely_low_income <- sum(income %>% 
+  co_extremely_low_income <- sum(income %>% 
                                 filter(limit <= closest(0.3*ami, income$limit) &
                                          limit > 0) %>%
                                 select(estimate))/sum(income$estimate[income$limit == 0])
   
   tract_counts <- bind_rows(price_counts, value_counts) %>%
     group_by(GEOID) %>% summarize_all(~sum(.)) %>%
-    mutate(high = (total - middle)/total,
-           middle = middle/total,
-           low = low/total,
-           very_low = very_low/total,
-           extremely_low = extremely_low/total) %>%
-    mutate(high_ratio = high/high_income,
-           middle_ratio = middle/middle_income,
-           low_ratio = low/low_income,
-           very_low_ratio = very_low/very_low_income,
-           extremely_low_ratio = extremely_low/extremely_low_income,
-           high_access = high*high_income,
-           middle_access = middle*middle_income,
-           low_access = low*low_income,
-           very_low_access = very_low*very_low_income,
-           extremely_low_access = extremely_low*extremely_low_income)
+    mutate(tr_p_high_hh = (total - middle)/total,
+           tr_p_middle_hh = middle/total,
+           tr_p_low_hh = low/total,
+           tr_p_very_low_hh = very_low/total,
+           tr_p_extremely_low_hh = extremely_low/total) %>%
+    mutate(high_ratio = tr_p_high_hh/co_high_income,
+           middle_ratio = tr_p_middle_hh/co_middle_income,
+           low_ratio = tr_p_low_hh/co_low_income,
+           very_low_ratio = tr_p_very_low_hh/co_very_low_income,
+           extremely_low_ratio = tr_p_extremely_low_hh/co_extremely_low_income,
+           high_access = tr_p_high_hh*co_high_income,
+           middle_access = tr_p_middle_hh*co_middle_income,
+           low_access = tr_p_low_hh*co_low_income,
+           very_low_access = tr_p_very_low_hh*co_very_low_income,
+           extremely_low_access = tr_p_extremely_low_hh*co_extremely_low_income)
   
   tracts(state, counties) %>% left_join(tract_counts)
 }
