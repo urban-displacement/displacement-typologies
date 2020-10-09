@@ -456,7 +456,7 @@ states <-
 #     st_join(., df_sf %>% select(city), join = st_intersects) %>% 
 #     mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
 #     filter(!is.na(city))
-# 	saveRDS(roads, '~/git/displacement-typologies/data/outputs/downloads/roads.RDS')
+# 	saveRDS(road_map, '~/git/displacement-typologies/data/outputs/downloads/roads.RDS')
 ###
 # End
 ###
@@ -491,13 +491,13 @@ redline_pal <-
         na.color = "transparent"
     )
 
-displacementtypologies_pal <- 
+displacement_typologies_pal <- 
     colorFactor(
         c(
             # '#e3dcf5',
-            '#cbc9e2', # "#f2f0f7", 
-            '#5b88b5', #"#6699cc",
-            '#9e9ac8', #D9D7E8', #"#cbc9e2", #D9D7E8            
+            '#87CEFA',#cbc9e2', # "#f2f0f7", 
+            '#6495ED',#5b88b5', #"#6699cc", #light blue              
+            '#9e9ac8', #D9D7E8', #"#cbc9e2", #D9D7E8     
             # "#9e9ac8",
             '#756bb1', #B7B6D3', #"#756bb1", #B7B6D3
             '#54278f', #8D82B6', #"#54278f", #8D82B6
@@ -506,9 +506,10 @@ displacementtypologies_pal <-
             '#F4C08D', #"#fed98e", #EE924F
             '#EE924F', #"#fe9929", #EE924F
             '#C95123', #"#cc4c02", #C75023
-            "#ffffff"), 
+            # "#A9A9A9", # intended for greater student pop
+            "#C0C0C0"), 
         domain = df$Typology, 
-        na.color = "transparent"
+        na.color = '#C0C0C0'
     )
 
 industrial_pal <- 
@@ -535,8 +536,8 @@ road_pal <-
 
 # make map
 
-map_it <- function(city_name, st){
-	leaflet(data = ct %>% filter(city == city_name)) %>% 
+map_it <- function(data, city_name, st){
+  leaflet(data %>% filter(city == city_name)) %>% 
     addMapPane(name = "polygons", zIndex = 410) %>% 
     addMapPane(name = "maplabels", zIndex = 420) %>% # higher zIndex rendered on top
     addProviderTiles("CartoDB.PositronNoLabels") %>%
@@ -550,20 +551,25 @@ map_it <- function(city_name, st){
             onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
   # Displacement typology
     addPolygons(
-        data = ct %>% filter(city == city_name), 
+        data = data %>% filter(city == city_name), 
         group = "Displacement Typology", 
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
         fillOpacity = .5, 
-        color = ~displacementtypologies_pal(Typology), 
+        color = ~displacement_typologies_pal(Typology), 
         stroke = TRUE, 
         weight = .7, 
         opacity = .60, 
+        highlightOptions = highlightOptions(
+          color = "#ff4a4a", 
+          weight = 5,
+          bringToFront = TRUE
+        ), 
         popup = ~popup, 
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
     ) %>%   
     addLegend(
-        pal = displacementtypologies_pal, 
+        pal = displacement_typologies_pal, 
         values = ~Typology, 
         group = "Displacement Typology", 
         title = "Displacement Typology"
@@ -671,8 +677,8 @@ map_it <- function(city_name, st){
 
  # Industrial
  ind <- function(st, map = .){
- 	map %>% 
-  	# leaflet(industrial %>% filter(state %in% st))
+  map %>% 
+    # leaflet(industrial %>% filter(state %in% st))
      addCircleMarkers(
          data = industrial %>% filter(state %in% st), 
          label = ~site, 
@@ -697,7 +703,7 @@ map_it <- function(city_name, st){
 
 # Beltline
  belt <- function(map = .){
- 	map %>% 
+  map %>% 
 addPolylines(
         data = beltline, 
         group = "Beltline", 
@@ -708,10 +714,10 @@ addPolylines(
     )}  
 
 # Community Input
-  ci <- function(map = ., city_name){
+  ci <- function(map = ., data, city_name){
     map %>% 
     addPolygons(
-        data = ct %>% filter(city == city_name, !is.na(cs)), 
+        data = data %>% filter(city == city_name, !is.na(cs)), 
         group = "Community Input", 
         label = ~cs,
         labelOptions = labelOptions(textsize = "12px"),
@@ -765,11 +771,11 @@ addPolylines(
 
 # Options
  options <- function(map = ., belt = NULL, ci = NULL, oz = NULL, ph = NULL, is = NULL){
- 	map %>% 
-  	addLayersControl(
+  map %>% 
+    addLayersControl(
          overlayGroups = 
              c(ci, #
-             	oz,#
+              oz,#
                  "Redlined Areas", 
                  "Hospitals", 
                  "Universities & Colleges", 
@@ -782,8 +788,8 @@ addPolylines(
          options = layersControlOptions(collapsed = FALSE)) %>% 
      hideGroup(
          c(ci, 
-         	oz,
-         	"Redlined Areas", 
+          oz,
+          "Redlined Areas", 
              "Hospitals", 
              "Universities & Colleges", 
              ph, 
@@ -793,51 +799,52 @@ addPolylines(
  }
 
 
+
 #
 # City specific displacement-typologies map; add your city here
 # --------------------------------------------------------------------------
 
 # Atlanta, GA
 atlanta <- 
-    map_it("Atlanta", 'GA') %>% 
+    map_it(ct, "Atlanta", 'GA') %>% 
     ind(st = "GA") %>% 
-    ci(city_name = "Atlanta") %>% 
+    ci(data = ct, city_name = "Atlanta") %>% 
     oz(city_name = "Atlanta") %>% 
     belt() %>% 
     options(belt = "Beltline",ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-htmlwidgets::saveWidget(atlanta, file="~/git/displacement-typologies/maps/atlanta_displacement-typologies.html")
+htmlwidgets::saveWidget(atlanta, file="~/git/displacement-typologies/maps/atlanta_sparcc.html")
 
 # Chicago, IL
 chicago <- 
-    map_it("Chicago", 'IL') %>% 
+    map_it(ct, "Chicago", 'IL') %>% 
     ind(st = "IL") %>% 
-    ci(city_name = "Chicago") %>% 
+    ci(data = ct, city_name = "Chicago") %>% 
     oz(city_name = "Chicago") %>% 
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-htmlwidgets::saveWidget(chicago, file="~/git/displacement-typologies/maps/chicago_displacement-typologies.html")
+htmlwidgets::saveWidget(chicago, file="~/git/displacement-typologies/maps/chicago_sparcc.html")
 
 # Denver, CO
 denver <- 
-    map_it("Denver", 'CO') %>% 
-    ci(city_name = "Denver") %>% 
+    map_it(ct, "Denver", 'CO') %>% 
+    ci(data = ct, city_name = "Denver") %>% 
     oz(city_name = "Denver") %>%     
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing") %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(denver, file="~/git/displacement-typologies/maps/denver_displacement-typologies.html")
+htmlwidgets::saveWidget(denver, file="~/git/displacement-typologies/maps/denver_sparcc.html")
 
 # Memphis, TN
 memphis <- 
-    map_it("Memphis", 'TN') %>% 
+    map_it(ct, "Memphis", 'TN') %>% 
     ind(st = "TN") %>% 
-    ci(city_name = "Memphis") %>% 
+    ci(data = ct, city_name = "Memphis") %>% 
     oz(city_name = "Memphis") %>%     
     options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
     setView(lng = -89.9, lat = 35.2, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(memphis, file="~/git/displacement-typologies/maps/memphis_displacement-typologies.html")
+htmlwidgets::saveWidget(memphis, file="~/git/displacement-typologies/maps/memphis_sparcc.html")
