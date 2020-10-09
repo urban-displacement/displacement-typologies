@@ -72,7 +72,34 @@ states <- c('17', '13', '08', '28', '47', '06', '53', '39', '25', '33')
 ###
 # End 
 ###
-df_nt <- read_csv('~/git/displacement-typologies/data/outputs/downloads/dt_nt.csv.gz')
+df_nt <- 
+  read_csv('~/git/displacement-typologies/data/outputs/downloads/dt_nt.csv.gz') %>%
+  mutate(nt_conc = 
+    factor(nt_conc, 
+      levels = c(
+        "Mostly White",
+        "Mostly Asian",
+        "Mostly Latinx",                
+        "Mostly Black",
+        "Mostly Other",
+        "Asian-White",        
+        "Latinx-White",
+        "Black-White",        
+        "Other-White",
+        "Asian-Black",
+        "Asian-Latinx",
+        "Asian-Other",
+        "Latinx-Other",
+        "Black-Other",
+        "Black-Latinx",
+        "3 Group Mixed", 
+        "4 Group Mixed", 
+        "Diverse", 
+        "Unpopulated Tract"
+        )
+    )
+  )
+
 
 #
 # Demographics: Student population and vacancy
@@ -456,11 +483,11 @@ states <-
 #     st_join(., df_sf %>% select(city), join = st_intersects) %>% 
 #     mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
 #     filter(!is.na(city))
-# 	saveRDS(road_map, '~/git/displacement-typologies/data/outputs/downloads/roads.RDS')
+# st_write(road_map, '~/git/displacement-typologies/data/outputs/downloads/roads.gpkg')
 ###
 # End
 ###
-road_map <- readRDS('~/git/displacement-typologies/data/outputs/downloads/roads.RDS')
+road_map <- st_read('~/git/displacement-typologies/data/outputs/downloads/roads.gpkg')
 
 ### Atlanta Beltline
 beltline <- 
@@ -490,6 +517,31 @@ redline_pal <-
         domain = red$Grade, 
         na.color = "transparent"
     )
+
+nt_pal <- 
+    colorFactor(c(
+        '#C95123', # 'Mostly White', 
+        '#33a02c', # 'Mostly Asian', green
+        '#e31a1c', # 'Mostly Latinx', red               
+        '#1f78b4', # 'Mostly Black', blue
+        '#9b66b0', # 'Mostly Other', purple
+        '#b2df8a', # 'Asian-White',        
+        '#fb9a99', # 'Latinx-White',
+        '#a6cee3', # 'Black-White',        
+        '#c28a86', # 'Other-White',
+        '#1fc2ba', # 'Asian-Black',
+        '#d6ae5c', # 'Asian-Latinx',
+        '#91c7b9', # 'Asian-Other',
+        '#f0739b', # 'Latinx-Other',
+        '#71a1f5', # 'Black-Other',
+        '#de4e4b', # 'Black-Latinx',
+        '#fdbf6f', # '3 Group Mixed', 
+        '#cab2d6', # '4 Group Mixed', 
+        '#1d5fd1', # 'Diverse', 
+        '#FFFFFF'),  # 'Unpopulated Tract'
+      domain = df$nt_conc, 
+      na.color = '#C0C0C0'
+        )
 
 displacement_typologies_pal <- 
     colorFactor(
@@ -599,6 +651,32 @@ map_it <- function(data, city_name, st){
         group = "Redlined Areas",
         title = "Redline Zones"
     ) %>%  
+# Neighborhood Segregation
+    addPolygons(
+        data = ct, 
+        group = "Neighborhood Segregation", 
+        label = ~nt_conc,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .5, 
+        color = ~nt_pal(nt_conc),
+        stroke = TRUE, 
+        weight = .7, 
+        opacity = .60, 
+        highlightOptions = highlightOptions(
+                            color = "#ff4a4a", 
+                            weight = 5,
+                            bringToFront = TRUE
+                            ), 
+        popup = ~popup, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+    ) %>%   
+    addLegend(, 
+        # position = 'bottomright',s
+        pal = nt_pal, 
+        values = ~nt_conc, 
+        group = "Neighborhood Segregation", 
+        title = "Neighborhood<br>Segregation"
+    ) %>% 
 # Roads
     addPolylines(
         data = road_map %>% filter(city == city_name), 
@@ -777,6 +855,7 @@ addPolylines(
              c(ci, #
               oz,#
                  "Redlined Areas", 
+                 "Neighborhood Segregation",
                  "Hospitals", 
                  "Universities & Colleges", 
                  ph, #?
@@ -790,6 +869,7 @@ addPolylines(
          c(ci, 
           oz,
           "Redlined Areas", 
+          "Neighborhood Segregation",
              "Hospitals", 
              "Universities & Colleges", 
              ph, 
@@ -797,8 +877,6 @@ addPolylines(
              belt,
              is))
  }
-
-
 
 #
 # City specific displacement-typologies map; add your city here
