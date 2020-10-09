@@ -21,8 +21,8 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-p_install_gh("timathomas/neighborhood")
-p_load(neighborhood, fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet, update = TRUE)
+p_load_gh("timathomas/neighborhood", "jalvesaq/colorout")
+p_load(R.utils, bit64, neighborhood, fst, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse, update = TRUE)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
@@ -72,7 +72,7 @@ states <- c('17', '13', '08', '28', '47', '06', '53', '39', '25', '33')
 ###
 # End 
 ###
-df_nt <- fread('~/git/displacement-typologies/data/outputs/downloads/dt_nt.csv.gz')
+df_nt <- read_csv('~/git/displacement-typologies/data/outputs/downloads/dt_nt.csv.gz')
 
 #
 # Demographics: Student population and vacancy
@@ -99,13 +99,13 @@ df_nt <- fread('~/git/displacement-typologies/data/outputs/downloads/dt_nt.csv.g
 #     output = 'wide',
 #     variables = dem_vars,
 #     cache_table = TRUE,
-#     year = 2018
+#     year = 2017
 #   )
-# fwrite(tr_dem_acs, '~/git/displacement-typologies/data/outputs/downloads/tr_dem_acs.csv.gz')
+# fwrite(tr_dem_acs, '~/git/displacement-typologies/data/outputs/downloads/tr_dem_acs_2017.csv.gz')
 ### 
 # End
 ###
-tr_dem_acs <- fread('~/git/displacement-typologies/data/outputs/downloads/tr_dem_acs.csv.gz')
+tr_dem_acs <- read_csv('~/git/displacement-typologies/data/outputs/downloads/tr_dem_acs_2017.csv.gz')
 
 tr_dem <- 
   tr_dem_acs %>% 
@@ -223,6 +223,7 @@ df <-
     ungroup() %>% 
     data.frame()
 
+glimpse(df)
 # State codes for downloading tract polygons; add your state here
 states <- c("06", "17", "13", "08", "28", "47")
 
@@ -249,7 +250,6 @@ states <- c("06", "17", "13", "08", "28", "47")
 # End
 ###
 tracts <- readRDS('~/git/displacement-typologies/data/outputs/downloads/state_tracts.RDS')
-
 
 # Join the tracts to the dataframe
 
@@ -460,6 +460,7 @@ states <-
 ###
 # End
 ###
+road_map <- readRDS('~/git/displacement-typologies/data/outputs/downloads/roads.RDS')
 
 ### Atlanta Beltline
 beltline <- 
@@ -490,7 +491,7 @@ redline_pal <-
         na.color = "transparent"
     )
 
-displacement-typologies_pal <- 
+displacementtypologies_pal <- 
     colorFactor(
         c(
             # '#e3dcf5',
@@ -554,7 +555,7 @@ map_it <- function(city_name, st){
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
         fillOpacity = .5, 
-        color = ~displacement-typologies_pal(Typology), 
+        color = ~displacementtypologies_pal(Typology), 
         stroke = TRUE, 
         weight = .7, 
         opacity = .60, 
@@ -562,7 +563,7 @@ map_it <- function(city_name, st){
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
     ) %>%   
     addLegend(
-        pal = displacement-typologies_pal, 
+        pal = displacementtypologies_pal, 
         values = ~Typology, 
         group = "Displacement Typology", 
         title = "Displacement Typology"
