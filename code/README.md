@@ -18,19 +18,24 @@ Each of the files are named in order of operation. To run the code, do the follo
 For the SPARCC released maps, which reflect 2017 ACS data, navigate to `sparcc/code/sparcc_code` and execute the following commands in your terminal: 
 
 ```
-python 2017_1_data.py Atlanta
-python 2017_1_data.py Chicago
-python 2017_1_data.py Denver
-python 2017_1_data.py Memphis
+python3 sparcc-2017-1-data-download.py Atlanta
+python3 sparcc-2017-1-data-download.py Chicago
+python3 sparcc-2017-1-data-download.py Denver
+python3 sparcc-2017-1-data-download.py Memphis
 
-Rscript 2017_2_create_lag_vars.r
+python3 sparcc-2017-2-data-curation.py Atlanta
+python3 sparcc-2017-2-data-curation.py Chicago
+python3 sparcc-2017-2-data-curation.py Denver
+python3 sparcc-2017-2-data-curation.py Memphis
 
-python 2017_3_typology.py Atlanta
-python 2017_3_typology.py Chicago
-python 2017_3_typology.py Denver
-python 2017_3_typology.py Memphis
+Rscript sparcc-2017-3-create-lag-vars.r
 
-Rscript 2017_4_SPARCC_Maps.r
+python3 sparcc-2017-4-typology.py Atlanta
+python3 sparcc-2017-4-typology.py Chicago
+python3 sparcc-2017-4-typology.py Denver
+python3 sparcc-2017-4-typology.py Memphis
+
+Rscript sparcc-2017-5-SPARCC-Maps.r
 
 ```
 For the latest typologies using 2018 Census data, navigate to `sparcc/code/` and run the following scripts. Currently this is set to 2018 ACS pulls. *Any updates will require code edits for the respective city and year.* It is highly advised to save all your API data, the US Census API and US Gov data is unstable as of 2020. 

@@ -21,12 +21,12 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-if (!require("R.utils")) install.packages("R.utils")
-pacman::p_load(fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet)
+p_install_gh("timathomas/neighborhood")
+p_load(neighborhood, fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet, update = TRUE)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
-census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381')
+
 # ==========================================================================
 # Data
 # ==========================================================================
@@ -490,7 +490,7 @@ redline_pal <-
         na.color = "transparent"
     )
 
-displacement-typologies_pal <- 
+displacementtypologies_pal <- 
     colorFactor(
         c(
             # '#e3dcf5',
@@ -554,7 +554,7 @@ map_it <- function(city_name, st){
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
         fillOpacity = .5, 
-        color = ~displacement-typologies_pal(Typology), 
+        color = ~displacementtypologies_pal(Typology), 
         stroke = TRUE, 
         weight = .7, 
         opacity = .60, 
@@ -562,7 +562,7 @@ map_it <- function(city_name, st){
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
     ) %>%   
     addLegend(
-        pal = displacement-typologies_pal, 
+        pal = displacementtypologies_pal, 
         values = ~Typology, 
         group = "Displacement Typology", 
         title = "Displacement Typology"

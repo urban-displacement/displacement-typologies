@@ -31,7 +31,7 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-# city_name = "Memphis"
+# city_name = "Atlanta"
 city_name = str(sys.argv[1])
 # merge_type = str(sys.argv[2])
 
@@ -133,8 +133,6 @@ def crosswalk_files (df, xwalk, counts, medians, df_fips_base, xwalk_fips_base, 
 
 ###### 1990 Census Data
 
-
-
 counts = census_90.columns.drop(['county', 'state', 'tract', 'mrent_90', 'mhval_90', 'hinc_90', 'FIPS'])
 medians = ['mrent_90', 'mhval_90', 'hinc_90']
 df_fips_base = 'FIPS'
@@ -169,10 +167,6 @@ census_00_filtered = filter_FIPS(census_00_xwalked)
 # ==========================================================================
 # ==========================================================================
 
-
-# Below is the Google File Drive Stream pathway for a mac. 
-# input_path = '~/git/displacement-typologies/data/inputs/'
-# output_path = output_path
 shp_folder = input_path+'shp/'+city_name.replace(" ", "")+'/'
 # data_1990 = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_90_10_2018.csv', index_col = 0) 
 data_1990 = census_90_filtered
