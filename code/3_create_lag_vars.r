@@ -1,7 +1,7 @@
 # ==========================================================================
 # ==========================================================================
 # ==========================================================================
-# Displacement Typologies Data Setup
+# DISPLACEMENT TYPOLOGY SET UP
 # ==========================================================================
 # ==========================================================================
 # ==========================================================================
@@ -10,13 +10,16 @@ if(!require(pacman)) install.packages("pacman")
 pacman::p_load(colorout, googledrive, bit64, fs, data.table, tigris, tidycensus, tidyverse, spdep)
 # options(width = Sys.getenv('COLUMNS'))
 
-# ### Set API key
+### Set API key
 census_api_key('') #enter your own key here
 
 # ==========================================================================
 # Pull in data
 # ==========================================================================
-# Note: Adjust the cities below if there are additional cities - add your city here
+# Note: Adjust the cities below if there are additional cities - 
+# add your city here by importing corresponding database 
+# you will need to update the 'data_dir' variable to the directory
+# you're using
 
 data_dir <- "~/git/displacement-typologies/data/outputs/databases/"
 csv_files <- fs::dir_ls(data_dir, regexp = "2018.csv$")
@@ -196,7 +199,6 @@ stsp@data <-
     idw <- lapply(dists, function(x) 1/(x^2))
     lw_dist_idwW <- nb2listw(dist_nb, glist = idw, style = "W")
     
-
 #
 # Create select lag variables
 # --------------------------------------------------------------------------
@@ -266,7 +268,7 @@ stsf <-
 lag <- left_join(lag, stsf)
                   
 # ==========================================================================
-# SAVE DATA
+# Export Data
 # ==========================================================================
 
 # saveRDS(df2, "~/git/displacement-typologies/data/rentgap.rds")

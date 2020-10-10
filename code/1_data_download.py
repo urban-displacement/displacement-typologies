@@ -42,7 +42,8 @@ c = census.Census(key)
 # Choose Cities 
 # ==========================================================================
 
-# ### Choose city and census tracts of interest
+# Choose City and Census Tracts of Interest
+# -------------------------------------------------------------------------- 
 # To get city data, run the following code in the terminal
 # `python data.py <city name>`
 # Example: python data.py Atlanta
@@ -87,9 +88,10 @@ else:
     sql_query_1='state:{} county:*'.format(state[0])
     sql_query_2='state:{} county:*'.format(state[1])
 
-# ### Creates filter function
+# Create Filter Function 
+# -------------------------------------------------------------------------- 
 # Note - Memphis and Boston is different 
-#because they're located in 2 states
+# because they're located in 2 states
 
 def filter_FIPS(df):
     if (city_name not in ('Memphis', 'Boston')):
@@ -107,7 +109,8 @@ def filter_FIPS(df):
 # Download Raw Data
 # ==========================================================================
 
-# ### Download ACS 2018 5-Year Estimates
+# Download ACS 2018 5-Year Estimates
+# -------------------------------------------------------------------------- 
 
 df_vars_18=['B03002_001E',
             'B03002_003E',
@@ -144,7 +147,9 @@ for i in list(range(25,34))+list(range(36, 45))+list(range(47, 56))+list(range(5
     var_list.append(var_str+'_'+str(i).zfill(3)+'E')
 df_vars_18 = df_vars_18 + var_list
 
-# #### Run API query
+
+# Run API query
+# --------------------------------------------------------------------------
 # NOTE: Memphis is located in two states so the query looks different
 # same for Boston
 
@@ -158,13 +163,16 @@ else:
                                  'in': sql_query_2}, year=2018))
     var_dict_acs5 = var_dict_1+var_dict_2
 
-# #### Converts variables into dataframe and filters only FIPS of interest
+# Convert and Rename Variables
+# -------------------------------------------------------------------------- 
+
+### Converts variables into dataframe and filters only FIPS of interest
 
 df_vars_18 = pd.DataFrame.from_dict(var_dict_acs5)
 df_vars_18['FIPS']=df_vars_18['state']+df_vars_18['county']+df_vars_18['tract']
 df_vars_18 = filter_FIPS(df_vars_18)
 
-# #### Renames variables
+### Renames variables
 
 df_vars_18 = df_vars_18.rename(columns = {'B03002_001E':'pop_18',
                                           'B03002_003E':'white_18',
@@ -239,9 +247,12 @@ df_vars_18 = df_vars_18.rename(columns = {'B03002_001E':'pop_18',
                                           'B19001_016E':'I_200000_18',
                                           'B19001_017E':'I_201000_18'})
 
-# ### Download ACS 2012 5-Year Estimates
+# Download ACS 2012 5-Year Estimates
+# --------------------------------------------------------------------------
+# Note: If additional cities are added, make sure to change create_lag_vars.r
+# accordingly. 
 
-# #### List variables of interest
+### List variables of interest
 
 df_vars_12=['B25077_001E',
             'B25077_001M',
@@ -285,7 +296,8 @@ df_vars_12=['B25077_001E',
             'B07010_066E',
             'B06011_001E']
 
-# #### Run API query
+# Run API query
+# -------------------------------------------------------------------------- 
 # NOTE: Memphis is located in two states so the query looks different
 
 if (city_name not in ('Memphis', 'Boston')):
@@ -298,13 +310,16 @@ else:
                                  'in': sql_query_2}, year=2012))
     var_dict_acs5 = var_dict_1+var_dict_2
 
-# #### Converts variables into dataframe and filters only FIPS of interest
+# Convert and Rename Variabls
+# -------------------------------------------------------------------------- 
+
+### Converts variables into dataframe and filters only FIPS of interest
 
 df_vars_12 = pd.DataFrame.from_dict(var_dict_acs5)
 df_vars_12['FIPS']=df_vars_12['state']+df_vars_12['county']+df_vars_12['tract']
 df_vars_12 = filter_FIPS(df_vars_12)
 
-# #### Renames variables
+### Renames variables
 
 df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
                                           'B25077_001M':'mhval_12_se',
@@ -348,7 +363,7 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
                                           'B07010_066E':'mov_fa_76000_more_12',
                                           'B06011_001E':'iinc_12'})
 
-# ### Decennial Census 2000 Variables
+### Decennial Census 2000 Variables
 
 var_sf1=['P004001',
          'P004005',
@@ -377,7 +392,8 @@ for i in range (2, 18):
 
 var_sf3 = var_sf3 + var_list
 
-# #### Run API query
+# Run API query
+# -------------------------------------------------------------------------- 
 # NOTE: on certain days, Census API may argue about too many queries and this section
 # may get hung up. 
 
@@ -403,7 +419,10 @@ else:
                                  'in': sql_query_2}, year=2000))
     var_dict_sf3 = var_dict_1+var_dict_2
 
-# #### Converts variables into dataframe and filters only FIPS of interest
+# Convert and Rename Variables
+# -------------------------------------------------------------------------- 
+
+### Converts variables into dataframe and filters only FIPS of interest
 
 df_vars_sf1 = pd.DataFrame.from_dict(var_dict_sf1)
 df_vars_sf3 = pd.DataFrame.from_dict(var_dict_sf3)
@@ -412,7 +431,7 @@ df_vars_sf3['FIPS']=df_vars_sf3['state']+df_vars_sf3['county']+df_vars_sf3['trac
 df_vars_sf1 = filter_FIPS(df_vars_sf1)
 df_vars_sf3 = filter_FIPS(df_vars_sf3)
 
-# #### Renames variables
+### Renames variables
 
 df_vars_sf1 = df_vars_sf1.rename(columns = {'P004001':'pop_00',
                                             'P004005':'white_00',
@@ -452,7 +471,7 @@ df_vars_sf3 = df_vars_sf3.rename(columns = {'P037001':'total_25_00',
 
 df_vars_00 = df_vars_sf1.merge(df_vars_sf3.drop(columns=['county', 'state', 'tract']), on = 'FIPS')
 
-# ### Download Decennial Census 1990 Variables
+### Download Decennial Census 1990 Variables
 
 var_sf3=['P0010001',
          'P0120001',
@@ -477,7 +496,8 @@ for i in range (1, 26):
 
 var_sf3 = var_sf3 + var_list
 
-# #### Run API query
+# Run API Query 
+# -------------------------------------------------------------------------- 
 # NOTE: Memphis is located in two states so the query looks different
 
 # SF1 - All of the variables are found in the SF3
@@ -491,14 +511,17 @@ else:
     var_dict_2 = (c.sf3.get(var_sf3, geo = {'for': 'tract:*',
                                  'in': sql_query_2}, year=1990))
     var_dict_sf3 = var_dict_1+var_dict_2
+    
+# Convert and Rename Variables
+# -------------------------------------------------------------------------- 
 
-# #### Converts variables into dataframe and filters only FIPS of interest
+### Converts variables into dataframe and filters only FIPS of interest
 
 df_vars_90 = pd.DataFrame.from_dict(var_dict_sf3)
 df_vars_90['FIPS']=df_vars_90['state']+df_vars_90['county']+df_vars_90['tract']
 df_vars_90 = filter_FIPS(df_vars_90)
 
-# #### Renames variables
+### Renames variables
 
 df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
                                             'P0120001':'white_90',
@@ -544,12 +567,7 @@ df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
 # ==========================================================================
 # Export Files
 # ==========================================================================
-
-# Note: All output files will be exported into your personal repo. However, the .gitignore prevents these files from being uploaded to the online Github repo. The reason being that 
-# * It's bad practice to store data on github
-# * Github has a file upload limit of 100mb and a repo size limit of 2gb. 
-# 
-# The input file folder is about 1gb in size and will be pulled from the Google Drive. You will see the path in the next notebook. 
+# Note: ouput paths can be altered by changing the 'output path variable above'
 
 # Merge 2012 & 2018 files - same geometry
 df_vars_summ = df_vars_18.merge(df_vars_12, on ='FIPS')
