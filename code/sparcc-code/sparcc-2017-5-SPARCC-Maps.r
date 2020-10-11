@@ -852,8 +852,10 @@ addPolylines(
   map %>% 
     addLayersControl(
          overlayGroups = 
-             c(ci, #
-              oz,#
+             c("Highways",
+               "Displacement Typology", 
+                ci, #
+                oz,#
                  "Redlined Areas", 
                  "Neighborhood Segregation",
                  "Hospitals", 
@@ -861,9 +863,7 @@ addPolylines(
                  ph, #?
                  "Transit Stations", 
                  is, #
-                 belt,
-                 "Highways",
-                 "Displacement Typology"),
+                 belt),
          options = layersControlOptions(collapsed = FALSE)) %>% 
      hideGroup(
          c(ci, 

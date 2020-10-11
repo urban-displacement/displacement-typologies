@@ -39,9 +39,9 @@ df <-
             read_csv("~/git/displacement-typologies/data/outputs/databases/Chicago_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Chicago"),
-            # read_csv("~/git/displacement-typologies/data/outputs/databases/Memphis_database_2018.csv") %>% 
-            # select(!X1) %>% 
-            # mutate(city = "Memphis"),
+            read_csv("~/git/displacement-typologies/data/outputs/databases/Memphis_database_2018.csv") %>% 
+            select(!X1) %>% 
+            mutate(city = "Memphis"),
             read_csv("~/git/displacement-typologies/data/outputs/databases/LosAngeles_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Los Angeles") %>% 
