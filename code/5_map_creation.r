@@ -21,8 +21,8 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-p_install_gh("timathomas/neighborhood")
-p_load(neighborhood, fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet, update = TRUE)
+p_load_gh("timathomas/neighborhood", "jalvesaq/colorout")
+p_load(fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet, update = TRUE)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
@@ -37,14 +37,16 @@ options(tigris_use_cache = TRUE)
 
 data <- 
     bind_rows( # pull in data
-        read_csv('~/git/displacement-typologies/data/outputs/typologies/Atlanta_typology_output_2017.csv') %>% 
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Atlanta_typology_output.csv') %>% 
         mutate(city = 'Atlanta'),
-        read_csv('~/git/displacement-typologies/data/outputs/typologies/Denver_typology_output_2017.csv') %>%
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Denver_typology_output.csv') %>%
         mutate(city = 'Denver'),
-        read_csv('~/git/displacement-typologies/data/outputs/typologies/Chicago_typology_output_2017.csv') %>% 
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Chicago_typology_output.csv') %>% 
         mutate(city = 'Chicago'),
-        read_csv('~/git/displacement-typologies/data/outputs/typologies/Memphis_typology_output_2017.csv') %>% 
-        mutate(city = 'Memphis')
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/SanFrancisco_typology_output.csv') %>% 
+        mutate(city = 'SanFrancisco'),
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/LosAngeles_typology_output.csv') %>% 
+        mutate(city = 'LosAngeles')
     ) %>% 
     left_join(., 
         read_csv('~/git/displacement-typologies/data/overlays/oppzones.csv') %>% 
@@ -72,7 +74,7 @@ states <- c('17', '13', '08', '28', '47', '06', '53', '39', '25', '33')
 ###
 # End 
 ###
-df_nt <- fread('~/git/displacement-typologies/data/outputs/downloads/dt_nt.csv.gz')
+df_nt <- read_csv('~/git/displacement-typologies/data/outputs/downloads/dt_nt.csv.gz')
 
 #
 # Demographics: Student population and vacancy
@@ -91,7 +93,7 @@ df_nt <- fread('~/git/displacement-typologies/data/outputs/downloads/dt_nt.csv.g
 #     'st_proenroll' = 'B14007_018',
 #     'st_pov_under' = 'B14006_009', 
 #     'st_pov_grad' = 'B14006_010')
-#
+
 # tr_dem_acs <-
 #   get_acs(
 #     geography = "tract",
@@ -105,7 +107,7 @@ df_nt <- fread('~/git/displacement-typologies/data/outputs/downloads/dt_nt.csv.g
 ### 
 # End
 ###
-tr_dem_acs <- fread('~/git/displacement-typologies/data/outputs/downloads/tr_dem_acs.csv.gz')
+tr_dem_acs <- read_csv('~/git/displacement-typologies/data/outputs/downloads/tr_dem_acs.csv.gz')
 
 tr_dem <- 
   tr_dem_acs %>% 
@@ -154,19 +156,19 @@ df <-
                         "Unavailable or Unreliable Data"
                     )
             ), 
-        real_mhval_17 = case_when(real_mhval_17 > 0 ~ real_mhval_17),
-        real_mrent_17 = case_when(real_mrent_17 > 0 ~ real_mrent_17)
+        real_mhval_18 = case_when(real_mhval_18 > 0 ~ real_mhval_18),
+        real_mrent_18 = case_when(real_mrent_18 > 0 ~ real_mrent_18)
     ) %>% 
     group_by(city) %>% 
     mutate(
-        rm_real_mhval_17 = median(real_mhval_17, na.rm = TRUE), 
-        rm_real_mrent_17 = median(real_mrent_17, na.rm = TRUE), 
-        rm_per_nonwhite_17 = median(per_nonwhite_17, na.rm = TRUE), 
-        rm_per_col_17 = median(per_col_17, na.rm = TRUE)
+        rm_real_mhval_18 = median(real_mhval_18, na.rm = TRUE), 
+        rm_real_mrent_18 = median(real_mrent_18, na.rm = TRUE), 
+        rm_per_nonwhite_18 = median(per_nonwhite_18, na.rm = TRUE), 
+        rm_per_col_18 = median(per_col_18, na.rm = TRUE)
     ) %>% 
     group_by(GEOID) %>% 
     mutate(
-        per_ch_li = (all_li_count_17-all_li_count_00)/all_li_count_00,
+        per_ch_li = (all_li_count_18-all_li_count_00)/all_li_count_00,
         popup = # What to include in the popup 
           str_c(
               '<b>Tract: ', GEOID, '<br>', 
@@ -174,29 +176,29 @@ df <-
             # Market
               '<br><br>',
               '<b><i><u>Market Dynamics</u></i></b><br>',
-              'Tract median home value: ', case_when(!is.na(real_mhval_17) ~ dollar(real_mhval_17), TRUE ~ 'No data'), '<br>',
-              'Tract home value change from 2000 to 2017: ', case_when(is.na(real_mhval_17) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_17)),'<br>',
-              'Regional median home value: ', dollar(rm_real_mhval_17), '<br>',
+              'Tract median home value: ', case_when(!is.na(real_mhval_18) ~ dollar(real_mhval_18), TRUE ~ 'No data'), '<br>',
+              'Tract home value change from 2000 to 2018: ', case_when(is.na(real_mhval_18) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_18)),'<br>',
+              'Regional median home value: ', dollar(rm_real_mhval_18), '<br>',
               '<br>',
-              'Tract median rent: ', case_when(!is.na(real_mrent_17) ~ dollar(real_mrent_17), TRUE ~ 'No data'), '<br>', 
-              'Regional median rent: ', case_when(is.na(real_mrent_17) ~ 'No data', TRUE ~ dollar(rm_real_mrent_17)), '<br>', 
-              'Tract rent change from 2012 to 2017: ', percent(pctch_real_mrent_12_17), '<br>',
+              'Tract median rent: ', case_when(!is.na(real_mrent_18) ~ dollar(real_mrent_18), TRUE ~ 'No data'), '<br>', 
+              'Regional median rent: ', case_when(is.na(real_mrent_18) ~ 'No data', TRUE ~ dollar(rm_real_mrent_18)), '<br>', 
+              'Tract rent change from 2012 to 2018: ', percent(pctch_real_mrent_12_18), '<br>',
               '<br>',
               'Rent gap (nearby - local): ', dollar(tr_rent_gap), '<br>',
               'Regional median rent gap: ', dollar(rm_rent_gap), '<br>',
               '<br>',
             # demographics
              '<b><i><u>Demographics</u></i></b><br>', 
-             'Tract population: ', comma(pop_17), '<br>', 
-             'Tract household count: ', comma(hh_17), '<br>', 
+             'Tract population: ', comma(pop_18), '<br>', 
+             'Tract household count: ', comma(hh_18), '<br>', 
              'Percent renter occupied: ', percent(tr_prenters, accuracy = .1), '<br>',
              'Percent vacant homes: ', percent(tr_pvacant, accuracy = .1), '<br>',
-             'Tract median income: ', dollar(real_hinc_17), '<br>', 
-             'Percent low income hh: ', percent(per_all_li_17, accuracy = .1), '<br>', 
+             'Tract median income: ', dollar(real_hinc_18), '<br>', 
+             'Percent low income hh: ', percent(per_all_li_18, accuracy = .1), '<br>', 
              'Percent change in LI: ', percent(per_ch_li, accuracy = .1), '<br>',
              '<br>',
-             'Percent POC: ', percent(per_nonwhite_17, accuracy = .1), '<br>',
-             'Regional median POC: ', percent(rm_per_nonwhite_17, accuracy = .1), '<br>',
+             'Percent POC: ', percent(per_nonwhite_18, accuracy = .1), '<br>',
+             'Regional median POC: ', percent(rm_per_nonwhite_18, accuracy = .1), '<br>',
              'Tract racial typology: ', NeighType, '<br>', 
              'White: ', percent(pWhite, accuracy = .1), '<br>', 
              'Black: ', percent(pBlack, accuracy = .1), '<br>', 
@@ -205,26 +207,26 @@ df <-
              'Other: ', percent(pOther, accuracy = .1), '<br>',
              '<br>',
              'Percent students: ', percent(tr_pstudents, accuracy = .1), '<br>',
-             'Percent college educated: ', percent(per_col_17, accuracy = .1), '<br>',
-             'Regional median educated: ', percent(rm_per_col_17, accuracy = .1), '<br>',
+             'Percent college educated: ', percent(per_col_18, accuracy = .1), '<br>',
+             'Regional median educated: ', percent(rm_per_col_18, accuracy = .1), '<br>',
             '<br>',
             # risk factors
              '<b><i><u>Risk Factors</u></i></b><br>', 
-             'Mostly low income: ', case_when(low_pdmt_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Mix low income: ', case_when(mix_low_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Mostly low income: ', case_when(low_pdmt_medhhinc_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Mix low income: ', case_when(mix_low_medhhinc_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Rent change: ', case_when(dp_PChRent == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
              'Rent gap: ', case_when(dp_RentGap == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Hot Market: ', case_when(hotmarket_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-             'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
+             'Hot Market: ', case_when(hotmarket_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+             'Vulnerable to gentrification: ', case_when(vul_gent_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
              'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 | gent_90_00_urban == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
-             'Gentrified from 2000 to 2017: ', case_when(gent_00_17 == 1 | gent_00_17_urban == 1 ~ 'Yes', TRUE ~ 'No')
+             'Gentrified from 2000 to 2018: ', case_when(gent_00_18 == 1 | gent_00_18_urban == 1 ~ 'Yes', TRUE ~ 'No')
           )
     ) %>% 
     ungroup() %>% 
     data.frame()
 
 # State codes for downloading tract polygons; add your state here
-states <- c("06", "17", "13", "08", "28", "47")
+states <- c("06", "17", "13", "08", "28", "47", "53")
 
 ###
 # Begin Download tracts in each of the shapes in sf (simple feature) class
@@ -261,71 +263,71 @@ df_sf <-
 # --------------------------------------------------------------------------
 
 
-ct <- 
-    fread('~/git/displacement-typologies/data/inputs/sparcc_community_tracts.csv') %>% 
-    rename(city = City) %>% 
-    mutate(GEOID = as.numeric(GEOID), 
-      cs = "Community Suggested Change") %>% 
-    left_join(df_sf, .) %>% 
-    st_set_geometry(value = "geometry") %>% 
-    group_by(GEOID) %>% 
-    mutate(
-        popup_cs = # What to include in the popup 
-          str_c(
-              '<b>Tract: ', GEOID, '<br>
-              UDP Typology: ', Typology, '</b>',
-            # Market
-              '<br><br>',
-              '<b>Community Suggested Change<br>
-              Site Notes</b>: <br>', CommunityComments,
-              '<br><br>',
-              '<b><i><u>Market Dynamics</u></i></b><br>',
-              'Tract median home value: ', case_when(!is.na(real_mhval_17) ~ dollar(real_mhval_17), TRUE ~ 'No data'), '<br>',
-              'Tract home value change from 2000 to 2017: ', case_when(is.na(real_mhval_17) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_17)),'<br>',
-              'Regional median home value: ', dollar(rm_real_mhval_17), '<br>',
-              '<br>',
-              'Tract median rent: ', case_when(!is.na(real_mrent_17) ~ dollar(real_mrent_17), TRUE ~ 'No data'), '<br>', 
-              'Regional median rent: ', case_when(is.na(real_mrent_17) ~ 'No data', TRUE ~ dollar(rm_real_mrent_17)), '<br>', 
-              'Tract rent change from 2012 to 2017: ', percent(pctch_real_mrent_12_17), '<br>',
-              '<br>',
-              'Rent gap (nearby - local): ', dollar(tr_rent_gap), '<br>',
-              'Regional median rent gap: ', dollar(rm_rent_gap), '<br>',
-              '<br>',
-            # demographics
-            '<b><i><u>Demographics</u></i></b><br>', 
-            'Tract population: ', comma(pop_17), '<br>', 
-            'Tract household count: ', comma(hh_17), '<br>', 
-            'Percent renter occupied: ', percent(tr_prenters, accuracy = .1), '<br>',
-            'Percent vacant homes: ', percent(tr_pvacant, accuracy = .1), '<br>',
-            'Tract median income: ', dollar(real_hinc_17), '<br>', 
-            'Percent low income hh: ', percent(per_all_li_17, accuracy = .1), '<br>', 
-            'Percent change in LI: ', percent(per_ch_li, accuracy = .1), '<br>',
-            '<br>',
-            'Percent POC: ', percent(per_nonwhite_17, accuracy = .1), '<br>',
-            'Regional median POC: ', percent(rm_per_nonwhite_17, accuracy = .1), '<br>',
-            'Tract racial typology: ', NeighType, '<br>', 
-            'White: ', percent(pWhite, accuracy = .1), '<br>', 
-            'Black: ', percent(pBlack, accuracy = .1), '<br>', 
-            'Asian: ', percent(pAsian, accuracy = .1), '<br>', 
-            'Latinx: ', percent(pLatinx, accuracy = .1), '<br>', 
-            'Other: ', percent(pOther, accuracy = .1), '<br>',
-            '<br>',
-            'Percent students: ', percent(tr_pstudents, accuracy = .1), '<br>',
-            'Percent college educated: ', percent(per_col_17, accuracy = .1), '<br>',
-            'Regional median educated: ', percent(rm_per_col_17, accuracy = .1), '<br>',
-            '<br>',
-            # risk factors
-            '<b><i><u>Risk Factors</u></i></b><br>', 
-            'Mostly low income: ', case_when(low_pdmt_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-            'Mix low income: ', case_when(mix_low_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-            'Rent change: ', case_when(dp_PChRent == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-            'Rent gap: ', case_when(dp_RentGap == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-            'Hot Market: ', case_when(hotmarket_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-            'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
-            'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 | gent_90_00_urban == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
-            'Gentrified from 2000 to 2017: ', case_when(gent_00_17 == 1 | gent_00_17_urban == 1 ~ 'Yes', TRUE ~ 'No')
-          )
-    )    
+# ct <- 
+#     fread('~/git/displacement-typologies/data/inputs/sparcc_community_tracts.csv') %>% 
+#     rename(city = City) %>% 
+#     mutate(GEOID = as.numeric(GEOID), 
+#       cs = "Community Suggested Change") %>% 
+#     left_join(df_sf, .) %>% 
+#     st_set_geometry(value = "geometry") %>% 
+#     group_by(GEOID) %>% 
+#     mutate(
+#         popup_cs = # What to include in the popup 
+#           str_c(
+#               '<b>Tract: ', GEOID, '<br>
+#               UDP Typology: ', Typology, '</b>',
+#             # Market
+#               '<br><br>',
+#               '<b>Community Suggested Change<br>
+#               Site Notes</b>: <br>', CommunityComments,
+#               '<br><br>',
+#               '<b><i><u>Market Dynamics</u></i></b><br>',
+#               'Tract median home value: ', case_when(!is.na(real_mhval_17) ~ dollar(real_mhval_17), TRUE ~ 'No data'), '<br>',
+#               'Tract home value change from 2000 to 2017: ', case_when(is.na(real_mhval_17) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_17)),'<br>',
+#               'Regional median home value: ', dollar(rm_real_mhval_17), '<br>',
+#               '<br>',
+#               'Tract median rent: ', case_when(!is.na(real_mrent_17) ~ dollar(real_mrent_17), TRUE ~ 'No data'), '<br>', 
+#               'Regional median rent: ', case_when(is.na(real_mrent_17) ~ 'No data', TRUE ~ dollar(rm_real_mrent_17)), '<br>', 
+#               'Tract rent change from 2012 to 2017: ', percent(pctch_real_mrent_12_17), '<br>',
+#               '<br>',
+#               'Rent gap (nearby - local): ', dollar(tr_rent_gap), '<br>',
+#               'Regional median rent gap: ', dollar(rm_rent_gap), '<br>',
+#               '<br>',
+#             # demographics
+#             '<b><i><u>Demographics</u></i></b><br>', 
+#             'Tract population: ', comma(pop_17), '<br>', 
+#             'Tract household count: ', comma(hh_17), '<br>', 
+#             'Percent renter occupied: ', percent(tr_prenters, accuracy = .1), '<br>',
+#             'Percent vacant homes: ', percent(tr_pvacant, accuracy = .1), '<br>',
+#             'Tract median income: ', dollar(real_hinc_17), '<br>', 
+#             'Percent low income hh: ', percent(per_all_li_17, accuracy = .1), '<br>', 
+#             'Percent change in LI: ', percent(per_ch_li, accuracy = .1), '<br>',
+#             '<br>',
+#             'Percent POC: ', percent(per_nonwhite_17, accuracy = .1), '<br>',
+#             'Regional median POC: ', percent(rm_per_nonwhite_17, accuracy = .1), '<br>',
+#             'Tract racial typology: ', NeighType, '<br>', 
+#             'White: ', percent(pWhite, accuracy = .1), '<br>', 
+#             'Black: ', percent(pBlack, accuracy = .1), '<br>', 
+#             'Asian: ', percent(pAsian, accuracy = .1), '<br>', 
+#             'Latinx: ', percent(pLatinx, accuracy = .1), '<br>', 
+#             'Other: ', percent(pOther, accuracy = .1), '<br>',
+#             '<br>',
+#             'Percent students: ', percent(tr_pstudents, accuracy = .1), '<br>',
+#             'Percent college educated: ', percent(per_col_17, accuracy = .1), '<br>',
+#             'Regional median educated: ', percent(rm_per_col_17, accuracy = .1), '<br>',
+#             '<br>',
+#             # risk factors
+#             '<b><i><u>Risk Factors</u></i></b><br>', 
+#             'Mostly low income: ', case_when(low_pdmt_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+#             'Mix low income: ', case_when(mix_low_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+#             'Rent change: ', case_when(dp_PChRent == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+#             'Rent gap: ', case_when(dp_RentGap == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+#             'Hot Market: ', case_when(hotmarket_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
+#             'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
+#             'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 | gent_90_00_urban == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
+#             'Gentrified from 2000 to 2017: ', case_when(gent_00_17 == 1 | gent_00_17_urban == 1 ~ 'Yes', TRUE ~ 'No')
+#           )
+#     )    
     
 
 # ==========================================================================
@@ -346,7 +348,11 @@ red <-
         geojson_sf('~/git/displacement-typologies/data/overlays/TNMemphis19XX_1.geojson') %>% 
         mutate(city = 'Memphis'),
         geojson_sf('~/git/displacement-typologies/data/overlays/CALosAngeles1939.geojson') %>% 
-        mutate(city = 'Los Angeles')
+        mutate(city = 'Los Angeles'),
+        geojson_sf('~/git/displacement-typologies/data/overlays/WASeattle1936.geojson') %>% 
+        mutate(city = 'Seattle'),
+        geojson_sf('~/git/displacement-typologies/data/overlays/WATacoma1937.geojson') %>% 
+        mutate(city = 'Seattle')
     ) %>% 
     mutate(
         Grade = 
@@ -438,7 +444,7 @@ university <-
 
 ### Road map; add your state here
 states <- 
-    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL')
+    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'WA', 'OH')
 
 ###
 # Begin download road maps
@@ -456,10 +462,11 @@ states <-
 #     st_join(., df_sf %>% select(city), join = st_intersects) %>% 
 #     mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
 #     filter(!is.na(city))
-#   saveRDS(roads, '~/git/displacement-typologies/data/outputs/downloads/roads.RDS')
+# st_write(road_map, '~/git/displacement-typologies/data/outputs/downloads/roads.gpkg', append = FALSE)
 ###
 # End
 ###
+road_map <- st_read('~/git/displacement-typologies/data/outputs/downloads/roads.gpkg')
 
 ### Atlanta Beltline
 beltline <- 
@@ -470,7 +477,7 @@ beltline <-
 ### Opportunity Zones
 opp_zone <- 
   st_read("~/git/displacement-typologies/data/overlays/OpportunityZones/OpportunityZones.gpkg") %>%
-  st_transform(st_crs(ct)) %>% 
+  st_transform(st_crs(df_sf)) %>% 
   st_join(., df_sf %>% select(city), join = st_intersects) %>% 
   filter(!is.na(city))
 
@@ -490,13 +497,38 @@ redline_pal <-
         na.color = "transparent"
     )
 
-displacementtypologies_pal <- 
+nt_pal <- 
+    colorFactor(c(
+        '#C95123', # 'Mostly White', 
+        '#33a02c', # 'Mostly Asian', green
+        '#e31a1c', # 'Mostly Latinx', red               
+        '#1f78b4', # 'Mostly Black', blue
+        '#9b66b0', # 'Mostly Other', purple
+        '#b2df8a', # 'Asian-White',        
+        '#fb9a99', # 'Latinx-White',
+        '#a6cee3', # 'Black-White',        
+        '#c28a86', # 'Other-White',
+        '#1fc2ba', # 'Asian-Black',
+        '#d6ae5c', # 'Asian-Latinx',
+        '#91c7b9', # 'Asian-Other',
+        '#f0739b', # 'Latinx-Other',
+        '#71a1f5', # 'Black-Other',
+        '#de4e4b', # 'Black-Latinx',
+        '#fdbf6f', # '3 Group Mixed', 
+        '#cab2d6', # '4 Group Mixed', 
+        '#1d5fd1', # 'Diverse', 
+        '#FFFFFF'),  # 'Unpopulated Tract'
+      domain = df$nt_conc, 
+      na.color = '#C0C0C0'
+        )
+
+displacement_typologies_pal <- 
     colorFactor(
         c(
             # '#e3dcf5',
-            '#cbc9e2', # "#f2f0f7", 
-            '#5b88b5', #"#6699cc",
-            '#9e9ac8', #D9D7E8', #"#cbc9e2", #D9D7E8            
+            '#87CEFA',#cbc9e2', # "#f2f0f7", 
+            '#6495ED',#5b88b5', #"#6699cc", #light blue              
+            '#9e9ac8', #D9D7E8', #"#cbc9e2", #D9D7E8     
             # "#9e9ac8",
             '#756bb1', #B7B6D3', #"#756bb1", #B7B6D3
             '#54278f', #8D82B6', #"#54278f", #8D82B6
@@ -505,9 +537,10 @@ displacementtypologies_pal <-
             '#F4C08D', #"#fed98e", #EE924F
             '#EE924F', #"#fe9929", #EE924F
             '#C95123', #"#cc4c02", #C75023
-            "#ffffff"), 
+            # "#A9A9A9", # intended for greater student pop
+            "#C0C0C0"), 
         domain = df$Typology, 
-        na.color = "transparent"
+        na.color = '#C0C0C0'
     )
 
 industrial_pal <- 
