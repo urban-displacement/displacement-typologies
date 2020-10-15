@@ -59,6 +59,7 @@ data <-
 # Create Neighborhood Racial Typologies for mapping
 # --------------------------------------------------------------------------
 
+
 states <- c('17', '13', '08', '28', '47', '06', '53', '39', '25', '33')
 
 ###
@@ -278,10 +279,33 @@ states <- c("06", "17", "13", "08", "28", "47")
 ###
 tracts <- readRDS('~/git/displacement-typologies/data/outputs/downloads/state_tracts.RDS')
 
+df_sf <- 
+    right_join(tracts, df)
+
+# ==========================================================================
+# Select tracts within counties that intersect with urban areas
+# ==========================================================================
+
+### read in urban areas
+urban_areas <- 
+  st_read("/Users/timthomas/git/displacement-typologies/data/inputs/shp/urban_areas/tl_2019_us_uac10.shp") %>% 
+  st_transform(st_crs(df_sf))
+
+urban_areas <- 
+  urban_areas[df_sf, ]
+
+### counties 
+counties <- 
+  counties(state = states) %>%
+  st_transform(st_crs(df_sf))
+
+county <- 
+  counties[urban_areas,]
+
 # Join the tracts to the dataframe
 
 df_sf <- 
-    right_join(tracts, df) 
+  df_sf[county,]
 
 #
 # Explore problem areas
@@ -501,7 +525,6 @@ opp_zone <-
   st_transform(st_crs(ct)) %>% 
   st_join(., df_sf %>% select(city), join = st_intersects) %>% 
   filter(!is.na(city))
-
 
 # ==========================================================================
 # Maps
