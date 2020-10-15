@@ -21,8 +21,8 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-p_load_gh("timathomas/neighborhood", "jalvesaq/colorout")
-p_load(fst, rmapshaper, sf, geojsonsf, scales, data.table, tidyverse, tigris, tidycensus, leaflet, update = TRUE)
+p_install_gh("timathomas/neighborhood", "jalvesaq/colorout")
+p_load(colorout, neighborhood, R.utils, bit64, neighborhood, fst, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse, update = TRUE)
 
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
@@ -57,24 +57,50 @@ data <-
         mutate(GEOID = as.numeric(GEOID)) 
     )
 
-# 
+#
 # Create Neighborhood Racial Typologies for mapping
 # --------------------------------------------------------------------------
+
 
 states <- c('17', '13', '08', '28', '47', '06', '53', '39', '25', '33')
 
 ###
 # Begin Neighborhood Typology creation
 ###
-# df_nt <- ntdf(state = states) %>% mutate(GEOID = as.numeric(GEOID)) 
+# df_nt <- ntdf(state = states) %>% mutate(GEOID = as.numeric(GEOID))
 # ntcheck(df_nt)
 # glimpse(df_nt)
 # df_nt %>% group_by(nt_conc) %>% count() %>% arrange(desc(n))
 # fwrite(df_nt, '~/git/displacement-typologies/data/outputs/downloads/df_nt.csv.gz')
 ###
-# End 
+# End
 ###
-df_nt <- read_csv('~/git/displacement-typologies/data/outputs/downloads/dt_nt.csv.gz')
+df_nt <- read_csv('~/git/displacement-typologies/data/outputs/downloads/dt_nt.csv.gz') %>%
+  mutate(nt_conc =
+    factor(nt_conc,
+      levels = c(
+        "Mostly Asian",
+        "Mostly Black",
+        "Mostly Latinx",
+        "Mostly Other",
+        "Mostly White",
+        "Asian-Black",
+        "Asian-Latinx",
+        "Asian-Other",
+        "Asian-White",
+        "Black-Latinx",
+        "Black-Other",
+        "Black-White",
+        "Latinx-Other",
+        "Latinx-White",
+        "Other-White",
+        "3 Group Mixed",
+        "4 Group Mixed",
+        "Diverse",
+        "Unpopulated Tract"
+        )
+    )
+  )
 
 #
 # Demographics: Student population and vacancy

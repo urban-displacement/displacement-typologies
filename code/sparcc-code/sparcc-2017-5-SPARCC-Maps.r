@@ -65,15 +65,15 @@ states <- c('17', '13', '08', '28', '47', '06', '53', '39', '25', '33')
 ###
 # Begin Neighborhood Typology creation
 ###
-# df_nt <- ntdf(state = states) %>% mutate(GEOID = as.numeric(GEOID))
+# df_nt <- ntdf(state = states, year = 2017) %>% mutate(GEOID = as.numeric(GEOID))
 # ntcheck(df_nt)
 # glimpse(df_nt)
 # df_nt %>% group_by(nt_conc) %>% count() %>% arrange(desc(n))
-# fwrite(df_nt, '~/git/displacement-typologies/data/outputs/downloads/df_nt.csv.gz')
+# fwrite(df_nt, '~/git/displacement-typologies/data/outputs/downloads/df_nt_2017.csv.gz')
 ###
 # End
 ###
-df_nt <- read_csv('~/git/displacement-typologies/data/outputs/downloads/dt_nt.csv.gz') %>%
+df_nt <- read_csv('~/git/displacement-typologies/data/outputs/downloads/df_nt_2017.csv.gz') %>%
   mutate(nt_conc =
     factor(nt_conc,
       levels = c(
