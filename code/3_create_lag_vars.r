@@ -11,7 +11,7 @@ pacman::p_load(colorout, googledrive, bit64, fs, data.table, tigris, tidycensus,
 # options(width = Sys.getenv('COLUMNS'))
 
 ### Set API key
-census_api_key('') #enter your own key here
+census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381') #enter your own key here
 
 # ==========================================================================
 # Pull in data
@@ -28,13 +28,16 @@ df <-
     bind_rows(
             read_csv("~/git/displacement-typologies/data/outputs/databases/Atlanta_database_2018.csv") %>% 
             select(!X1) %>% 
-            mutate(city = "Atlanta"),
+            mutate(city = "Atlanta") %>% 
+            mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric)),
             read_csv("~/git/displacement-typologies/data/outputs/databases/Denver_database_2018.csv") %>% 
             select(!X1) %>% 
-            mutate(city = "Denver"),
+            mutate(city = "Denver") %>% 
+            mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric)),
             read_csv("~/git/displacement-typologies/data/outputs/databases/Chicago_database_2018.csv") %>% 
             select(!X1) %>% 
-            mutate(city = "Chicago"),
+            mutate(city = "Chicago") %>% 
+            mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric)),
             read_csv("~/git/displacement-typologies/data/outputs/databases/LosAngeles_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Los Angeles") %>% 
@@ -50,7 +53,7 @@ df <-
             read_csv("~/git/displacement-typologies/data/outputs/databases/Cleveland_database_2018.csv") %>% 
             select(!X1) %>% 
             mutate(city = "Cleveland") %>% 
-            mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric)),
+            mutate_at(vars(state_y:tract_y, state:tract), list(as.numeric))#,
             # read_csv("~/git/displacement-typologies/data/outputs/databases/Memphis_database_2018.csv") %>% 
             # select(!X1) %>% 
             # mutate(city = "Memphis"),

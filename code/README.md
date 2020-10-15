@@ -42,41 +42,41 @@ For the latest typologies using 2018 Census data, navigate to `sparcc/code/` and
 
 ```
 # 1. data download
-python 1_data_download.py Atlanta
-python 1_data_download.py Chicago
-python 1_data_download.py Denver
-python 1_data_download.py Memphis
-python 1_data_download.py 'Los Angeles'
-python 1_data_download.py 'San Francisco'
-python 1_data_download.py Seattle
-python 1_data_download.py Cleveland
-python 1_data_download.py Boston 
+python3 1_data_download.py Atlanta
+python3 1_data_download.py Chicago
+python3 1_data_download.py Denver
+python3 1_data_download.py Memphis
+python3 1_data_download.py 'Los Angeles'
+python3 1_data_download.py 'San Francisco'
+python3 1_data_download.py Seattle
+python3 1_data_download.py Cleveland
+python3 1_data_download.py Boston 
 
 # 2. data curation
-python 2_data_curation.py Atlanta
-python 2_data_curation.py Chicago
-python 2_data_curation.py Denver
-python 2_data_curation.py Memphis
-python 2_data_curation.py 'Los Angeles'
-python 2_data_curation.py 'San Francisco'
-python 2_data_curation.py Seattle
-python 2_data_curation.py Cleveland
-python 2_data_curation.py Boston 
+python3 2_data_curation.py Atlanta
+python3 2_data_curation.py Chicago
+python3 2_data_curation.py Denver
+python3 2_data_curation.py Memphis
+python3 2_data_curation.py 'Los Angeles'
+python3 2_data_curation.py 'San Francisco'
+python3 2_data_curation.py Seattle
+python3 2_data_curation.py Cleveland
+python3 2_data_curation.py Boston 
 
 
 # 3. create lag variables
-Rscript 2_create_lag_vars.r
+Rscript 3_create_lag_vars.r
 
 # 4. create typologies
-python 4_typology.py Atlanta
-python 4_typology.py Chicago
-python 4_typology.py Denver
-<!-- python 4_typology.py Memphis -->
-python 4_typology.py 'Los Angeles'
-python 4_typology.py 'San Francisco'
-python 4_typology.py Seattle
-python 4_typology.py Cleveland
-<!-- python 4_typology.py Boston -->
+python3 4_typology.py Atlanta
+python3 4_typology.py Chicago
+python3 4_typology.py Denver
+<!-- python3 4_typology.py Memphis -->
+python3 4_typology.py 'Los Angeles'
+python3 4_typology.py 'San Francisco'
+python3 4_typology.py Seattle
+python3 4_typology.py Cleveland
+<!-- python3 4_typology.py Boston -->
 
 # 5. create maps
 Rscript 5_map_creation.r
@@ -96,7 +96,7 @@ staticrypt ../maps/cleveland_udp.html clevelandsparcc -o ../maps/cleveland_udp.h
 staticrypt ../maps/boston_udp.html bostonsparcc -o ../maps/boston_udp.html
 ```
 
-## Adding cities
+<!-- ## Adding cities
 
 To add other cities, you will have to edit the following files accordingly
 
@@ -131,7 +131,7 @@ aboverm_pctch_real_mrent_12_17 =
 advg requires that either home value percent change or rent percent change are positive
 
 
-
+ -->
 ## Downloading external datasets
 
 While much of the data used in this methodology is pulled from an API, others will need to be downloaded separately, as follows:

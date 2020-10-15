@@ -250,7 +250,6 @@ df <-
     ungroup() %>%
     data.frame()
 
-glimpse(df)
 # State codes for downloading tract polygons; add your state here
 states <- c("06", "17", "13", "08", "28", "47")
 

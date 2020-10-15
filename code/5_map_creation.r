@@ -38,15 +38,19 @@ options(tigris_use_cache = TRUE)
 data <- 
     bind_rows( # pull in data
         read_csv('~/git/displacement-typologies/data/outputs/typologies/Atlanta_typology_output.csv') %>% 
-        mutate(city = 'Atlanta'),
-        read_csv('~/git/displacement-typologies/data/outputs/typologies/Denver_typology_output.csv') %>%
-        mutate(city = 'Denver'),
+            mutate(city = 'Atlanta'),
         read_csv('~/git/displacement-typologies/data/outputs/typologies/Chicago_typology_output.csv') %>% 
-        mutate(city = 'Chicago'),
-        read_csv('~/git/displacement-typologies/data/outputs/typologies/SanFrancisco_typology_output.csv') %>% 
-        mutate(city = 'SanFrancisco'),
+            mutate(city = 'Chicago'),
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Cleveland_typology_output.csv') %>% 
+            mutate(city = 'Cleveland'),    
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Denver_typology_output.csv') %>%
+            mutate(city = 'Denver'),            
         read_csv('~/git/displacement-typologies/data/outputs/typologies/LosAngeles_typology_output.csv') %>% 
-        mutate(city = 'LosAngeles')
+            mutate(city = 'LosAngeles'), 
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/SanFrancisco_typology_output.csv') %>% 
+            mutate(city = 'SanFrancisco'),
+        read_csv('~/git/displacement-typologies/data/outputs/typologies/Seattle_typology_output.csv') %>% 
+            mutate(city = 'Seattle')
     ) %>% 
     left_join(., 
         read_csv('~/git/displacement-typologies/data/overlays/oppzones.csv') %>% 
@@ -265,7 +269,7 @@ states <- c("06", "17", "13", "08", "28", "47", "53")
 #                 variables = "B01003_001", 
 #                 state = x, 
 #                 geometry = TRUE, 
-#                 year = 2017)
+#                 year = 2018)
 #         ), 
 #         rbind # bind each of the dataframes together
 #     ) %>% 
@@ -278,11 +282,45 @@ states <- c("06", "17", "13", "08", "28", "47", "53")
 ###
 tracts <- readRDS('~/git/displacement-typologies/data/outputs/downloads/state_tracts.RDS')
 
-
 # Join the tracts to the dataframe
 
 df_sf <- 
     right_join(tracts, df) 
+
+# ==========================================================================
+# Select tracts within counties that intersect with urban areas
+# ==========================================================================
+
+### read in urban areas
+urban_areas <-
+  readRDS("~/git/displacement-typologies/data/inputs/shp/urban_areas/tl_2019_us_uac10.rds")
+
+### Select urban areas that intersect with df_sf
+urban_areas <-
+  urban_areas[df_sf, ]
+
+### download counties
+  ###
+  # Begin Download
+  ###
+  # counties <-
+  #   counties(state = states) %>%
+  #   st_transform(st_crs(df_sf))
+  #
+  # st_write(counties, "~/git/displacement-typologies/data/outputs/downloads/select_counties.gpkg", append = FALSE)
+  ###
+  # End download
+  ###
+counties <- st_read("~/git/displacement-typologies/data/outputs/downloads/select_counties.gpkg")
+
+### Select counties overlapping urban areas
+county <-
+  counties[urban_areas,]
+
+# Join the tracts to the dataframe
+
+df_sf <-
+  df_sf[county,]
 
 #
 # Explore problem areas
@@ -523,28 +561,28 @@ redline_pal <-
         na.color = "transparent"
     )
 
-nt_pal <- 
+nt_pal <-
     colorFactor(c(
-        '#C95123', # 'Mostly White', 
         '#33a02c', # 'Mostly Asian', green
-        '#e31a1c', # 'Mostly Latinx', red               
         '#1f78b4', # 'Mostly Black', blue
+        '#e31a1c', # 'Mostly Latinx', red
         '#9b66b0', # 'Mostly Other', purple
-        '#b2df8a', # 'Asian-White',        
-        '#fb9a99', # 'Latinx-White',
-        '#a6cee3', # 'Black-White',        
-        '#c28a86', # 'Other-White',
+        '#C95123', # 'Mostly White',
         '#1fc2ba', # 'Asian-Black',
         '#d6ae5c', # 'Asian-Latinx',
         '#91c7b9', # 'Asian-Other',
-        '#f0739b', # 'Latinx-Other',
-        '#71a1f5', # 'Black-Other',
+        '#b2df8a', # 'Asian-White',
         '#de4e4b', # 'Black-Latinx',
-        '#fdbf6f', # '3 Group Mixed', 
-        '#cab2d6', # '4 Group Mixed', 
-        '#1d5fd1', # 'Diverse', 
+        '#71a1f5', # 'Black-Other',
+        '#a6cee3', # 'Black-White',
+        '#f0739b', # 'Latinx-Other',
+        '#fb9a99', # 'Latinx-White',
+        '#c28a86', # 'Other-White',
+        '#fdbf6f', # '3 Group Mixed',
+        '#cab2d6', # '4 Group Mixed',
+        '#1d5fd1', # 'Diverse',
         '#FFFFFF'),  # 'Unpopulated Tract'
-      domain = df$nt_conc, 
+      domain = df$nt_conc,
       na.color = '#C0C0C0'
         )
 
@@ -594,7 +632,7 @@ road_pal <-
 # make map
 
 map_it <- function(city_name, st){
-  leaflet(data = ct %>% filter(city == city_name)) %>% 
+  leaflet(data = df_sf %>% filter(city == city_name)) %>% 
     addMapPane(name = "polygons", zIndex = 410) %>% 
     addMapPane(name = "maplabels", zIndex = 420) %>% # higher zIndex rendered on top
     addProviderTiles("CartoDB.PositronNoLabels") %>%
@@ -608,7 +646,7 @@ map_it <- function(city_name, st){
             onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
   # Displacement typology
     addPolygons(
-        data = ct %>% filter(city == city_name), 
+        data = df_sf %>% filter(city == city_name), 
         group = "Displacement Typology", 
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
@@ -651,6 +689,33 @@ map_it <- function(city_name, st){
         group = "Redlined Areas",
         title = "Redline Zones"
     ) %>%  
+# Neighborhood Segregation
+    addPolygons(
+        data = ct,
+        group = "Neighborhood Segregation",
+        label = ~nt_conc,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .5,
+        color = ~nt_pal(nt_conc),
+        stroke = TRUE,
+        weight = .7,
+        opacity = .60,
+        highlightOptions = highlightOptions(
+                            color = "#ff4a4a",
+                            weight = 5,
+                            bringToFront = TRUE
+                            ),
+        popup = ~popup,
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+    ) %>%
+    addLegend(,
+        # position = 'bottomright',s
+        pal = nt_pal,
+        values = ~nt_conc,
+        group = "Neighborhood Segregation",
+        title = "Neighborhood<br>Segregation"
+    ) %>%
+    
 # Roads
     addPolylines(
         data = road_map %>% filter(city == city_name), 
@@ -769,7 +834,7 @@ addPolylines(
   ci <- function(map = ., city_name){
     map %>% 
     addPolygons(
-        data = ct %>% filter(city == city_name, !is.na(cs)), 
+        data = df_sf %>% filter(city == city_name, !is.na(cs)), 
         group = "Community Input", 
         label = ~cs,
         labelOptions = labelOptions(textsize = "12px"),
