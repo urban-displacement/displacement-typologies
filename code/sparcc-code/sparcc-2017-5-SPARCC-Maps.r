@@ -287,8 +287,7 @@ df_sf <-
 
 ### read in urban areas
 urban_areas <-
-  st_read("/Users/timthomas/git/displacement-typologies/data/inputs/shp/urban_areas/tl_2019_us_uac10.shp") %>%
-  st_transform(st_crs(df_sf))
+  readRDS("~/git/displacement-typologies/data/inputs/shp/urban_areas/tl_2019_us_uac10.rds")
 
 ### Select urban areas that intersect with df_sf
 urban_areas <-
