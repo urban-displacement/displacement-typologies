@@ -58,14 +58,14 @@ Please feel free to [reach out](info@urbandisplacement.org) to us for questions,
 <!-- EXISTING MAPS -->
 ## Existing Maps: 
 
-* [Atlanta](https://urban-displacement.github.io/displacement-typologies/maps/atlanta_udp.html)
+* [Atlanta](https://urban-displacement.github.io/displacement-typologies/maps/atlanta_udp.html) ([SPARCC map](https://urban-displacement.github.io/displacement-typologies/maps/atlanta_sparcc.html))  
 * [Bay Area](https://urban-displacement.github.io/displacement-typologies/maps/sanfrancisco_udp.html)  
-* Boston - *coming soon*  
-* [Chicago](https://urban-displacement.github.io/displacement-typologies/maps/chicago_udp.html)
+<!-- * Boston - *coming soon*   -->
+* [Chicago](https://urban-displacement.github.io/displacement-typologies/maps/chicago_udp.html)  ([SPARCC map](https://urban-displacement.github.io/displacement-typologies/maps/chicago_sparcc.html))  
 * [Cleveland](https://urban-displacement.github.io/displacement-typologies/maps/cleveland_udp.html)  
-* [Denver](https://urban-displacement.github.io/displacement-typologies/maps/denver_udp.html)  
+* [Denver](https://urban-displacement.github.io/displacement-typologies/maps/denver_udp.html) ([SPARCC map](https://urban-displacement.github.io/displacement-typologies/maps/denver_sparcc.html)    
 * [Los Angeles](https://urban-displacement.github.io/displacement-typologies/maps/losangeles_udp.html)  
-* [Memphis](https://urban-displacement.github.io/displacement-typologies/maps/memphis_sparcc.html)  <!-- adjust URL once fixed -->  
+* Memphis ([SPARCC map](https://urban-displacement.github.io/displacement-typologies/maps/memphis_sparcc.html))    <!-- adjust URL once fixed -->  
 * [Seattle Puget Sound](https://urban-displacement.github.io/displacement-typologies/maps/seattle_udp.html)  
 
 
