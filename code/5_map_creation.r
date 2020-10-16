@@ -292,35 +292,35 @@ df_sf <-
 # ==========================================================================
 
 ### read in urban areas
-urban_areas <-
-  readRDS("~/git/displacement-typologies/data/inputs/shp/urban_areas/tl_2019_us_uac10.rds")
+# urban_areas <-
+#   readRDS("~/git/displacement-typologies/data/inputs/shp/urban_areas/tl_2019_us_uac10.rds")
 
-### Select urban areas that intersect with df_sf
-urban_areas <-
-  urban_areas[df_sf, ]
+# ### Select urban areas that intersect with df_sf
+# urban_areas <-
+#   urban_areas[df_sf, ]
 
-### download counties
-  ###
-  # Begin Download
-  ###
-  # counties <-
-  #   counties(state = states) %>%
-  #   st_transform(st_crs(df_sf))
-  #
-  # st_write(counties, "~/git/displacement-typologies/data/outputs/downloads/select_counties.gpkg", append = FALSE)
-  ###
-  # End download
-  ###
-counties <- st_read("~/git/displacement-typologies/data/outputs/downloads/select_counties.gpkg")
+# ### download counties
+#   ###
+#   # Begin Download
+#   ###
+#   # counties <-
+#   #   counties(state = states) %>%
+#   #   st_transform(st_crs(df_sf))
+#   #
+#   # st_write(counties, "~/git/displacement-typologies/data/outputs/downloads/select_counties.gpkg", append = FALSE)
+#   ###
+#   # End download
+#   ###
+# counties <- st_read("~/git/displacement-typologies/data/outputs/downloads/select_counties.gpkg")
 
-### Select counties overlapping urban areas
-county <-
-  counties[urban_areas,]
+# ### Select counties overlapping urban areas
+# county <-
+#   counties[urban_areas,]
 
-# Join the tracts to the dataframe
+# # Join the tracts to the dataframe
 
-df_sf <-
-  df_sf[county,]
+# df_sf <-
+#   df_sf[county,]
 
 #
 # Explore problem areas
@@ -651,7 +651,7 @@ map_it <- function(city_name, st){
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
         fillOpacity = .5, 
-        color = ~displacementtypologies_pal(Typology), 
+        color = ~displacement_typologies_pal(Typology), 
         stroke = TRUE, 
         weight = .7, 
         opacity = .60, 
@@ -659,7 +659,7 @@ map_it <- function(city_name, st){
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
     ) %>%   
     addLegend(
-        pal = displacementtypologies_pal, 
+        pal = displacement_typologies_pal, 
         values = ~Typology, 
         group = "Displacement Typology", 
         title = "Displacement Typology"
@@ -691,7 +691,7 @@ map_it <- function(city_name, st){
     ) %>%  
 # Neighborhood Segregation
     addPolygons(
-        data = ct,
+        data = df_sf,
         group = "Neighborhood Segregation",
         label = ~nt_conc,
         labelOptions = labelOptions(textsize = "12px"),
@@ -715,7 +715,7 @@ map_it <- function(city_name, st){
         group = "Neighborhood Segregation",
         title = "Neighborhood<br>Segregation"
     ) %>%
-    
+
 # Roads
     addPolylines(
         data = road_map %>% filter(city == city_name), 
@@ -831,27 +831,27 @@ addPolylines(
     )}  
 
 # Community Input
-  ci <- function(map = ., city_name){
-    map %>% 
-    addPolygons(
-        data = df_sf %>% filter(city == city_name, !is.na(cs)), 
-        group = "Community Input", 
-        label = ~cs,
-        labelOptions = labelOptions(textsize = "12px"),
-        fillOpacity = .1, 
-        color = "#ff4a4a", 
-        stroke = TRUE, 
-        weight = 1, 
-        opacity = .9, 
-        highlightOptions = highlightOptions(
-                          color = "#ff4a4a", 
-                          weight = 5,
-                              bringToFront = TRUE
-                              ), 
-        popup = ~popup_cs, 
-        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
-    )
-    } 
+  # ci <- function(map = ., city_name){
+  #   map %>% 
+  #   addPolygons(
+  #       data = df_sf %>% filter(city == city_name, !is.na(cs)), 
+  #       group = "Community Input", 
+  #       label = ~cs,
+  #       labelOptions = labelOptions(textsize = "12px"),
+  #       fillOpacity = .1, 
+  #       color = "#ff4a4a", 
+  #       stroke = TRUE, 
+  #       weight = 1, 
+  #       opacity = .9, 
+  #       highlightOptions = highlightOptions(
+  #                         color = "#ff4a4a", 
+  #                         weight = 5,
+  #                             bringToFront = TRUE
+  #                             ), 
+  #       popup = ~popup_cs, 
+  #       popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+  #   )
+  #   } 
      # addLegend(
          # pal = "#ff4a4a", 
          # values = ~cs, 
@@ -891,22 +891,24 @@ addPolylines(
   map %>% 
     addLayersControl(
          overlayGroups = 
-             c(ci, #
-              oz,#
-                 "Redlined Areas", 
+             c("Displacement Typology", 
+                "Redlined Areas", 
+                "Neighborhood Segregation",
+                 ci, #
+                oz,#
                  "Hospitals", 
                  "Universities & Colleges", 
                  ph, #?
                  "Transit Stations", 
                  is, #
-                 belt,
-                 "Highways",
-                 "Displacement Typology"),
+                 belt, 
+                 "Highways"),
          options = layersControlOptions(collapsed = FALSE)) %>% 
      hideGroup(
          c(ci, 
           oz,
           "Redlined Areas", 
+          "Neighborhood Segregation",
              "Hospitals", 
              "Universities & Colleges", 
              ph, 
@@ -924,7 +926,7 @@ addPolylines(
 atlanta <- 
     map_it("Atlanta", 'GA') %>% 
     ind(st = "GA") %>% 
-    ci(city_name = "Atlanta") %>% 
+    # ci(city_name = "Atlanta") %>% 
     oz(city_name = "Atlanta") %>% 
     belt() %>% 
     options(belt = "Beltline",ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
