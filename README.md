@@ -39,7 +39,7 @@ UDP's Displacement Typologies use housing and demographic data from the US Censu
 
 It is important to note that in considering the entire metropolitan region, UDP's typologies classify both low- and middle-income neighborhods at risk of or experiencing displacement or gentrification, as well as high-income neighborhoods where housing markets are becoming increasingly 'exclusive' to low income residents. UDP believes that classifying tracts in such a way allows practionners to get a broader picture of neighborhood dynamics, specifically the concentration of poverty and wealth within a region. 
 
-UDP's Typologies have evovled over time in response to community and partner feedback and the availability of new data sources. This code represents the most code's most recent iteration. It makes use of data from the 2012-2017 American Community Survey; 1990, 2010 and 2000 Dicennial Census; and 2012-2017 Zillow Home Value and Rent Indices. Overlay data comes from a variety of sources, detailed in `code/README.md`.
+UDP's Typologies have evovled over time in response to community and partner feedback and the availability of new data sources. This code represents the code's most recent iteration. It makes use of data from the 2012-2017 American Community Survey; 1990, 2010 and 2000 Dicennial Census; and 2012-2017 Zillow Home Value and Rent Indices. Overlay data comes from a variety of sources, detailed in `code/README.md`.
 
 **Typologies Graphic**
 
