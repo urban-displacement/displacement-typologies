@@ -1,3 +1,7 @@
+# ==========================================================================
+# Data curation for SPARCC maps
+# ==========================================================================    
+
 import census
 import pandas as pd
 import numpy as np
@@ -31,7 +35,7 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-# city_name = "Memphis"
+# city_name = "Atlanta"
 city_name = str(sys.argv[1])
 # merge_type = str(sys.argv[2])
 
