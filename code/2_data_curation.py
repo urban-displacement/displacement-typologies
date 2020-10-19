@@ -871,7 +871,7 @@ zillow_xwalk = pd.read_csv(input_path+'TRACT_ZIP_032015.csv')
 zillow['ch_zillow_12_18'] = zillow['2018-01'] - zillow['2012-01']*CPI_12_18
 zillow['per_ch_zillow_12_18'] = zillow['ch_zillow_12_18']/zillow['2012-01']
 zillow = zillow[zillow['State'].isin(state_init)].reset_index(drop = True)
-zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = "inner")
+zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = "outer")
 zillow = zillow.rename(columns = {'TRACT':'FIPS'})
 
 # Filter only data of interest
@@ -1101,7 +1101,7 @@ city_shp['GEOID'] = city_shp['GEOID'].astype('int64')
 census_zillow = census_zillow.merge(city_shp[['GEOID','geometry','rail', 
 	# 'anchor_institution', 
 	'presence_ph_LIHTC']], right_on = 'GEOID', left_on = 'FIPS')
-
+census_zillow.query("FIPS == 13121011100")
 # ==========================================================================
 # Export Data 
 # ==========================================================================

@@ -161,6 +161,7 @@ df <-
         Typology = 
             factor( # turn to factor for mapping 
                 case_when(
+                    typ_cat == "['AdvG', 'BE']" ~ 'Advanced Gentrification',
                     typ_cat == "['AdvG']" ~ 'Advanced Gentrification',
                     typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive',
                     typ_cat == "['ARG']" ~ 'At Risk of Gentrification',
