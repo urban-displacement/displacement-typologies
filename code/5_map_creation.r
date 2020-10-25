@@ -22,8 +22,9 @@ options(scipen = 10) # avoid scientific notation
 # load packages
 if (!require("pacman")) install.packages("pacman")
 p_install_gh("timathomas/neighborhood", "jalvesaq/colorout")
-p_load(colorout, neighborhood, R.utils, bit64, neighborhood, fst, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse, update = TRUE)
+p_load(colorout, neighborhood, readxl, R.utils, bit64, neighborhood, fst, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse, update = TRUE)
 
+update.packages(ask = FALSE)
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
 
@@ -149,15 +150,81 @@ tr_dem <-
     GEOID = as.numeric(GEOID)
     )
 
+
 #
 # Prep dataframe for mapping
 # --------------------------------------------------------------------------
+
+scale_this <- function(x){
+  (x - mean(x, na.rm=TRUE)) / sd(x, na.rm=TRUE)
+}
 
 df <- 
     data %>% 
     left_join(df_nt) %>% 
     left_join(tr_dem) %>% 
-    mutate( # create typology for maps
+    left_join(read_excel("~/git/displacement-typologies/data/inputs/UCLAIndicators/UCLA_CNK_COVID19_Vulnerability_Indicators_8_20_2020.xls"), 
+        by = c("GEOID" = "tract")) %>% 
+    group_by(city) %>% 
+    mutate(
+        sc_pct_atrisk_workers = scale_this(pct_atrisk_workers),
+        sc_pct_wo_UI = scale_this(pct_wo_UI),
+        sc_SIPBI_dec = scale_this(SIPBI_dec),
+        sc_RVI_dec = scale_this(RVI_dec),
+        sc_Nr_Aug = scale_this(Nr_Aug)) %>% 
+    ungroup() %>% 
+    mutate(
+        cat_pct_atrisk_workers = case_when(
+            sc_pct_atrisk_workers <= -3 ~ -3,
+            sc_pct_atrisk_workers > -3 & sc_pct_atrisk_workers <= -2 ~ -2,
+            sc_pct_atrisk_workers > -2 & sc_pct_atrisk_workers <= -1 ~ -1,
+            sc_pct_atrisk_workers > -1 & sc_pct_atrisk_workers <= 1 ~ 0,
+            sc_pct_atrisk_workers > 1 & sc_pct_atrisk_workers <= 2 ~ 1,
+            sc_pct_atrisk_workers > 2 & sc_pct_atrisk_workers <= 3 ~ 2,
+            sc_pct_atrisk_workers > 3 ~ 3),
+        cat_pct_wo_UI = case_when(
+            sc_pct_wo_UI <= -3 ~ -3,
+            sc_pct_wo_UI > -3 & sc_pct_wo_UI <= -2 ~ -2,
+            sc_pct_wo_UI > -2 & sc_pct_wo_UI <= -1 ~ -1,
+            sc_pct_wo_UI > -1 & sc_pct_wo_UI <= 1 ~ 0,
+            sc_pct_wo_UI > 1 & sc_pct_wo_UI <= 2 ~ 1,
+            sc_pct_wo_UI > 2 & sc_pct_wo_UI <= 3 ~ 2,
+            sc_pct_wo_UI > 3 ~ 3),
+        cat_SIPBI_dec = case_when(
+            sc_SIPBI_dec <= -3 ~ -3,
+            sc_SIPBI_dec > -3 & sc_SIPBI_dec <= -2 ~ -2,
+            sc_SIPBI_dec > -2 & sc_SIPBI_dec <= -1 ~ -1,
+            sc_SIPBI_dec > -1 & sc_SIPBI_dec <= 1 ~ 0,
+            sc_SIPBI_dec > 1 & sc_SIPBI_dec <= 2 ~ 1,
+            sc_SIPBI_dec > 2 & sc_SIPBI_dec <= 3 ~ 2,
+            sc_SIPBI_dec > 3 ~ 3),
+        cat_RVI_dec = case_when(
+            sc_RVI_dec <= -3 ~ -3,
+            sc_RVI_dec > -3 & sc_RVI_dec <= -2 ~ -2,
+            sc_RVI_dec > -2 & sc_RVI_dec <= -1 ~ -1,
+            sc_RVI_dec > -1 & sc_RVI_dec <= 1 ~ 0,
+            sc_RVI_dec > 1 & sc_RVI_dec <= 2 ~ 1,
+            sc_RVI_dec > 2 & sc_RVI_dec <= 3 ~ 2,
+            sc_RVI_dec > 3 ~ 3),
+        cat_Nr_Aug = case_when(
+            sc_Nr_Aug <= -3 ~ -3,
+            sc_Nr_Aug > -3 & sc_Nr_Aug <= -2 ~ -2,
+            sc_Nr_Aug > -2 & sc_Nr_Aug <= -1 ~ -1,
+            sc_Nr_Aug > -1 & sc_Nr_Aug <= 1 ~ 0,
+            sc_Nr_Aug > 1 & sc_Nr_Aug <= 2 ~ 1,
+            sc_Nr_Aug > 2 & sc_Nr_Aug <= 3 ~ 2,
+            sc_Nr_Aug > 3 ~ 3),
+        
+
+        cat_pct_wo_UI = scale(pct_wo_UI),
+        cat_SIPBI_dec = scale(SIPBI_dec),
+        cat_RVI_dec = scale(RVI_dec),
+        cat_Nr_Aug = scale(Nr_Aug),
+        pct_atrisk_workers = percent(pct_atrisk_workers*.01), 
+        pct_wo_UI = percent(pct_wo_UI*.01), 
+        Nr_Aug = percent(Nr_Aug*.01), 
+
+     # create typology for maps
         Typology = 
             factor( # turn to factor for mapping 
                 case_when(
@@ -251,8 +318,23 @@ df <-
              'Vulnerable to gentrification: ', case_when(vul_gent_18 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
              'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 | gent_90_00_urban == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
              'Gentrified from 2000 to 2018: ', case_when(gent_00_18 == 1 | gent_00_18_urban == 1 ~ 'Yes', TRUE ~ 'No')
-          )
-    ) %>% 
+          ), 
+        popup_ucla = 
+            str_c(
+                '<b>Tract: ', GEOID, '<br>', 
+                'Workers at Risk of Job Displacement', '<br>', 
+                'Due to COVID-19 Business Closures: </b>', '<br>', 
+                pct_atrisk_workers, '<br>', '<br>', 
+                '<b>Workers not Covered by Unemployment', '<br>', 
+                'Insurance Program: </b>', '<br>', 
+                pct_wo_UI, '<br>', '<br>', 
+                '<b>Shelter-in-Place Burden Index: </b>', '<br>', 
+                SIPBI_dec, '<br>', '<br>', 
+                '<b>Renter Vulnerability Index: </b>', '<br>', 
+                RVI_dec, '<br>', '<br>', 
+                '<b>2020 Census Non-Response Rate: </b>', '<br>',
+                Nr_Aug)
+            ) %>% 
     ungroup() %>% 
     data.frame()
 
@@ -286,7 +368,8 @@ tracts <- readRDS('~/git/displacement-typologies/data/outputs/downloads/state_tr
 # Join the tracts to the dataframe
 
 df_sf <- 
-    right_join(tracts, df) 
+    right_join(tracts, df) %>%
+    ms_simplify(keep = 0.5)
 
 # ==========================================================================
 # Select tracts within counties that intersect with urban areas
@@ -413,7 +496,7 @@ red <-
         geojson_sf('~/git/displacement-typologies/data/overlays/TNMemphis19XX_1.geojson') %>% 
         mutate(city = 'Memphis'),
         geojson_sf('~/git/displacement-typologies/data/overlays/CALosAngeles1939.geojson') %>% 
-        mutate(city = 'Los Angeles'),
+        mutate(city = 'LosAngeles'),
         geojson_sf('~/git/displacement-typologies/data/overlays/WASeattle1936.geojson') %>% 
         mutate(city = 'Seattle'),
         geojson_sf('~/git/displacement-typologies/data/overlays/WATacoma1937.geojson') %>% 
@@ -450,6 +533,8 @@ industrial <- st_read('~/git/displacement-typologies/data/overlays/industrial.sh
         )) %>% 
     filter(state != "CO") %>% 
     st_as_sf() 
+
+### HUD
 
 hud <- st_read('~/git/displacement-typologies/data/overlays/HUDhousing.shp') %>% 
     st_as_sf() 
@@ -509,7 +594,7 @@ university <-
 
 ### Road map; add your state here
 states <- 
-    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'WA', 'OH')
+    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'WA', 'OH', 'CA')
 
 ###
 # Begin download road maps
@@ -545,7 +630,6 @@ opp_zone <-
   st_transform(st_crs(df_sf)) %>% 
   st_join(., df_sf %>% select(city), join = st_intersects) %>% 
   filter(!is.na(city))
-
 
 # ==========================================================================
 # Maps
@@ -692,7 +776,7 @@ map_it <- function(city_name, st){
     ) %>%  
 # Neighborhood Segregation
     addPolygons(
-        data = df_sf,
+        data = df_sf %>% filter(city == city_name),
         group = "Neighborhood Segregation",
         label = ~nt_conc,
         labelOptions = labelOptions(textsize = "12px"),
@@ -822,14 +906,14 @@ map_it <- function(city_name, st){
 # Beltline
  belt <- function(map = .){
   map %>% 
-addPolylines(
-        data = beltline, 
-        group = "Beltline", 
-        color = "#2ca25f",
-        stroke = TRUE, 
-        weight = 5, 
-        # opacity = .1    
-    )}  
+    addPolylines(
+            data = beltline, 
+            group = "Beltline", 
+            color = "#2ca25f",
+            stroke = TRUE, 
+            weight = 5, 
+            # opacity = .1    
+        )}  
 
 # Community Input
   # ci <- function(map = ., city_name){
@@ -860,7 +944,7 @@ addPolylines(
      # ) %>% 
 
 # Opportunity Zones
-  oz <- function(map = ., city_name){
+oz <- function(map = ., city_name){
   map %>% 
     addPolygons(
         data = opp_zone %>% filter(city == city_name, !is.na(opp_zone)), 
@@ -887,8 +971,104 @@ addPolylines(
     #     group = "Opportunity Zones"
     # ) %>% 
 
+# UCLA indicators
+
+ucla <- function(map = ., city_name){        
+        map %>% 
+        addPolygons(
+            data = df_sf %>% filter(city == city_name), 
+            group = "Job Displacement Risk", 
+            label = ~pct_atrisk_workers, 
+            labelOptions = labelOptions(textsize = "12px"), 
+            fillOpacity = .1,
+            # color = ???,
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .9, 
+        highlightOptions = highlightOptions(
+                          color = "#c51b8a", 
+                          weight = 5,
+                              bringToFront = FALSE
+                              ), 
+        popup = ~popup_ucla, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+
+            ) %>% 
+        addPolygons(
+            data = df_sf %>% filter(city == city_name), 
+            group = "Without Unemployment Insurance", 
+            label = ~pct_wo_UI, 
+            labelOptions = labelOptions(textsize = "12px"), 
+            fillOpacity = .1,
+            # color = ???,
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .9, 
+        highlightOptions = highlightOptions(
+                          color = "#c51b8a", 
+                          weight = 5,
+                              bringToFront = FALSE
+                              ), 
+        popup = ~popup_ucla, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+
+                ) %>% 
+        addPolygons(
+            data = df_sf %>% filter(city == city_name), 
+            group = "Shelter-in-Place Burden", 
+            label = ~SIPBI_dec, 
+            labelOptions = labelOptions(textsize = "12px"), 
+            fillOpacity = .1,
+            # color = ???,
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .9, 
+        highlightOptions = highlightOptions(
+                          color = "#c51b8a", 
+                          weight = 5,
+                              bringToFront = FALSE
+                              ), 
+        popup = ~popup_ucla, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+
+            ) %>% 
+        addPolygons(
+            data = df_sf %>% filter(city == city_name), 
+            group = "Renter Vulnerability", 
+            label = ~RVI_dec, 
+            labelOptions = labelOptions(textsize = "12px"), 
+            fillOpacity = .1,
+            # color = ???,
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .9, 
+        highlightOptions = highlightOptions(
+                          color = "#c51b8a", 
+                          weight = 5,
+                              bringToFront = FALSE
+                              ), 
+        popup = ~popup_ucla, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+
+            ) #%>%  
+        # addLayersControl(
+        # position = 'topright',
+        # overlayGroups = c(
+        #     "Job Displacement Risk",
+        #     "Without Unemployment Insurance",
+        #     "Shelter-in-Place Burden",
+        #     "Renter Vulnerability"),
+        # options = layersControlOptions(collapsed = FALSE)) %>% 
+        # hideGroup(
+        #     c("Job Displacement Risk",
+        #     "Without Unemployment Insurance",
+        #     "Shelter-in-Place Burden",
+        #     "Renter Vulnerability")
+        #     )    
+    }
+
 # Options
- options <- function(map = ., belt = NULL, ci = NULL, oz = NULL, ph = NULL, is = NULL){
+options <- function(map = ., belt = NULL, ci = NULL, oz = NULL, ph = NULL, ucla = NULL, is = NULL){
   map %>% 
     addLayersControl(
          overlayGroups = 
@@ -903,8 +1083,9 @@ addPolylines(
                  "Transit Stations", 
                  is, #
                  belt, 
+                 ucla, 
                  "Highways"),
-         options = layersControlOptions(collapsed = FALSE)) %>% 
+         options = layersControlOptions(collapsed = FALSE, scroll = FALSE)) %>% 
      hideGroup(
          c(ci, 
           oz,
@@ -915,9 +1096,9 @@ addPolylines(
              ph, 
              "Transit Stations", 
              belt,
-             is))
+             is, 
+             ucla))
  }
-
 
 #
 # City specific displacement-typologies map; add your city here
@@ -930,40 +1111,85 @@ atlanta <-
     # ci(city_name = "Atlanta") %>% 
     oz(city_name = "Atlanta") %>% 
     belt() %>% 
-    options(belt = "Beltline",ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
+    options(
+        belt = "Beltline",
+        oz = "Opportunity Zones", 
+        ph = "Public Housing", 
+        is = "Industrial Sites") %>% 
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-htmlwidgets::saveWidget(atlanta, file="~/git/displacement-typologies/maps/atlanta_displacement-typologies.html")
+htmlwidgets::saveWidget(atlanta, file="~/git/displacement-typologies/maps/atlanta_udp.html")
 
 # Chicago, IL
 chicago <- 
     map_it("Chicago", 'IL') %>% 
     ind(st = "IL") %>% 
-    ci(city_name = "Chicago") %>% 
+    # ci(city_name = "Chicago") %>% 
     oz(city_name = "Chicago") %>% 
-    options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
+    options(
+        oz = "Opportunity Zones", 
+        ph = "Public Housing", 
+        is = "Industrial Sites") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-htmlwidgets::saveWidget(chicago, file="~/git/displacement-typologies/maps/chicago_displacement-typologies.html")
+htmlwidgets::saveWidget(chicago, file="~/git/displacement-typologies/maps/chicago_udp.html")
 
 # Denver, CO
 denver <- 
     map_it("Denver", 'CO') %>% 
-    ci(city_name = "Denver") %>% 
+    # ci(city_name = "Denver") %>% 
     oz(city_name = "Denver") %>%     
-    options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing") %>% 
+    options(
+        oz = "Opportunity Zones", 
+        ph = "Public Housing") %>% 
     setView(lng = -104.9, lat = 39.7, zoom = 10)
 # # save map
-htmlwidgets::saveWidget(denver, file="~/git/displacement-typologies/maps/denver_displacement-typologies.html")
+htmlwidgets::saveWidget(denver, file="~/git/displacement-typologies/maps/denver_udp.html")
 
 # Memphis, TN
-memphis <- 
-    map_it("Memphis", 'TN') %>% 
-    ind(st = "TN") %>% 
-    ci(city_name = "Memphis") %>% 
-    oz(city_name = "Memphis") %>%     
-    options(ci = "Community Input", oz = "Opportunity Zones", ph = "Public Housing", is = "Industrial Sites") %>% 
-    setView(lng = -89.9, lat = 35.2, zoom = 10)
-# # save map
-htmlwidgets::saveWidget(memphis, file="~/git/displacement-typologies/maps/memphis_displacement-typologies.html")
+# memphis <- 
+#     map_it("Memphis", 'TN') %>% 
+#     ind(st = "TN") %>% 
+#     # ci(city_name = "Memphis") %>% 
+#     oz(city_name = "Memphis") %>%     
+#     options(
+#         ci = "Community Input", 
+#         oz = "Opportunity Zones", 
+#         ph = "Public Housing", 
+#         is = "Industrial Sites") %>% 
+#     setView(lng = -89.9, lat = 35.2, zoom = 10)
+# # # save map
+# htmlwidgets::saveWidget(memphis, file="~/git/displacement-typologies/maps/memphis_udp.html")
+
+# San Francisco, CA
+la <- 
+    map_it("LosAngeles", 'CA') %>% 
+    # ind(st = "CA") %>% 
+    # ci(city_name = "LosAngeles") %>% 
+    oz(city_name = "LosAngeles") %>% 
+    ucla(city_name = "LosAngeles") %>% 
+    options(
+        oz = "Opportunity Zones", 
+        ph = "Public Housing",
+        ucla = "Vulnerability Indicators"
+        # is = "Industrial Sites"
+        ) %>% 
+    setView(lng = -118.2, lat = 34, zoom = 10)
+# save map
+htmlwidgets::saveWidget(la, file="~/git/displacement-typologies/maps/sanfrancisco_udp.html")
+
+# San Francisco, CA
+sf <- 
+    map_it("SanFrancisco", 'CA') %>% 
+    # ind(st = "CA") %>% 
+    # ci(city_name = "SanFrancisco") %>% 
+    oz(city_name = "SanFrancisco") %>% 
+    options(
+        oz = "Opportunity Zones", 
+        ph = "Public Housing" 
+        # is = "Industrial Sites"
+        ) %>% 
+    setView(lng = -118.2, lat = 34, zoom = 10)
+# save map
+htmlwidgets::saveWidget(la, file="~/git/displacement-typologies/maps/losangeles_udp.html")

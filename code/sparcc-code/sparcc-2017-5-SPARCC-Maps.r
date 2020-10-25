@@ -615,8 +615,6 @@ road_pal <-
         ),
         domain = c("Interstate", "US Highway"))
 
-## Atlanta Beltline
-
 # make map
 
 map_it <- function(data, city_name, st){
