@@ -150,7 +150,7 @@ tr_dem <-
     GEOID = as.numeric(GEOID)
     )
 
-
+ucla_df <- read_excel("~/git/displacement-typologies/data/inputs/UCLAIndicators/UCLA_CNK_COVID19_Vulnerability_Indicators_8_20_2020.xls")
 #
 # Prep dataframe for mapping
 # --------------------------------------------------------------------------
@@ -163,8 +163,7 @@ df <-
     data %>% 
     left_join(df_nt) %>% 
     left_join(tr_dem) %>% 
-    left_join(read_excel("~/git/displacement-typologies/data/inputs/UCLAIndicators/UCLA_CNK_COVID19_Vulnerability_Indicators_8_20_2020.xls"), 
-        by = c("GEOID" = "tract")) %>% 
+    left_join(ucla_df, by = c("GEOID" = "tract")) %>% 
     group_by(city) %>% 
     mutate(
         sc_pct_atrisk_workers = scale_this(pct_atrisk_workers),
@@ -174,56 +173,81 @@ df <-
         sc_Nr_Aug = scale_this(Nr_Aug)) %>% 
     ungroup() %>% 
     mutate(
-        cat_pct_atrisk_workers = case_when(
-            sc_pct_atrisk_workers <= -3 ~ -3,
-            sc_pct_atrisk_workers > -3 & sc_pct_atrisk_workers <= -2 ~ -2,
-            sc_pct_atrisk_workers > -2 & sc_pct_atrisk_workers <= -1 ~ -1,
-            sc_pct_atrisk_workers > -1 & sc_pct_atrisk_workers <= 1 ~ 0,
-            sc_pct_atrisk_workers > 1 & sc_pct_atrisk_workers <= 2 ~ 1,
-            sc_pct_atrisk_workers > 2 & sc_pct_atrisk_workers <= 3 ~ 2,
-            sc_pct_atrisk_workers > 3 ~ 3),
-        cat_pct_wo_UI = case_when(
-            sc_pct_wo_UI <= -3 ~ -3,
-            sc_pct_wo_UI > -3 & sc_pct_wo_UI <= -2 ~ -2,
-            sc_pct_wo_UI > -2 & sc_pct_wo_UI <= -1 ~ -1,
-            sc_pct_wo_UI > -1 & sc_pct_wo_UI <= 1 ~ 0,
-            sc_pct_wo_UI > 1 & sc_pct_wo_UI <= 2 ~ 1,
-            sc_pct_wo_UI > 2 & sc_pct_wo_UI <= 3 ~ 2,
-            sc_pct_wo_UI > 3 ~ 3),
-        cat_SIPBI_dec = case_when(
-            sc_SIPBI_dec <= -3 ~ -3,
-            sc_SIPBI_dec > -3 & sc_SIPBI_dec <= -2 ~ -2,
-            sc_SIPBI_dec > -2 & sc_SIPBI_dec <= -1 ~ -1,
-            sc_SIPBI_dec > -1 & sc_SIPBI_dec <= 1 ~ 0,
-            sc_SIPBI_dec > 1 & sc_SIPBI_dec <= 2 ~ 1,
-            sc_SIPBI_dec > 2 & sc_SIPBI_dec <= 3 ~ 2,
-            sc_SIPBI_dec > 3 ~ 3),
-        cat_RVI_dec = case_when(
-            sc_RVI_dec <= -3 ~ -3,
-            sc_RVI_dec > -3 & sc_RVI_dec <= -2 ~ -2,
-            sc_RVI_dec > -2 & sc_RVI_dec <= -1 ~ -1,
-            sc_RVI_dec > -1 & sc_RVI_dec <= 1 ~ 0,
-            sc_RVI_dec > 1 & sc_RVI_dec <= 2 ~ 1,
-            sc_RVI_dec > 2 & sc_RVI_dec <= 3 ~ 2,
-            sc_RVI_dec > 3 ~ 3),
-        cat_Nr_Aug = case_when(
-            sc_Nr_Aug <= -3 ~ -3,
-            sc_Nr_Aug > -3 & sc_Nr_Aug <= -2 ~ -2,
-            sc_Nr_Aug > -2 & sc_Nr_Aug <= -1 ~ -1,
-            sc_Nr_Aug > -1 & sc_Nr_Aug <= 1 ~ 0,
-            sc_Nr_Aug > 1 & sc_Nr_Aug <= 2 ~ 1,
-            sc_Nr_Aug > 2 & sc_Nr_Aug <= 3 ~ 2,
-            sc_Nr_Aug > 3 ~ 3),
-        
-
-        cat_pct_wo_UI = scale(pct_wo_UI),
-        cat_SIPBI_dec = scale(SIPBI_dec),
-        cat_RVI_dec = scale(RVI_dec),
-        cat_Nr_Aug = scale(Nr_Aug),
-        pct_atrisk_workers = percent(pct_atrisk_workers*.01), 
-        pct_wo_UI = percent(pct_wo_UI*.01), 
-        Nr_Aug = percent(Nr_Aug*.01), 
-
+        cat_pct_atrisk_workers = 
+            factor(
+                case_when(
+                    sc_pct_atrisk_workers <= -2 ~ "Very Low",
+                    sc_pct_atrisk_workers > -2 & sc_pct_atrisk_workers <= -1 ~ "Low",
+                    sc_pct_atrisk_workers > -1 & sc_pct_atrisk_workers <= 1 ~ "Medium",
+                    sc_pct_atrisk_workers > 1 & sc_pct_atrisk_workers <= 2 ~ "High",
+                    sc_pct_atrisk_workers > 2 ~ "Very High"), 
+                levels = (
+                    c("Very High", 
+                    "High", 
+                    "Medium", 
+                    "Low", 
+                    "Very Low")
+                    )),
+        cat_pct_wo_UI = 
+            factor(
+                case_when(
+                    sc_pct_wo_UI <= -2 ~ "Very Low",
+                    sc_pct_wo_UI > -2 & sc_pct_wo_UI <= -1 ~ "Low",
+                    sc_pct_wo_UI > -1 & sc_pct_wo_UI <= 1 ~ "Medium",
+                    sc_pct_wo_UI > 1 & sc_pct_wo_UI <= 2 ~ "High",
+                    sc_pct_wo_UI > 2 ~ "Very High"), 
+                levels = (
+                    c("Very High", 
+                    "High", 
+                    "Medium", 
+                    "Low", 
+                    "Very Low")
+                    )),
+        cat_SIPBI_dec = 
+            factor(
+                case_when(
+                    sc_SIPBI_dec <= -2 ~ "Very Low",
+                    sc_SIPBI_dec > -2 & sc_SIPBI_dec <= -1 ~ "Low",
+                    sc_SIPBI_dec > -1 & sc_SIPBI_dec <= 1 ~ "Medium",
+                    sc_SIPBI_dec > 1 & sc_SIPBI_dec <= 2 ~ "High",
+                    sc_SIPBI_dec > 2 ~ "Very High"), 
+                levels = (
+                    c("Very High", 
+                    "High", 
+                    "Medium", 
+                    "Low", 
+                    "Very Low")
+                    )),
+        cat_RVI_dec = 
+            factor(
+                case_when(
+                    sc_RVI_dec <= -2 ~ "Very Low",
+                    sc_RVI_dec > -2 & sc_RVI_dec <= -1 ~ "Low",
+                    sc_RVI_dec > -1 & sc_RVI_dec <= 1 ~ "Medium",
+                    sc_RVI_dec > 1 & sc_RVI_dec <= 2 ~ "High",
+                    sc_RVI_dec > 2 ~ "Very High"), 
+                levels = (
+                    c("Very High", 
+                    "High", 
+                    "Medium", 
+                    "Low", 
+                    "Very Low")
+                    )),
+        cat_Nr_Aug = 
+            factor(
+                case_when(
+                    sc_Nr_Aug <= -2 ~ "Very Low",
+                    sc_Nr_Aug > -2 & sc_Nr_Aug <= -1 ~ "Low",
+                    sc_Nr_Aug > -1 & sc_Nr_Aug <= 1 ~ "Medium",
+                    sc_Nr_Aug > 1 & sc_Nr_Aug <= 2 ~ "High",
+                    sc_Nr_Aug > 2 ~ "Very High"), 
+                levels = (
+                    c("Very High", 
+                    "High", 
+                    "Medium", 
+                    "Low", 
+                    "Very Low")
+                    )),
      # create typology for maps
         Typology = 
             factor( # turn to factor for mapping 
@@ -275,12 +299,12 @@ df <-
               '<br><br>',
               '<b><i><u>Market Dynamics</u></i></b><br>',
               'Tract median home value: ', case_when(!is.na(real_mhval_18) ~ dollar(real_mhval_18), TRUE ~ 'No data'), '<br>',
-              'Tract home value change from 2000 to 2018: ', case_when(is.na(real_mhval_18) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_18)),'<br>',
+              'Tract home value change from 2000 to 2018: ', case_when(is.na(real_mhval_18) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_18, accuracy = .1)),'<br>',
               'Regional median home value: ', dollar(rm_real_mhval_18), '<br>',
               '<br>',
               'Tract median rent: ', case_when(!is.na(real_mrent_18) ~ dollar(real_mrent_18), TRUE ~ 'No data'), '<br>', 
               'Regional median rent: ', case_when(is.na(real_mrent_18) ~ 'No data', TRUE ~ dollar(rm_real_mrent_18)), '<br>', 
-              'Tract rent change from 2012 to 2018: ', percent(pctch_real_mrent_12_18), '<br>',
+              'Tract rent change from 2012 to 2018: ', percent(pctch_real_mrent_12_18, accuracy = .1), '<br>',
               '<br>',
               'Rent gap (nearby - local): ', dollar(tr_rent_gap), '<br>',
               'Regional median rent gap: ', dollar(rm_rent_gap), '<br>',
@@ -324,16 +348,16 @@ df <-
                 '<b>Tract: ', GEOID, '<br>', 
                 'Workers at Risk of Job Displacement', '<br>', 
                 'Due to COVID-19 Business Closures: </b>', '<br>', 
-                pct_atrisk_workers, '<br>', '<br>', 
+                percent(pct_atrisk_workers*.01, , accuracy = .1), '<br>', '<br>', 
                 '<b>Workers not Covered by Unemployment', '<br>', 
                 'Insurance Program: </b>', '<br>', 
-                pct_wo_UI, '<br>', '<br>', 
+                percent(pct_wo_UI*.01, , accuracy = .1), '<br>', '<br>', 
                 '<b>Shelter-in-Place Burden Index: </b>', '<br>', 
                 SIPBI_dec, '<br>', '<br>', 
                 '<b>Renter Vulnerability Index: </b>', '<br>', 
                 RVI_dec, '<br>', '<br>', 
                 '<b>2020 Census Non-Response Rate: </b>', '<br>',
-                Nr_Aug)
+                percent(Nr_Aug*.01, , accuracy = .1))
             ) %>% 
     ungroup() %>% 
     data.frame()
@@ -712,7 +736,15 @@ road_pal <-
         ), 
         domain = c("Interstate", "US Highway"))
 
-## Atlanta Beltline
+ucla_pal <- 
+    colorFactor(
+        c("#ca0020",
+        "#f4a582",
+        "#f7f7f7",
+        "#92c5de",
+        "#0571b0"
+            ), 
+        domain = c("Very High", "High", "Medium", "Low", "Very Low"))
 
 # make map
 
@@ -974,101 +1006,147 @@ oz <- function(map = ., city_name){
 # UCLA indicators
 
 ucla <- function(map = ., city_name){        
-        map %>% 
-        addPolygons(
-            data = df_sf %>% filter(city == city_name), 
-            group = "Job Displacement Risk", 
-            label = ~pct_atrisk_workers, 
-            labelOptions = labelOptions(textsize = "12px"), 
-            fillOpacity = .1,
-            # color = ???,
+    map %>% 
+    addPolygons(
+        data = df_sf %>% filter(city == city_name), 
+        group = "Job Displacement Risk", 
+        label = ~cat_pct_atrisk_workers, 
+        labelOptions = labelOptions(textsize = "12px"), 
+        fillOpacity = .1, 
+        color = ~ucla_pal(cat_pct_atrisk_workers), 
         stroke = TRUE, 
         weight = 1, 
         opacity = .9, 
         highlightOptions = highlightOptions(
-                          color = "#c51b8a", 
-                          weight = 5,
-                              bringToFront = FALSE
-                              ), 
+            color = "#c51b8a", 
+            weight = 5, 
+            bringToFront = FALSE), 
         popup = ~popup_ucla, 
-        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
-
-            ) %>% 
-        addPolygons(
-            data = df_sf %>% filter(city == city_name), 
-            group = "Without Unemployment Insurance", 
-            label = ~pct_wo_UI, 
-            labelOptions = labelOptions(textsize = "12px"), 
-            fillOpacity = .1,
-            # color = ???,
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)) %>% 
+    addLegend(
+        data = df_sf %>% filter(city == city_name), 
+        pal = ucla_pal, 
+        values = ~cat_pct_atrisk_workers, 
+        group = "Job Displacement Risk", 
+        title = "Job Displacement Risk") %>% 
+    addPolygons(
+        data = df_sf %>% filter(city == city_name), 
+        group = "Without Unemployment Insurance", 
+        label = ~cat_pct_wo_UI, 
+        labelOptions = labelOptions(textsize = "12px"), 
+        fillOpacity = .1, 
+        color = ~ucla_pal(cat_pct_wo_UI), 
         stroke = TRUE, 
         weight = 1, 
         opacity = .9, 
         highlightOptions = highlightOptions(
-                          color = "#c51b8a", 
-                          weight = 5,
-                              bringToFront = FALSE
-                              ), 
+            color = "#c51b8a", 
+            weight = 5, 
+            bringToFront = FALSE), 
         popup = ~popup_ucla, 
-        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
-
-                ) %>% 
-        addPolygons(
-            data = df_sf %>% filter(city == city_name), 
-            group = "Shelter-in-Place Burden", 
-            label = ~SIPBI_dec, 
-            labelOptions = labelOptions(textsize = "12px"), 
-            fillOpacity = .1,
-            # color = ???,
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)) %>% 
+    addLegend(
+        data = df_sf %>% filter(city == city_name), 
+        pal = ucla_pal, 
+        values = ~cat_pct_wo_UI, 
+        group = "Without Unemployment Insurance", 
+        title = "Without Unemployment Insurance") %>% 
+    addPolygons(
+        data = df_sf %>% filter(city == city_name), 
+        group = "Shelter-in-Place Burden", 
+        label = ~cat_SIPBI_dec, 
+        labelOptions = labelOptions(textsize = "12px"), 
+        fillOpacity = .1, 
+        color = ~ucla_pal(cat_SIPBI_dec), 
         stroke = TRUE, 
         weight = 1, 
         opacity = .9, 
         highlightOptions = highlightOptions(
-                          color = "#c51b8a", 
-                          weight = 5,
-                              bringToFront = FALSE
-                              ), 
+            color = "#c51b8a", 
+            weight = 5, 
+            bringToFront = FALSE), 
         popup = ~popup_ucla, 
-        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
-
-            ) %>% 
-        addPolygons(
-            data = df_sf %>% filter(city == city_name), 
-            group = "Renter Vulnerability", 
-            label = ~RVI_dec, 
-            labelOptions = labelOptions(textsize = "12px"), 
-            fillOpacity = .1,
-            # color = ???,
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)) %>% 
+    addLegend(
+        data = df_sf %>% filter(city == city_name), 
+        pal = ucla_pal, 
+        values = ~cat_SIPBI_dec, 
+        group = "Shelter-in-Place Burden", 
+        title = "Shelter-in-Place Burden") %>% 
+    addPolygons(
+        data = df_sf %>% filter(city == city_name), 
+        group = "Renter Vulnerability Index", 
+        label = ~cat_RVI_dec, 
+        labelOptions = labelOptions(textsize = "12px"), 
+        fillOpacity = .1, 
+        color = ~ucla_pal(cat_RVI_dec), 
         stroke = TRUE, 
         weight = 1, 
         opacity = .9, 
         highlightOptions = highlightOptions(
-                          color = "#c51b8a", 
-                          weight = 5,
-                              bringToFront = FALSE
-                              ), 
+            color = "#c51b8a", 
+            weight = 5, 
+            bringToFront = FALSE), 
         popup = ~popup_ucla, 
-        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
-
-            ) #%>%  
-        # addLayersControl(
-        # position = 'topright',
-        # overlayGroups = c(
-        #     "Job Displacement Risk",
-        #     "Without Unemployment Insurance",
-        #     "Shelter-in-Place Burden",
-        #     "Renter Vulnerability"),
-        # options = layersControlOptions(collapsed = FALSE)) %>% 
-        # hideGroup(
-        #     c("Job Displacement Risk",
-        #     "Without Unemployment Insurance",
-        #     "Shelter-in-Place Burden",
-        #     "Renter Vulnerability")
-        #     )    
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)) %>% 
+    addLegend(
+        data = df_sf %>% filter(city == city_name), 
+        pal = ucla_pal, 
+        values = ~cat_RVI_dec, 
+        group = "Renter Vulnerability Index", 
+        title = "Renter Vulnerability Index") %>% 
+    addPolygons(
+        data = df_sf %>% filter(city == city_name), 
+        group = "Census Non-Response Rate", 
+        label = ~cat_Nr_Aug, 
+        labelOptions = labelOptions(textsize = "12px"), 
+        fillOpacity = .1, 
+        color = ~ucla_pal(cat_Nr_Aug), 
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .9, 
+        highlightOptions = highlightOptions(
+            color = "#c51b8a", 
+            weight = 5, 
+            bringToFront = FALSE), 
+        popup = ~popup_ucla, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)) %>% 
+    addLegend(
+        data = df_sf %>% filter(city == city_name), 
+        pal = ucla_pal, 
+        values = ~cat_Nr_Aug, 
+        group = "Census Non-Response Rate", 
+        title = "Census Non-Response Rate") #%>% 
+    # addLayersControl(
+    #     position = 'topright',
+    #     overlayGroups = c(
+    #         "Job Displacement Risk",
+    #         "Without Unemployment Insurance",
+    #         "Shelter-in-Place Burden",
+    #         "Renter Vulnerability", 
+    #         "Census Non-Response Rate"),
+    #     options = layersControlOptions(collapsed = FALSE)) %>% 
+    #     hideGroup(
+    #         c("Job Displacement Risk",
+    #         "Without Unemployment Insurance",
+    #         "Shelter-in-Place Burden",
+    #         "Renter Vulnerability", 
+    #         "Census Non-Response Rate"))    
     }
 
 # Options
-options <- function(map = ., belt = NULL, ci = NULL, oz = NULL, ph = NULL, ucla = NULL, is = NULL){
+options <- function(
+    map = ., 
+    belt = NULL, 
+    ci = NULL, 
+    oz = NULL, 
+    ph = NULL, 
+    ucla1 = NULL, 
+    ucla2 = NULL, 
+    ucla3 = NULL, 
+    ucla4 = NULL, 
+    ucla5 = NULL, 
+    is = NULL){
   map %>% 
     addLayersControl(
          overlayGroups = 
@@ -1083,7 +1161,11 @@ options <- function(map = ., belt = NULL, ci = NULL, oz = NULL, ph = NULL, ucla 
                  "Transit Stations", 
                  is, #
                  belt, 
-                 ucla, 
+                 ucla1,
+                 ucla2,
+                 ucla3, 
+                 ucla4, 
+                 ucla5, 
                  "Highways"),
          options = layersControlOptions(collapsed = FALSE, scroll = FALSE)) %>% 
      hideGroup(
@@ -1097,11 +1179,15 @@ options <- function(map = ., belt = NULL, ci = NULL, oz = NULL, ph = NULL, ucla 
              "Transit Stations", 
              belt,
              is, 
-             ucla))
+             ucla1,
+             ucla2,
+             ucla3, 
+             ucla4, 
+             ucla5))
  }
 
 #
-# City specific displacement-typologies map; add your city here
+# City specific displacement-typologies map
 # --------------------------------------------------------------------------
 
 # Atlanta, GA
@@ -1147,21 +1233,6 @@ denver <-
 # # save map
 htmlwidgets::saveWidget(denver, file="~/git/displacement-typologies/maps/denver_udp.html")
 
-# Memphis, TN
-# memphis <- 
-#     map_it("Memphis", 'TN') %>% 
-#     ind(st = "TN") %>% 
-#     # ci(city_name = "Memphis") %>% 
-#     oz(city_name = "Memphis") %>%     
-#     options(
-#         ci = "Community Input", 
-#         oz = "Opportunity Zones", 
-#         ph = "Public Housing", 
-#         is = "Industrial Sites") %>% 
-#     setView(lng = -89.9, lat = 35.2, zoom = 10)
-# # # save map
-# htmlwidgets::saveWidget(memphis, file="~/git/displacement-typologies/maps/memphis_udp.html")
-
 # San Francisco, CA
 la <- 
     map_it("LosAngeles", 'CA') %>% 
@@ -1172,7 +1243,11 @@ la <-
     options(
         oz = "Opportunity Zones", 
         ph = "Public Housing",
-        ucla = "Vulnerability Indicators"
+        ucla1 = "Job Displacement Risk",
+        ucla2 = "Without Unemployment Insurance",
+        ucla3 = "Shelter-in-Place Burden",
+        ucla4 = "Renter Vulnerability", 
+        ucla5 = "Census Non-Response Rate"
         # is = "Industrial Sites"
         ) %>% 
     setView(lng = -118.2, lat = 34, zoom = 10)
@@ -1193,3 +1268,18 @@ sf <-
     setView(lng = -118.2, lat = 34, zoom = 10)
 # save map
 htmlwidgets::saveWidget(la, file="~/git/displacement-typologies/maps/losangeles_udp.html")
+
+# Memphis, TN
+# memphis <- 
+#     map_it("Memphis", 'TN') %>% 
+#     ind(st = "TN") %>% 
+#     # ci(city_name = "Memphis") %>% 
+#     oz(city_name = "Memphis") %>%     
+#     options(
+#         ci = "Community Input", 
+#         oz = "Opportunity Zones", 
+#         ph = "Public Housing", 
+#         is = "Industrial Sites") %>% 
+#     setView(lng = -89.9, lat = 35.2, zoom = 10)
+# # # save map
+# htmlwidgets::saveWidget(memphis, file="~/git/displacement-typologies/maps/memphis_udp.html")
