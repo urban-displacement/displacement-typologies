@@ -171,13 +171,6 @@ df <-
     left_join(tr_dem) %>% 
     left_join(ucla_df, by = c("GEOID" = "tract")) %>% 
     group_by(city) %>% 
-    # mutate(
-    #     sc_pct_atrisk_workers = scale_this(pct_atrisk_workers),
-    #     sc_pct_wo_UI = scale_this(pct_wo_UI),
-    #     sc_SIPBI_dec = scale_this(SIPBI_dec),
-    #     sc_RVI_dec = scale_this(RVI_dec),
-    #     sc_Nr_Aug = scale_this(Nr_Aug)) %>% 
-    # ungroup() %>% 
     mutate(
         cat_pct_atrisk_workers = 
             factor(
@@ -258,6 +251,7 @@ df <-
         Typology = 
             factor( # turn to factor for mapping 
                 case_when(
+                    tr_pstudents > .25 ~ "Unavailable or Unreliable Data",
                     typ_cat == "['AdvG', 'BE']" ~ 'Advanced Gentrification',
                     typ_cat == "['AdvG']" ~ 'Advanced Gentrification',
                     typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive',
@@ -451,6 +445,8 @@ red <-
         geojson_sf('~/git/displacement-typologies/data/overlays/WATacoma1937.geojson') %>% 
         mutate(city = 'Seattle'), 
         geojson_sf('~/git/displacement-typologies/data/overlays/CASacramento1937.geojson') %>% 
+        mutate(city = 'SanFrancisco'),
+        geojson_sf('~/git/displacement-typologies/data/overlays/CAOakland1937.geojson') %>% 
         mutate(city = 'SanFrancisco'),
         geojson_sf('~/git/displacement-typologies/data/overlays/CASanFrancisco1937.geojson') %>% 
         mutate(city = 'SanFrancisco')) %>% 
