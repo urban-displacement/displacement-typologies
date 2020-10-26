@@ -1112,7 +1112,7 @@ options <- function(
                  ucla4, 
                  ucla5, 
                  "Highways"),
-         options = layersControlOptions(collapsed = FALSE, scroll = FALSE)) %>% 
+         options = layersControlOptions(collapsed = FALSE, maxHeight = "auto")) %>% 
      hideGroup(
          c(ci, 
           oz,
@@ -1212,7 +1212,7 @@ sf <-
         ) %>% 
     setView(lng = -122.3, lat = 37.8, zoom = 10)
 # save map
-htmlwidgets::saveWidget(la, file="~/git/displacement-typologies/maps/sanfrancisco_udp.html")
+htmlwidgets::saveWidget(sf, file="~/git/displacement-typologies/maps/sanfrancisco_udp.html")
 
 # Memphis, TN
 # memphis <- 
