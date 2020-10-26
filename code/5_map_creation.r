@@ -297,10 +297,17 @@ df <-
     group_by(GEOID) %>% 
     mutate(
         per_ch_li = (all_li_count_18-all_li_count_00)/all_li_count_00,
+        ci = case_when(
+            GEOID == 6081611900 ~ str_c(
+                "<br><br><b><i><u> Community Input </u></i></b><br>
+                This tract should be Early Ongoing Gentrification. The reason it is not is because the tract population is over 10,000 people, which is much higher than the average tract size of 4,000 people. This high count conceals variation that is seen within other tracts in the region."
+            )), 
         popup = # What to include in the popup 
           str_c(
-              '<b>Tract: ', GEOID, '<br>', 
+              '<b>Tract: ', GEOID, '<br>',  
               Typology, '</b>',
+            # Community input layer
+            case_when(!is.na(ci) ~ ci, TRUE ~ ""),
             # Market
               '<br><br>',
               '<b><i><u>Market Dynamics</u></i></b><br>',
@@ -349,28 +356,6 @@ df <-
              'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 | gent_90_00_urban == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
              'Gentrified from 2000 to 2018: ', case_when(gent_00_18 == 1 | gent_00_18_urban == 1 ~ 'Yes', TRUE ~ 'No')
           )) %>% 
-    # mutate(
-    #     popup_ucla = 
-    #         str_c(
-    #             '<b>Tract: ', GEOID, '<br>', 
-    #             'Workers at Risk of Job Displacement', '<br>', 
-    #             'Due to COVID-19 Business Closures: </b>', '<br>', 
-    #             case_when(!is.na(pct_atrisk_workers) ~ percent(pct_atrisk_workers*.01, , accuracy = .1), 
-    #                 TRUE ~ "No Data"), '<br>', '<br>', 
-    #             '<b>Workers not Covered by Unemployment', '<br>', 
-    #             'Insurance Program: </b>', '<br>', 
-    #             case_when(!is.na(pct_wo_UI) ~ percent(pct_wo_UI*.01, , accuracy = .1), 
-    #                 TRUE ~ "No Data"), '<br>', '<br>', 
-    #             '<b>Shelter-in-Place Burden Index: </b>', '<br>', 
-    #             case_when(!is.na(SIPBI_dec) ~ SIPBI_dec, 
-    #                 TRUE ~ "No Data"), '<br>', '<br>', 
-    #             '<b>Renter Vulnerability Index: </b>', '<br>', 
-    #             case_when(!is.na(RVI_dec) ~ RVI_dec, 
-    #                 TRUE ~ "No Data"), '<br>', '<br>', 
-    #             '<b>2020 Census Non-Response Rate: </b>', '<br>',
-    #             case_when(!is.na(Nr_Aug) ~ percent(Nr_Aug*.01, , accuracy = .1), 
-    #                 TRUE ~ "No Data"))
-    #         ) %>% 
     ungroup() %>% 
     data.frame()
 
@@ -442,78 +427,6 @@ df_sf <-
 # df_sf <-
 #   df_sf[county,]
 
-#
-# Explore problem areas
-# --------------------------------------------------------------------------
-
-
-# ct <- 
-#     fread('~/git/displacement-typologies/data/inputs/sparcc_community_tracts.csv') %>% 
-#     rename(city = City) %>% 
-#     mutate(GEOID = as.numeric(GEOID), 
-#       cs = "Community Suggested Change") %>% 
-#     left_join(df_sf, .) %>% 
-#     st_set_geometry(value = "geometry") %>% 
-#     group_by(GEOID) %>% 
-#     mutate(
-#         popup_cs = # What to include in the popup 
-#           str_c(
-#               '<b>Tract: ', GEOID, '<br>
-#               UDP Typology: ', Typology, '</b>',
-#             # Market
-#               '<br><br>',
-#               '<b>Community Suggested Change<br>
-#               Site Notes</b>: <br>', CommunityComments,
-#               '<br><br>',
-#               '<b><i><u>Market Dynamics</u></i></b><br>',
-#               'Tract median home value: ', case_when(!is.na(real_mhval_17) ~ dollar(real_mhval_17), TRUE ~ 'No data'), '<br>',
-#               'Tract home value change from 2000 to 2017: ', case_when(is.na(real_mhval_17) ~ 'No data', TRUE ~ percent(pctch_real_mhval_00_17)),'<br>',
-#               'Regional median home value: ', dollar(rm_real_mhval_17), '<br>',
-#               '<br>',
-#               'Tract median rent: ', case_when(!is.na(real_mrent_17) ~ dollar(real_mrent_17), TRUE ~ 'No data'), '<br>', 
-#               'Regional median rent: ', case_when(is.na(real_mrent_17) ~ 'No data', TRUE ~ dollar(rm_real_mrent_17)), '<br>', 
-#               'Tract rent change from 2012 to 2017: ', percent(pctch_real_mrent_12_17), '<br>',
-#               '<br>',
-#               'Rent gap (nearby - local): ', dollar(tr_rent_gap), '<br>',
-#               'Regional median rent gap: ', dollar(rm_rent_gap), '<br>',
-#               '<br>',
-#             # demographics
-#             '<b><i><u>Demographics</u></i></b><br>', 
-#             'Tract population: ', comma(pop_17), '<br>', 
-#             'Tract household count: ', comma(hh_17), '<br>', 
-#             'Percent renter occupied: ', percent(tr_prenters, accuracy = .1), '<br>',
-#             'Percent vacant homes: ', percent(tr_pvacant, accuracy = .1), '<br>',
-#             'Tract median income: ', dollar(real_hinc_17), '<br>', 
-#             'Percent low income hh: ', percent(per_all_li_17, accuracy = .1), '<br>', 
-#             'Percent change in LI: ', percent(per_ch_li, accuracy = .1), '<br>',
-#             '<br>',
-#             'Percent POC: ', percent(per_nonwhite_17, accuracy = .1), '<br>',
-#             'Regional median POC: ', percent(rm_per_nonwhite_17, accuracy = .1), '<br>',
-#             'Tract racial typology: ', NeighType, '<br>', 
-#             'White: ', percent(pWhite, accuracy = .1), '<br>', 
-#             'Black: ', percent(pBlack, accuracy = .1), '<br>', 
-#             'Asian: ', percent(pAsian, accuracy = .1), '<br>', 
-#             'Latinx: ', percent(pLatinx, accuracy = .1), '<br>', 
-#             'Other: ', percent(pOther, accuracy = .1), '<br>',
-#             '<br>',
-#             'Percent students: ', percent(tr_pstudents, accuracy = .1), '<br>',
-#             'Percent college educated: ', percent(per_col_17, accuracy = .1), '<br>',
-#             'Regional median educated: ', percent(rm_per_col_17, accuracy = .1), '<br>',
-#             '<br>',
-#             # risk factors
-#             '<b><i><u>Risk Factors</u></i></b><br>', 
-#             'Mostly low income: ', case_when(low_pdmt_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-#             'Mix low income: ', case_when(mix_low_medhhinc_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-#             'Rent change: ', case_when(dp_PChRent == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-#             'Rent gap: ', case_when(dp_RentGap == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-#             'Hot Market: ', case_when(hotmarket_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>',
-#             'Vulnerable to gentrification: ', case_when(vul_gent_17 == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
-#             'Gentrified from 1990 to 2000: ', case_when(gent_90_00 == 1 | gent_90_00_urban == 1 ~ 'Yes', TRUE ~ 'No'), '<br>', 
-#             'Gentrified from 2000 to 2017: ', case_when(gent_00_17 == 1 | gent_00_17_urban == 1 ~ 'Yes', TRUE ~ 'No')
-#           )
-#     )    
-    
-
 # ==========================================================================
 # overlays
 # ==========================================================================
@@ -536,8 +449,11 @@ red <-
         geojson_sf('~/git/displacement-typologies/data/overlays/WASeattle1936.geojson') %>% 
         mutate(city = 'Seattle'),
         geojson_sf('~/git/displacement-typologies/data/overlays/WATacoma1937.geojson') %>% 
-        mutate(city = 'Seattle')
-    ) %>% 
+        mutate(city = 'Seattle'), 
+        geojson_sf('~/git/displacement-typologies/data/overlays/CASacramento1937.geojson') %>% 
+        mutate(city = 'SanFrancisco'),
+        geojson_sf('~/git/displacement-typologies/data/overlays/CASanFrancisco1937.geojson') %>% 
+        mutate(city = 'SanFrancisco')) %>% 
     mutate(
         Grade = 
             factor(
@@ -778,7 +694,9 @@ ucla_pal2 <-
                     "9 to 10"),  
         na.color = '#C0C0C0')
 
-# make map
+# ==========================================================================
+# Mapping functions
+# ==========================================================================
 
 map_it <- function(city_name, st){
   leaflet(data = df_sf %>% filter(city == city_name)) %>% 
@@ -944,8 +862,8 @@ map_it <- function(city_name, st){
  # Industrial
  ind <- function(st, map = .){
   map %>% 
-    # leaflet(industrial %>% filter(state %in% st))
-     addCircleMarkers(
+    leaflet(industrial %>% filter(state %in% st))
+    addCircleMarkers(
          data = industrial %>% filter(state %in% st), 
          label = ~site, 
          radius = 5, 
@@ -980,27 +898,27 @@ map_it <- function(city_name, st){
         )}  
 
 # Community Input
-  # ci <- function(map = ., city_name){
-  #   map %>% 
-  #   addPolygons(
-  #       data = df_sf %>% filter(city == city_name, !is.na(cs)), 
-  #       group = "Community Input", 
-  #       label = ~cs,
-  #       labelOptions = labelOptions(textsize = "12px"),
-  #       fillOpacity = .1, 
-  #       color = "#ff4a4a", 
-  #       stroke = TRUE, 
-  #       weight = 1, 
-  #       opacity = .9, 
-  #       highlightOptions = highlightOptions(
-  #                         color = "#ff4a4a", 
-  #                         weight = 5,
-  #                             bringToFront = TRUE
-  #                             ), 
-  #       popup = ~popup_cs, 
-  #       popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
-  #   )
-  #   } 
+  ci <- function(map = ., city_name){
+    map %>% 
+    addPolygons(
+        data = df_sf %>% filter(city == city_name, !is.na(cs)), 
+        group = "Community Input", 
+        label = ~cs,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .1, 
+        color = "#ff4a4a", 
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .9, 
+        highlightOptions = highlightOptions(
+                          color = "#ff4a4a", 
+                          weight = 5,
+                              bringToFront = TRUE
+                              ), 
+        popup = ~popup_cs, 
+        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
+    )
+    } 
      # addLegend(
          # pal = "#ff4a4a", 
          # values = ~cs, 
@@ -1029,11 +947,6 @@ oz <- function(map = ., city_name){
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
     ) 
   }
-    # addLegend(
-    #     pal = "#c51b8a", 
-    #     values = ~opp_zone, 
-    #     group = "Opportunity Zones"
-    # ) %>% 
 
 # UCLA indicators
 
@@ -1149,21 +1062,21 @@ ucla <- function(map = ., city_name){
         values = ~cat_Nr_Aug, 
         group = "Census Non-Response Rate", 
         title = "Census Non-Response Rate") #%>% 
-    # addLayersControl(
-    #     position = 'topright',
-    #     overlayGroups = c(
-    #         "Job Displacement Risk",
-    #         "Without Unemployment Insurance",
-    #         "Shelter-in-Place Burden",
-    #         "Renter Vulnerability Index", 
-    #         "Census Non-Response Rate"),
-    #     options = layersControlOptions(collapsed = FALSE)) %>% 
-    #     hideGroup(
-    #         c("Job Displacement Risk",
-    #         "Without Unemployment Insurance",
-    #         "Shelter-in-Place Burden",
-    #         "Renter Vulnerability Index", 
-    #         "Census Non-Response Rate"))    
+        # addLayersControl(
+        #     position = 'topright',
+        #     overlayGroups = c(
+        #         "Job Displacement Risk",
+        #         "Without Unemployment Insurance",
+        #         "Shelter-in-Place Burden",
+        #         "Renter Vulnerability Index", 
+        #         "Census Non-Response Rate"),
+        #     options = layersControlOptions(collapsed = FALSE)) %>% 
+        #     hideGroup(
+        #         c("Job Displacement Risk",
+        #         "Without Unemployment Insurance",
+        #         "Shelter-in-Place Burden",
+        #         "Renter Vulnerability Index", 
+        #         "Census Non-Response Rate"))    
     }
 
 # Options
@@ -1297,7 +1210,7 @@ sf <-
         ph = "Public Housing" 
         # is = "Industrial Sites"
         ) %>% 
-    setView(lng = -118.2, lat = 34, zoom = 10)
+    setView(lng = -122.3, lat = 37.8, zoom = 10)
 # save map
 htmlwidgets::saveWidget(la, file="~/git/displacement-typologies/maps/sanfrancisco_udp.html")
 
