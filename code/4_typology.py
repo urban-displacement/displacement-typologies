@@ -24,7 +24,9 @@ import sys
 # Example: python data.py Atlanta
 
 city_name = str(sys.argv[1])
-
+###
+# When testing city analysis, use: 
+# city_name = "San Francisco"
 # Run create_lag_vars.r to create lag variables
 # --------------------------------------------------------------------------
 # Note: If additional cities are added, make sure to change create_lag_vars.r

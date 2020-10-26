@@ -1203,10 +1203,22 @@ sf <-
     oz(city_name = "SanFrancisco") %>% 
     options(
         oz = "Opportunity Zones", 
+        ph = "Public Housing"
+        ) %>% 
+    setView(lng = -122.3, lat = 37.8, zoom = 10)
+# save map
+htmlwidgets::saveWidget(sf, file="~/git/displacement-typologies/maps/sanfrancisco_udp.html")
+
+# Seattle, WA
+seattle <- 
+    map_it("Seattle", 'WA') %>% 
+    oz(city_name = "Seattle") %>% 
+    options(
+        oz = "Opportunity Zones", 
         ph = "Public Housing" 
         # is = "Industrial Sites"
         ) %>% 
-    setView(lng = -122.3, lat = 37.8, zoom = 10)
+    setView(lng = -122.3, lat = 47.6, zoom = 9)
 # save map
 htmlwidgets::saveWidget(sf, file="~/git/displacement-typologies/maps/sanfrancisco_udp.html")
 
