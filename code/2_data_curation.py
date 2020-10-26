@@ -35,24 +35,18 @@ output_path = home+'/git/displacement-typologies/data/outputs/'
 # ==========================================================================
 # Note: Make sure to input your own API key in the * below
 
-key = '*'
+key = '4c26aa6ebbaef54a55d3903212eabbb506ade381'
 c = census.Census(key)
 
-# Chose City and run census tracts of interest
+# Choose City and run census tracts of interest
 # --------------------------------------------------------------------------
-# Note: To get city data, run the following code in the terminal
-# `python data.py <city name>`
-# Example: python data.py Atlanta
-
-## Begin City Name feature ##
-# When editing and testing the code line by line, uncomment the line below and 
-# change the city name (e.g. change from "Memphis" to "your city")
-#
-#city_name = "Memphis" #input city of interest here
-#
-
-# The line below is a system argument to define the city name from the command prompt
+# For command line operation (e.g. python3 2_data_curation.py Atlanta), 
+# uncomment the following (default)
 city_name = str(sys.argv[1])
+
+# For testing different cities while working within the code, 
+# uncomment the following and rename city as needed
+# city_name = "Atlanta"
 
 # ==========================================================================
 # ==========================================================================
@@ -86,7 +80,7 @@ xwalk_00_10 = pd.read_csv(input_path+'crosswalk_2000_2010.csv')
 
 if city_name == 'Chicago':
     state = '17'
-    FIPS = ['031', '043', '089', '093', '097', '111', '197']
+    FIPS = ['031', '043', '089', '093', '097', '111', '197'] # county fips
 elif city_name == 'Atlanta':
     state = '13'
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
@@ -120,7 +114,7 @@ else:
 
 # Create a Filter Function
 # --------------------------------------------------------------------------
-# Note - Memphis is different bc it's located in 2 states
+# Note - Memphis and Boston are different bc they are located in 2 states
 
 def filter_FIPS(df):
     if (city_name not in ('Memphis', 'Boston')):
@@ -877,7 +871,7 @@ zillow_xwalk = pd.read_csv(input_path+'TRACT_ZIP_032015.csv')
 zillow['ch_zillow_12_18'] = zillow['2018-01'] - zillow['2012-01']*CPI_12_18
 zillow['per_ch_zillow_12_18'] = zillow['ch_zillow_12_18']/zillow['2012-01']
 zillow = zillow[zillow['State'].isin(state_init)].reset_index(drop = True)
-zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = "inner")
+zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = "outer")
 zillow = zillow.rename(columns = {'TRACT':'FIPS'})
 
 # Filter only data of interest
@@ -1107,7 +1101,7 @@ city_shp['GEOID'] = city_shp['GEOID'].astype('int64')
 census_zillow = census_zillow.merge(city_shp[['GEOID','geometry','rail', 
 	# 'anchor_institution', 
 	'presence_ph_LIHTC']], right_on = 'GEOID', left_on = 'FIPS')
-
+census_zillow.query("FIPS == 13121011100")
 # ==========================================================================
 # Export Data 
 # ==========================================================================

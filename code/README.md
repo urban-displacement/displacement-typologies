@@ -50,7 +50,7 @@ python3 1_data_download.py 'Los Angeles'
 python3 1_data_download.py 'San Francisco'
 python3 1_data_download.py Seattle
 python3 1_data_download.py Cleveland
-python3 1_data_download.py Boston 
+<!-- python3 1_data_download.py Boston  -->
 
 # 2. data curation
 python3 2_data_curation.py Atlanta
@@ -61,7 +61,7 @@ python3 2_data_curation.py 'Los Angeles'
 python3 2_data_curation.py 'San Francisco'
 python3 2_data_curation.py Seattle
 python3 2_data_curation.py Cleveland
-python3 2_data_curation.py Boston 
+<!-- python3 2_data_curation.py Boston --> 
 
 
 # 3. create lag variables
