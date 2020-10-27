@@ -68,9 +68,19 @@ data <-
 #
 # Create Neighborhood Racial Typologies for mapping
 # --------------------------------------------------------------------------
+# State fips code list: https://www.mcc.co.mercer.pa.us/dps/state_fips_code_listing.htm
 
-
-states <- c('17', '13', '08', '28', '47', '06', '53', '39', '25', '33')
+states <- c(
+        '06', # California
+        '08', # Colorado
+        '13', # Georgia
+        '17', # Illinois
+        '25', # Massachusetts
+        '28', # Mississippi
+        '33', # New Hampshire
+        '39', # Ohio
+        '47', # Tennessee
+        '53') # Washington
 
 ###
 # Begin Neighborhood Typology creation
@@ -353,9 +363,6 @@ df <-
     ungroup() %>% 
     data.frame()
 
-# State codes for downloading tract polygons; add your state here
-states <- c("06", "17", "13", "08", "28", "47", "53")
-
 ###
 # Begin Download tracts in each of the shapes in sf (simple feature) class
 ###
@@ -544,10 +551,7 @@ university <-
     ) %>% 
     filter(!is.na(city))
 
-### Road map; add your state here
-states <- 
-    c('GA', 'CO', 'TN', 'MS', 'AR', 'IL', 'WA', 'OH', 'CA')
-
+### Road map
 ###
 # Begin download road maps
 ###
@@ -1105,8 +1109,7 @@ htmlwidgets::saveWidget(atlanta, file="~/git/displacement-typologies/maps/atlant
 chicago <- 
     map_it("Chicago", 'IL') %>% 
     oz(city_name = "Chicago") %>% 
-    options(
-        oz = "Opportunity Zones") %>% 
+    options(oz = "Opportunity Zones") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
 htmlwidgets::saveWidget(chicago, file="~/git/displacement-typologies/maps/chicago_udp.html")
@@ -1115,8 +1118,7 @@ htmlwidgets::saveWidget(chicago, file="~/git/displacement-typologies/maps/chicag
 denver <- 
     map_it("Denver", 'CO') %>% 
     oz(city_name = "Denver") %>%     
-    options(
-        oz = "Opportunity Zones") %>% 
+    options(oz = "Opportunity Zones") %>% 
     setView(lng = -104.98, lat = 39.75, zoom = 11)
 # # save map
 htmlwidgets::saveWidget(denver, file="~/git/displacement-typologies/maps/denver_udp.html")
@@ -1142,9 +1144,7 @@ htmlwidgets::saveWidget(la, file="~/git/displacement-typologies/maps/losangeles_
 sf <- 
     map_it("SanFrancisco", 'CA') %>% 
     oz(city_name = "SanFrancisco") %>% 
-    options(
-        oz = "Opportunity Zones"
-        ) %>% 
+    options(oz = "Opportunity Zones") %>% 
     setView(lng = -122.3, lat = 37.8, zoom = 10)
 # save map
 htmlwidgets::saveWidget(sf, file="~/git/displacement-typologies/maps/sanfrancisco_udp.html")
