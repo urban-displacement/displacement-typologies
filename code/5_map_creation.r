@@ -489,7 +489,8 @@ hud <-
     filter(X != "") %>%
     st_as_sf(
         coords = c("X","Y"), 
-        crs = 4269) 
+        crs = 4269) %>% 
+    st_transform(st_crs(df_sf))
 
 ### Rail data
 rail <- 
@@ -804,10 +805,10 @@ map_it <- function(city_name, st){
     # ) %>%     
 # Public Housing
     addCircleMarkers(
-        data = hud[df_sf %>% filter(city = city_name), ], #add your state here
+        data = hud[(df_sf %>% filter(city == city_name)),], #add your state here
         radius = 5, 
-        lng = ~longitude, 
-        lat = ~latitude, 
+        lng = ~LON, 
+        lat = ~LAT, 
         color = ~"#ff7f00",
         # clusterOptions = markerClusterOptions(), 
         group = 'Public Housing', 
