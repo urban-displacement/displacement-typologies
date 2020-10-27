@@ -484,8 +484,12 @@ industrial <- st_read('~/git/displacement-typologies/data/overlays/industrial.sh
 
 ### HUD
 
-hud <- st_read('~/git/displacement-typologies/data/overlays/HUDhousing.shp') %>% 
-    st_as_sf() 
+hud <- 
+    read_csv('~/git/displacement-typologies/data/overlays/Public_Housing_Buildings.csv.gz') %>% 
+    filter(X != "") %>%
+    st_as_sf(
+        coords = c("X","Y"), 
+        crs = 4269) 
 
 ### Rail data
 rail <- 
@@ -800,7 +804,7 @@ map_it <- function(city_name, st){
     # ) %>%     
 # Public Housing
     addCircleMarkers(
-        data = hud %>% filter(state == st), #add your state here
+        data = hud[df_sf %>% filter(city = city_name), ], #add your state here
         radius = 5, 
         lng = ~longitude, 
         lat = ~latitude, 
@@ -1220,7 +1224,7 @@ seattle <-
         ) %>% 
     setView(lng = -122.3, lat = 47.6, zoom = 9)
 # save map
-htmlwidgets::saveWidget(sf, file="~/git/displacement-typologies/maps/sanfrancisco_udp.html")
+htmlwidgets::saveWidget(seattle, file="~/git/displacement-typologies/maps/seattle_udp.html")
 
 # Memphis, TN
 # memphis <- 
