@@ -1157,12 +1157,3 @@ seattle <-
     setView(lng = -122.3, lat = 47.6, zoom = 9)
 # save map
 htmlwidgets::saveWidget(seattle, file="~/git/displacement-typologies/maps/seattle_udp.html")
-
-# Memphis, TN
-memphis <- 
-    map_it("Memphis", 'TN') %>% 
-    oz(city_name = "Memphis") %>%     
-    options(oz = "Opportunity Zones") %>% 
-    setView(lng = -89.9, lat = 35.2, zoom = 10)
-# # save map
-htmlwidgets::saveWidget(memphis, file="~/git/displacement-typologies/maps/memphis_udp.html")
