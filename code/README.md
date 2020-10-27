@@ -136,38 +136,38 @@ advg requires that either home value percent change or rent percent change are p
 
 While much of the data used in this methodology is pulled from an API, others will need to be downloaded separately, as follows:
 
-Redlining Data:
+**Redlining Data:**  
     Visit the URL https://dsl.richmond.edu/panorama/redlining/. 
     Navigate to Downloads & Data and select all GEOJSON files within the region of your choice 
     (note that there may be more than one relevant map, and relevant maps may come from more than one state).
 
-Zillow Data:
+**Zillow Data:**  
     Visit the URL https://www.zillow.com/research/data/. 
     Under "Home values," select "ZHVI All Homes (SFR, Condo/Co-op) Time Series ($)" as Data Type and ZIP Code as Geography, then download. 
         ***^note that this data has changed since our original download: be sure to update the code to reflect any changes in column names, etc!***
 
-Transit Data:
+**Transit Data:**  
     Visit the URL https://toddata.cnt.org/downloads.php (you will need to register).  
     Select and download "All US Stations".
 
-LIHTC Properties Data:
+**LIHTC Properties Data:**  
     Visit the URL http://hudgis-hud.opendata.arcgis.com/datasets/907edabaf7974f7fb59beef14c4b82f6_0.
     Download as "Spreadsheet".
 
-Public Housing Buildings Data:
+**Public Housing Buildings Data:**  
     Visit the URL https://hudgis-hud.opendata.arcgis.com/datasets/public-housing-buildings.
     Download as "Spreadsheet". 
     Compress as a .gz file.
 
-Hospitals Data:
+**Hospitals Data:**  
     Visit the URL https://hifld-geoplatform.opendata.arcgis.com/datasets/hospitals. 
     Download as "Spreadsheet".
 
-Universities Data:
+**Universities Data:**
     Visit the URL https://nces.ed.gov/ipeds/use-the-data/download-access-database. 
     Download "2016-2017 Access".
 
-ZIP Codes to Census Tracts Crosswalk:
+**ZIP Codes to Census Tracts Crosswalk:**  
     Visit the URL http://mcdc.missouri.edu/applications/geocorr2014.html. 
     Select the whole list of states as "state(s) to process".
     Set the source geography as "2010 Geographies: ZIP/ZCTA." 
@@ -176,27 +176,27 @@ ZIP Codes to Census Tracts Crosswalk:
     Download as a CSV.
         ***note: you will need to clean this data before using***
         
-Crosswalks from 1990 and 2000 to 2010:
+**Crosswalks from 1990 and 2000 to 2010:**  
     Visit the URL https://s4.ad.brown.edu/projects/diversity/Researcher/LTBDDload/DataList.aspx.
     Under User Tools, select Excel as format type and download two files: one for 1990-2010, and one for 2000-2010.
 
-PUMS Data:
+**PUMS Data:**  
     Visit the URL https://data2.nhgis.org/main. 
     Select Years: 5-Year Ranges --> 2013-2017.
         ***should be updated to 2014-2018*** 
     Select Geographic Levels: Census Tract.
     Download two datasets: B25063 (Gross Rent) and B25094 (Selected Monthly Owner Costs).
 
-Industrial Sites Data:
+**Industrial Sites Data:**  
     ***As of 2019, the original data file used for this overlay is no longer available***
     ***(Tim is checking this for non-SPARCC sites)***
 
-Opportunity Zones Data:
+**Opportunity Zones Data:**  
     Visit the URL https://www.cdfifund.gov/Pages/Opportunity-Zones.aspx.
     Download the linked spreadsheet called "List of designated Qualified Opportunity Zones".
     ***note: you will need to clean this data before using***
 
-BeltLine Overlay (Atlanta maps only):
+**BeltLine Overlay (Atlanta maps only):**  
     Visit the URL https://beltline.org/map/.
     Take a screenshot of the map of the BeltLine found at this URL.
     Georeference the image and trace over the BeltLine. Save as a shapefile.

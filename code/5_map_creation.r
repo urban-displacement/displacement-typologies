@@ -301,7 +301,7 @@ df <-
               '<b>Tract: ', GEOID, '<br>',  
               Typology, '</b>',
             # Community input layer
-            case_when(!is.na(ci) ~ ci, TRUE ~ ""),
+            case_when(!is.na(ci) ~ ci, TRUE ~ ''),
             # Market
               '<br><br>',
               '<b><i><u>Market Dynamics</u></i></b><br>',
@@ -473,20 +473,19 @@ red <-
 
 ### Industrial points
 
-industrial <- st_read('~/git/displacement-typologies/data/overlays/industrial.shp') %>% 
-    mutate(site = 
-        case_when(
-            site_type == 0 ~ "Superfund", 
-            site_type == 1 ~ "TRI", 
-        )) %>% 
-    filter(state != "CO") %>% 
-    st_as_sf() 
+industrial <- 
+    read_excel("/Users/timthomas/git/displacement-typologies/data/overlays/industrial/industrial_NATIONAL.xlsx") %>% 
+    filter(Latitude != '') %>% 
+    st_as_sf(
+        coords = c('Longitude', 'Latitude'), 
+        crs = 4269) %>% 
+    st_transform(st_crs(df_sf))
 
 ### HUD
 
 hud <- 
     read_csv('~/git/displacement-typologies/data/overlays/Public_Housing_Buildings.csv.gz') %>% 
-    filter(X != "") %>%
+    filter(X != '') %>%
     st_as_sf(
         coords = c("X","Y"), 
         crs = 4269) %>% 
@@ -645,8 +644,8 @@ displacement_typologies_pal <-
         na.color = '#C0C0C0'
     )
 
-industrial_pal <- 
-    colorFactor(c("#a65628", "#999999"), domain = c("Superfund", "TRI"))
+# industrial_pal <- 
+#     colorFactor(c("#a65628", "#999999"), domain = c("Superfund", "TRI"))
 
 rail_pal <- 
     colorFactor(
@@ -807,12 +806,12 @@ map_it <- function(city_name, st){
     addCircleMarkers(
         data = hud[(df_sf %>% filter(city == city_name)),], #add your state here
         radius = 5, 
+        label = ~FORMAL_PARTICIPANT_NAME,
         lng = ~LON, 
         lat = ~LAT, 
-        color = ~"#ff7f00",
+        color = "#ff7f00",
         # clusterOptions = markerClusterOptions(), 
         group = 'Public Housing', 
-        # popup = ~site,
         fillOpacity = .5, 
         stroke = FALSE
     ) %>%     
@@ -840,7 +839,7 @@ map_it <- function(city_name, st){
         data = university %>% filter(city == city_name), 
         label = ~INSTNM, 
         radius = 5, 
-        color = ~'#39992b',
+        color = '#39992b',
         group = 'Universities & Colleges', 
         popup = ~INSTNM,
         fillOpacity = .8, 
@@ -852,38 +851,23 @@ map_it <- function(city_name, st){
         data = hospitals %>% filter(city == city_name), 
         label = ~NAME, 
         radius = 5, 
-        color = ~"#e41a1c",
+        color = '#e41a1c',
         group = 'Hospitals', 
         popup = ~popup,
         fillOpacity = .8, 
         stroke = TRUE, 
-        weight = .6
-    )}
-
- # Industrial
- ind <- function(st, map = .){
-  map %>% 
-    leaflet(industrial %>% filter(state %in% st))
+        weight = .6) %>% 
+# Industrial
     addCircleMarkers(
-         data = industrial %>% filter(state %in% st), 
-         label = ~site, 
-         radius = 5, 
-         # lng = ~longitude, 
-         # lat = ~latitude, 
-         color = ~industrial_pal(site),
-         # clusterOptions = markerClusterOptions(), 
-         group = 'Industrial Sites', 
-         popup = ~site,
-         fillOpacity = .8, 
-         stroke = TRUE, 
-         weight = .6
-     ) %>%     
-     addLegend(
-         data = industrial, 
-         pal = industrial_pal, 
-         values = ~site, 
-         group = "Industrial Sites", 
-         title = "Industrial Sites"
+        data = industrial[(df_sf %>% filter(city == city_name)),], 
+        label = ~Facility, 
+        radius = 5, 
+        color = '#999999',
+        group = 'Industrial Sites', 
+        popup = ~Facility,
+        fillOpacity = .8, 
+        stroke = TRUE, 
+        weight = .6
      )}  
 
 # Beltline
@@ -897,34 +881,6 @@ map_it <- function(city_name, st){
             weight = 5, 
             # opacity = .1    
         )}  
-
-# Community Input
-  ci <- function(map = ., city_name){
-    map %>% 
-    addPolygons(
-        data = df_sf %>% filter(city == city_name, !is.na(cs)), 
-        group = "Community Input", 
-        label = ~cs,
-        labelOptions = labelOptions(textsize = "12px"),
-        fillOpacity = .1, 
-        color = "#ff4a4a", 
-        stroke = TRUE, 
-        weight = 1, 
-        opacity = .9, 
-        highlightOptions = highlightOptions(
-                          color = "#ff4a4a", 
-                          weight = 5,
-                              bringToFront = TRUE
-                              ), 
-        popup = ~popup_cs, 
-        popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
-    )
-    } 
-     # addLegend(
-         # pal = "#ff4a4a", 
-         # values = ~cs, 
-         # group = "Community Input"
-     # ) %>% 
 
 # Opportunity Zones
 oz <- function(map = ., city_name){
@@ -1084,28 +1040,24 @@ ucla <- function(map = ., city_name){
 options <- function(
     map = ., 
     belt = NULL, 
-    ci = NULL, 
     oz = NULL, 
-    ph = NULL, 
     ucla1 = NULL, 
     ucla2 = NULL, 
     ucla3 = NULL, 
     ucla4 = NULL, 
-    ucla5 = NULL, 
-    is = NULL){
+    ucla5 = NULL){
   map %>% 
     addLayersControl(
          overlayGroups = 
              c("Displacement Typology", 
-                "Redlined Areas", 
                 "Neighborhood Segregation",
-                 ci, #
+                "Redlined Areas", 
                 oz,#
                  "Hospitals", 
                  "Universities & Colleges", 
-                 ph, #?
+                 'Public Housing',
+                 'Industrial Sites',
                  "Transit Stations", 
-                 is, #
                  belt, 
                  ucla1,
                  ucla2,
@@ -1115,16 +1067,16 @@ options <- function(
                  "Highways"),
          options = layersControlOptions(collapsed = FALSE, maxHeight = "auto")) %>% 
      hideGroup(
-         c(ci, 
-          oz,
+         c(oz,
           "Redlined Areas", 
           "Neighborhood Segregation",
              "Hospitals", 
              "Universities & Colleges", 
-             ph, 
+             'Public Housing',
+             'Industrial Sites',
              "Transit Stations", 
+             "Industrial Sites",
              belt,
-             is, 
              ucla1,
              ucla2,
              ucla3, 
@@ -1139,15 +1091,11 @@ options <- function(
 # Atlanta, GA
 atlanta <- 
     map_it("Atlanta", 'GA') %>% 
-    ind(st = "GA") %>% 
-    # ci(city_name = "Atlanta") %>% 
     oz(city_name = "Atlanta") %>% 
     belt() %>% 
     options(
         belt = "Beltline",
-        oz = "Opportunity Zones", 
-        ph = "Public Housing", 
-        is = "Industrial Sites") %>% 
+        oz = "Opportunity Zones") %>% 
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
@@ -1156,13 +1104,9 @@ htmlwidgets::saveWidget(atlanta, file="~/git/displacement-typologies/maps/atlant
 # Chicago, IL
 chicago <- 
     map_it("Chicago", 'IL') %>% 
-    ind(st = "IL") %>% 
-    # ci(city_name = "Chicago") %>% 
     oz(city_name = "Chicago") %>% 
     options(
-        oz = "Opportunity Zones", 
-        ph = "Public Housing", 
-        is = "Industrial Sites") %>% 
+        oz = "Opportunity Zones") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
 htmlwidgets::saveWidget(chicago, file="~/git/displacement-typologies/maps/chicago_udp.html")
@@ -1170,31 +1114,25 @@ htmlwidgets::saveWidget(chicago, file="~/git/displacement-typologies/maps/chicag
 # Denver, CO
 denver <- 
     map_it("Denver", 'CO') %>% 
-    # ci(city_name = "Denver") %>% 
     oz(city_name = "Denver") %>%     
     options(
-        oz = "Opportunity Zones", 
-        ph = "Public Housing") %>% 
-    setView(lng = -104.9, lat = 39.7, zoom = 10)
+        oz = "Opportunity Zones") %>% 
+    setView(lng = -104.98, lat = 39.75, zoom = 11)
 # # save map
 htmlwidgets::saveWidget(denver, file="~/git/displacement-typologies/maps/denver_udp.html")
 
 # San Francisco, CA
 la <- 
     map_it("LosAngeles", 'CA') %>% 
-    # ind(st = "CA") %>% 
-    # ci(city_name = "LosAngeles") %>% 
     oz(city_name = "LosAngeles") %>% 
     ucla(city_name = "LosAngeles") %>% 
     options(
-        oz = "Opportunity Zones", 
-        ph = "Public Housing",
+        oz = "Opportunity Zones",
         ucla1 = "Job Displacement Risk",
         ucla2 = "Without Unemployment Insurance",
         ucla3 = "Shelter-in-Place Burden",
         ucla4 = "Renter Vulnerability Index", 
         ucla5 = "Census Non-Response Rate"
-        # is = "Industrial Sites"
         ) %>% 
     setView(lng = -118.2, lat = 34, zoom = 10)
 # save map
@@ -1203,12 +1141,9 @@ htmlwidgets::saveWidget(la, file="~/git/displacement-typologies/maps/losangeles_
 # San Francisco, CA
 sf <- 
     map_it("SanFrancisco", 'CA') %>% 
-    # ind(st = "CA") %>% 
-    # ci(city_name = "SanFrancisco") %>% 
     oz(city_name = "SanFrancisco") %>% 
     options(
-        oz = "Opportunity Zones", 
-        ph = "Public Housing"
+        oz = "Opportunity Zones"
         ) %>% 
     setView(lng = -122.3, lat = 37.8, zoom = 10)
 # save map
@@ -1218,26 +1153,16 @@ htmlwidgets::saveWidget(sf, file="~/git/displacement-typologies/maps/sanfrancisc
 seattle <- 
     map_it("Seattle", 'WA') %>% 
     oz(city_name = "Seattle") %>% 
-    options(
-        oz = "Opportunity Zones", 
-        ph = "Public Housing" 
-        # is = "Industrial Sites"
-        ) %>% 
+    options(oz = "Opportunity Zones") %>% 
     setView(lng = -122.3, lat = 47.6, zoom = 9)
 # save map
 htmlwidgets::saveWidget(seattle, file="~/git/displacement-typologies/maps/seattle_udp.html")
 
 # Memphis, TN
-# memphis <- 
-#     map_it("Memphis", 'TN') %>% 
-#     ind(st = "TN") %>% 
-#     # ci(city_name = "Memphis") %>% 
-#     oz(city_name = "Memphis") %>%     
-#     options(
-#         ci = "Community Input", 
-#         oz = "Opportunity Zones", 
-#         ph = "Public Housing", 
-#         is = "Industrial Sites") %>% 
-#     setView(lng = -89.9, lat = 35.2, zoom = 10)
-# # # save map
-# htmlwidgets::saveWidget(memphis, file="~/git/displacement-typologies/maps/memphis_udp.html")
+memphis <- 
+    map_it("Memphis", 'TN') %>% 
+    oz(city_name = "Memphis") %>%     
+    options(oz = "Opportunity Zones") %>% 
+    setView(lng = -89.9, lat = 35.2, zoom = 10)
+# # save map
+htmlwidgets::saveWidget(memphis, file="~/git/displacement-typologies/maps/memphis_udp.html")
