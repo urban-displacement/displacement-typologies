@@ -261,7 +261,7 @@ df <-
         Typology = 
             factor( # turn to factor for mapping 
                 case_when(
-                    tr_pstudents > .25 ~ "Unavailable or Unreliable Data",
+                    tr_pstudents > .25 ~ "High Student Population",
                     typ_cat == "['AdvG', 'BE']" ~ 'Advanced Gentrification',
                     typ_cat == "['AdvG']" ~ 'Advanced Gentrification',
                     typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive',
@@ -285,6 +285,7 @@ df <-
                         'At Risk of Becoming Exclusive',
                         'Becoming Exclusive',
                         'Stable/Advanced Exclusive',
+                        'High Student Population',
                         "Unavailable or Unreliable Data"
                     )
             ), 
@@ -642,7 +643,7 @@ displacement_typologies_pal <-
             '#F4C08D', #"#fed98e", #EE924F
             '#EE924F', #"#fe9929", #EE924F
             '#C95123', #"#cc4c02", #C75023
-            # "#A9A9A9", # intended for greater student pop
+            "#8f8f8f", # High student pop
             "#C0C0C0"), 
         domain = df$Typology, 
         na.color = '#C0C0C0'
