@@ -59,7 +59,7 @@ Please feel free to [reach out](info@urbandisplacement.org) to us for questions,
 ## Existing Maps: 
 
 * Atlanta - [2018](https://urban-displacement.github.io/displacement-typologies/maps/atlanta_udp.html), [2017](https://urban-displacement.github.io/displacement-typologies/maps/atlanta_sparcc.html)  
-* Bay Area - [2018](https://urban-displacement.github.io/displacement-typologies/maps/sanfrancisco_udp.html)  <!-- * Boston - *coming soon*   -->
+* Bay Area - [2018](https://urban-displacement.github.io/displacement-typologies/maps/sanfrancisco_udp.html) - [Download Data](https://github.com/urban-displacement/displacement-typologies/blob/main/data/outputs/typologies/SanFrancisco_typology_output.csv)
 * Chicago - [2018](https://urban-displacement.github.io/displacement-typologies/maps/chicago_udp.html), [2017](https://urban-displacement.github.io/displacement-typologies/maps/chicago_sparcc.html)  
 * Cleveland - [2018](https://urban-displacement.github.io/displacement-typologies/maps/cleveland_udp.html)  
 * Denver - [2018](https://urban-displacement.github.io/displacement-typologies/maps/denver_udp.html), [2017](https://urban-displacement.github.io/displacement-typologies/maps/denver_sparcc.html)    
