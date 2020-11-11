@@ -2,6 +2,9 @@
 # ==========================================================================
 # ==========================================================================
 # Data Download
+# Note: As of 2020, the Census API has been somewhat unreliable. We encourage
+# everyone to save all their downloads so you don't run into delays while 
+# working on your project. Don't rely on the API to download everyday. 
 # ==========================================================================
 # ==========================================================================
 # ==========================================================================
@@ -35,7 +38,7 @@ output_path = home+'/git/displacement-typologies/data/outputs/'
 # Set API Key
 # ==========================================================================
 
-key = '' #insert your API key here!
+key = '4c26aa6ebbaef54a55d3903212eabbb506ade381' #insert your API key here!
 c = census.Census(key)
 
 # ==========================================================================
@@ -49,6 +52,7 @@ c = census.Census(key)
 # Example: python data.py Atlanta
 
 city_name = str(sys.argv[1])
+# city_name = 'Atlanta'
 #If reproducing for another city, add elif for 
 #that city & desired counties after last line
 
