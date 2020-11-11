@@ -627,8 +627,8 @@ df['EOG'] = np.where((df['pop00flag'].isna())|
 
 df['OD'] = 0
 df['OD'] = np.where((df['pop00flag']==1)&
-                          ((df['low_pdmt_medhhinc_18']==1)|(df['mix_low_medhhinc_18']==1))&
-                          (df['lostli_18']==1), 1, 0)
+                ((df['low_pdmt_medhhinc_18']==1)|(df['mix_low_medhhinc_18']==1))&
+                (df['lostli_18']==1), 1, 0)
 
 df['OD_loss'] = np.where((df['pop00flag'].isna())|
                     (df['low_pdmt_medhhinc_18'].isna())|

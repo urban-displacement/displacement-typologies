@@ -28,6 +28,7 @@ p_install_gh("timathomas/neighborhood", "jalvesaq/colorout")
 p_load(colorout, neighborhood, readxl, R.utils, bit64, neighborhood, fst, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse)
 
 update.packages(ask = FALSE)
+no
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
 
@@ -152,6 +153,7 @@ df_nt <- read_csv('~/git/displacement-typologies/data/outputs/downloads/dt_nt.cs
 ### 
 # End
 ###
+
 tr_dem_acs <- read_csv('~/git/displacement-typologies/data/outputs/downloads/tr_dem_acs.csv.gz')
 
 tr_dem <- 
@@ -261,7 +263,7 @@ df <-
         Typology = 
             factor( # turn to factor for mapping 
                 case_when(
-                    tr_pstudents > .25 ~ "High Student Population",
+                    tr_pstudents > .3 ~ "High Student Population",
                     typ_cat == "['AdvG', 'BE']" ~ 'Advanced Gentrification',
                     typ_cat == "['AdvG']" ~ 'Advanced Gentrification',
                     typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive',
@@ -286,7 +288,7 @@ df <-
                         'Becoming Exclusive',
                         'Stable/Advanced Exclusive',
                         'High Student Population',
-                        "Unavailable or Unreliable Data"
+                        'Unavailable or Unreliable Data'
                     )
             ), 
         real_mhval_18 = case_when(real_mhval_18 > 0 ~ real_mhval_18),
@@ -386,48 +388,86 @@ df <-
 ###
 # End
 ###
+
 tracts <- readRDS('~/git/displacement-typologies/data/outputs/downloads/state_tracts.RDS')
 
 # Join the tracts to the dataframe
 
 df_sf <- 
-    right_join(tracts, df) %>%
-    ms_simplify(keep = 0.5)
+    right_join(tracts, df) 
 
 # ==========================================================================
 # Select tracts within counties that intersect with urban areas
 # ==========================================================================
 
 ### read in urban areas
-# urban_areas <-
-#   readRDS("~/git/displacement-typologies/data/inputs/shp/urban_areas/tl_2019_us_uac10.rds")
 
-# ### Select urban areas that intersect with df_sf
-# urban_areas <-
-#   urban_areas[df_sf, ]
+###
+# Begin Download
+###
+# urban_areas <- 
+#   urban_areas() %>% 
+#   st_transform(st_crs(df_sf))
+# saveRDS(urban_areas, "~/git/displacement-typologies/data/outputs/downloads/urban_areas.rds")
+### 
+# End Download
+###
 
-# ### download counties
-#   ###
-#   # Begin Download
-#   ###
-#   # counties <-
-#   #   counties(state = states) %>%
-#   #   st_transform(st_crs(df_sf))
-#   #
-#   # st_write(counties, "~/git/displacement-typologies/data/outputs/downloads/select_counties.gpkg", append = FALSE)
-#   ###
-#   # End download
-#   ###
-# counties <- st_read("~/git/displacement-typologies/data/outputs/downloads/select_counties.gpkg")
+urban_areas <-
+  readRDS("~/git/displacement-typologies/data/outputs/downloads/urban_areas.rds") 
 
-# ### Select counties overlapping urban areas
-# county <-
-#   counties[urban_areas,]
+#
+# Download water
+# --------------------------------------------------------------------------
 
-# # Join the tracts to the dataframe
+###
+# Begin Download Counties
+###
+# counties <- 
+#   counties(states) %>% 
+#   st_transform(st_crs(df_sf)) %>% 
+#   .[df_sf, ]  %>% 
+#   arrange(STATEFP, COUNTYFP) 
+#
+# st_geometry(counties) <- NULL
+#
+# state_water <- counties %>% pull(STATEFP)
+# county_water <- counties %>% pull(COUNTYFP)
+#
+# water <- 
+# map2_dfr(state_water, county_water, 
+#   function(states = state_water, counties = county_water){
+#     area_water(
+#       state = states,
+#       county = counties, 
+#       class = 'sf') %>% 
+#     filter(AWATER > 500000)
+#     }) %>% 
+# st_transform(st_crs(df_sf))
+#
+# saveRDS(water, "~/git/displacement-typologies/data/outputs/downloads/water.rds")
+###
+# End
+###
 
-# df_sf <-
-#   df_sf[county,]
+water <- readRDS("~/git/displacement-typologies/data/outputs/downloads/water.rds")
+
+#
+# Remove water & non-urban areas & simplify spatial features
+# --------------------------------------------------------------------------
+
+st_erase <- function(x, y) {
+  st_difference(x, st_union(y))
+}
+
+###
+# Note: This takes a very long time to run. 
+###
+df_sf_urban <- 
+  df_sf %>% 
+  st_crop(urban_areas) %>%
+  st_erase(water) %>% 
+  ms_simplify(keep = 0.5)
 
 # ==========================================================================
 # overlays
@@ -487,7 +527,7 @@ industrial <-
     st_as_sf(
         coords = c('Longitude', 'Latitude'), 
         crs = 4269) %>% 
-    st_transform(st_crs(df_sf))
+    st_transform(st_crs(df_sf_urban))
 
 ### HUD
 
@@ -497,7 +537,7 @@ hud <-
     st_as_sf(
         coords = c("X","Y"), 
         crs = 4269) %>% 
-    st_transform(st_crs(df_sf))
+    st_transform(st_crs(df_sf_urban))
 
 ### Rail data
 rail <- 
@@ -508,7 +548,7 @@ rail <-
                 crs = 4269
             ) %>% 
             st_transform(4326), 
-        df_sf %>% select(city), 
+        df_sf_urban %>% select(city), 
         join = st_intersects
     ) %>% 
     filter(!is.na(city))
@@ -522,7 +562,7 @@ hospitals <-
                 crs = 4269
             ) %>% 
             st_transform(4326), 
-        df_sf %>% select(city), 
+        df_sf_urban %>% select(city), 
         join = st_intersects
     ) %>% 
     mutate(
@@ -541,7 +581,7 @@ university <-
                 crs = 4269
             ) %>% 
             st_transform(4326), 
-        df_sf %>% select(city), 
+        df_sf_urban %>% select(city), 
         join = st_intersects
     ) %>% 
     filter(ICLEVEL == 1, SECTOR < 3) %>% # filters to significant universities and colleges
@@ -565,14 +605,15 @@ university <-
 #     ) %>% 
 #     filter(RTTYP %in% c('I','U')) %>% 
 #     ms_simplify(keep = 0.1) %>% 
-#     st_transform(st_crs(df_sf)) %>%
-#     st_join(., df_sf %>% select(city), join = st_intersects) %>% 
+#     st_transform(st_crs(df_sf_urban)) %>%
+#     st_join(., df_sf_urban %>% select(city), join = st_intersects) %>% 
 #     mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
 #     filter(!is.na(city))
 # st_write(road_map, '~/git/displacement-typologies/data/outputs/downloads/roads.gpkg', append = FALSE)
 ###
 # End
 ###
+
 road_map <- st_read('~/git/displacement-typologies/data/outputs/downloads/roads.gpkg')
 
 ### Atlanta Beltline
@@ -584,8 +625,8 @@ beltline <-
 ### Opportunity Zones
 opp_zone <- 
   st_read("~/git/displacement-typologies/data/overlays/OpportunityZones/OpportunityZones.gpkg") %>%
-  st_transform(st_crs(df_sf)) %>% 
-  st_join(., df_sf %>% select(city), join = st_intersects) %>% 
+  st_transform(st_crs(df_sf_urban)) %>% 
+  st_join(., df_sf_urban %>% select(city), join = st_intersects) %>% 
   filter(!is.na(city))
 
 # ==========================================================================
@@ -704,7 +745,7 @@ ucla_pal2 <-
 # ==========================================================================
 
 map_it <- function(city_name, st){
-  leaflet(data = df_sf %>% filter(city == city_name)) %>% 
+  leaflet(data = df_sf_urban %>% filter(city == city_name)) %>% 
     addMapPane(name = "polygons", zIndex = 410) %>% 
     addMapPane(name = "maplabels", zIndex = 420) %>% # higher zIndex rendered on top
     addProviderTiles("CartoDB.PositronNoLabels") %>%
@@ -718,7 +759,7 @@ map_it <- function(city_name, st){
             onClick=JS("function(btn, map){ map.locate({setView: true}); }"))) %>%
   # Displacement typology
     addPolygons(
-        data = df_sf %>% filter(city == city_name), 
+        data = df_sf_urban %>% filter(city == city_name), 
         group = "Displacement Typology", 
         label = ~Typology,
         labelOptions = labelOptions(textsize = "12px"),
@@ -727,6 +768,11 @@ map_it <- function(city_name, st){
         stroke = TRUE, 
         weight = .7, 
         opacity = .60, 
+        highlightOptions = highlightOptions(
+                            color = "#ff4a4a",
+                            weight = 5,
+                            bringToFront = TRUE
+                            ),        
         popup = ~popup, 
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
     ) %>%   
@@ -763,7 +809,7 @@ map_it <- function(city_name, st){
     ) %>%  
 # Neighborhood Segregation
     addPolygons(
-        data = df_sf %>% filter(city == city_name),
+        data = df_sf_urban %>% filter(city == city_name),
         group = "Neighborhood Segregation",
         label = ~nt_conc,
         labelOptions = labelOptions(textsize = "12px"),
@@ -809,7 +855,7 @@ map_it <- function(city_name, st){
     # ) %>%     
 # Public Housing
     addCircleMarkers(
-        data = hud[(df_sf %>% filter(city == city_name)),], #add your state here
+        data = hud[(df_sf_urban %>% filter(city == city_name)),], #add your state here
         radius = 5, 
         label = ~FORMAL_PARTICIPANT_NAME,
         lng = ~LON, 
@@ -864,7 +910,7 @@ map_it <- function(city_name, st){
         weight = .6) %>% 
 # Industrial
     addCircleMarkers(
-        data = industrial[(df_sf %>% filter(city == city_name)),], 
+        data = industrial[(df_sf_urban %>% filter(city == city_name)),], 
         label = ~Facility, 
         radius = 5, 
         color = '#999999',
@@ -915,7 +961,7 @@ oz <- function(map = ., city_name){
 ucla <- function(map = ., city_name){        
     map %>% 
     addPolygons(
-        data = df_sf %>% filter(city == city_name), 
+        data = df_sf_urban %>% filter(city == city_name), 
         group = "Job Displacement Risk", 
         label = ~str_c("Job Displacement Risk: ", percent(pct_atrisk_workers*.01, accuracy = .1)), 
         labelOptions = labelOptions(textsize = "12px"), 
@@ -931,13 +977,13 @@ ucla <- function(map = ., city_name){
         # popup = ~popup_ucla, 
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)) %>% 
     addLegend(
-        data = df_sf %>% filter(city == city_name), 
+        data = df_sf_urban %>% filter(city == city_name), 
         pal = ucla_pal1, 
         values = ~cat_pct_atrisk_workers, 
         group = "Job Displacement Risk", 
         title = "Job Displacement Risk") %>% 
     addPolygons(
-        data = df_sf %>% filter(city == city_name), 
+        data = df_sf_urban %>% filter(city == city_name), 
         group = "Without Unemployment Insurance", 
         label = ~str_c("Without Unemployment Insurance: ", percent(pct_wo_UI*.01, accuracy = .1)), 
         labelOptions = labelOptions(textsize = "12px"), 
@@ -953,13 +999,13 @@ ucla <- function(map = ., city_name){
         # popup = ~popup_ucla, 
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)) %>% 
     addLegend(
-        data = df_sf %>% filter(city == city_name), 
+        data = df_sf_urban %>% filter(city == city_name), 
         pal = ucla_pal1, 
         values = ~cat_pct_wo_UI, 
         group = "Without Unemployment Insurance", 
         title = "Without Unemployment Insurance") %>% 
     addPolygons(
-        data = df_sf %>% filter(city == city_name), 
+        data = df_sf_urban %>% filter(city == city_name), 
         group = "Shelter-in-Place Burden", 
         label = ~str_c("Shelter-in-Place Burden: ", SIPBI_dec), 
         labelOptions = labelOptions(textsize = "12px"), 
@@ -975,13 +1021,13 @@ ucla <- function(map = ., city_name){
         # popup = ~popup_ucla, 
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)) %>% 
     addLegend(
-        data = df_sf %>% filter(city == city_name), 
+        data = df_sf_urban %>% filter(city == city_name), 
         pal = ucla_pal2, 
         values = ~cat_SIPBI_dec, 
         group = "Shelter-in-Place Burden", 
         title = "Shelter-in-Place Burden") %>% 
     addPolygons(
-        data = df_sf %>% filter(city == city_name), 
+        data = df_sf_urban %>% filter(city == city_name), 
         group = "Renter Vulnerability Index", 
         label = ~str_c("Renter Vulnerability Index: ", RVI_dec), 
         labelOptions = labelOptions(textsize = "12px"), 
@@ -997,13 +1043,13 @@ ucla <- function(map = ., city_name){
         # popup = ~popup_ucla, 
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)) %>% 
     addLegend(
-        data = df_sf %>% filter(city == city_name), 
+        data = df_sf_urban %>% filter(city == city_name), 
         pal = ucla_pal2, 
         values = ~cat_RVI_dec, 
         group = "Renter Vulnerability Index", 
         title = "Renter Vulnerability Index") %>% 
     addPolygons(
-        data = df_sf %>% filter(city == city_name), 
+        data = df_sf_urban %>% filter(city == city_name), 
         group = "Census Non-Response Rate", 
         label = ~str_c("Census Non-Response Rate: ", percent(Nr_Aug*.01, accuracy = .1)), 
         labelOptions = labelOptions(textsize = "12px"), 
@@ -1019,7 +1065,7 @@ ucla <- function(map = ., city_name){
         # popup = ~popup_ucla, 
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)) %>% 
     addLegend(
-        data = df_sf %>% filter(city == city_name), 
+        data = df_sf_urban %>% filter(city == city_name), 
         pal = ucla_pal1, 
         values = ~cat_Nr_Aug, 
         group = "Census Non-Response Rate", 
