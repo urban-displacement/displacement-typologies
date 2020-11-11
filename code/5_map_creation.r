@@ -428,16 +428,12 @@ urban_areas <-
 #   st_transform(st_crs(df_sf)) %>% 
 #   .[df_sf, ]  %>% 
 #   arrange(STATEFP, COUNTYFP) 
-
+#
 # st_geometry(counties) <- NULL
-
+#
 # state_water <- counties %>% pull(STATEFP)
 # county_water <- counties %>% pull(COUNTYFP)
-
-# st_erase <- function(x, y) {
-#   st_difference(x, st_union(y))
-# }
-
+#
 # water <- 
 # map2_dfr(state_water, county_water, 
 #   function(states = state_water, counties = county_water){
@@ -445,10 +441,10 @@ urban_areas <-
 #       state = states,
 #       county = counties, 
 #       class = 'sf') %>% 
-#     filter(AWATER > 1000000)
+#     filter(AWATER > 500000)
 #     }) %>% 
 # st_transform(st_crs(df_sf))
-
+#
 # saveRDS(water, "~/git/displacement-typologies/data/outputs/downloads/water.rds")
 ###
 # End
@@ -460,9 +456,16 @@ water <- readRDS("~/git/displacement-typologies/data/outputs/downloads/water.rds
 # Remove water & non-urban areas & simplify spatial features
 # --------------------------------------------------------------------------
 
+st_erase <- function(x, y) {
+  st_difference(x, st_union(y))
+}
+
+###
+# Note: This takes a very long time to run. 
+###
 df_sf_urban <- 
   df_sf %>% 
-  .[urban_areas,] %>%
+  st_crop(urban_areas) %>%
   st_erase(water) %>% 
   ms_simplify(keep = 0.5)
 
@@ -765,6 +768,11 @@ map_it <- function(city_name, st){
         stroke = TRUE, 
         weight = .7, 
         opacity = .60, 
+        highlightOptions = highlightOptions(
+                            color = "#ff4a4a",
+                            weight = 5,
+                            bringToFront = TRUE
+                            ),        
         popup = ~popup, 
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
     ) %>%   
