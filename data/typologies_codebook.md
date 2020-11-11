@@ -358,5 +358,5 @@
 | rm_per_nonwhite_18             |	|
 | rm_per_col_18                  |	|
 | per_ch_li                      |	|
-| ci                             |	|
+| ci                             | Community input text. If our typology does not capture a tract appropriately, we can add text here for specific tracts to describe  ammendments that should be considered	|
 | popup                          |	|
