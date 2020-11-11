@@ -51,9 +51,9 @@ UDP's Typologies have evovled over time in response to community and partner fee
 To run the code, fork this repository and navigate to the `code/README.md` file and follow the instructions. You will have to edit the files to include your state and city accordingly. Once completed, follow the instructions in the `README` to download all external datasets for your specific region that will be required, then run the five consecutive files of code in a terminal window, as indicated in the `README` replacing your state/city name.
  
 <!-- CONTACT -->
-## Contact
+## Contact or issues
  
-Please feel free to [reach out](info@urbandisplacement.org) to us for questions, help, or suggestions.
+If you find a bug or have questions about our code, analysis, or anything else regarding this repo/project, please create an [issue](https://github.com/urban-displacement/displacement-typologies/issues) and ping `@timathomas`. You're also welcome to reach out via email at <info@urbandisplacement.org> to ask us for questions, help, or suggestions.
  
 <!-- EXISTING MAPS -->
 ## Existing Maps: 
