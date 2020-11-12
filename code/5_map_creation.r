@@ -1204,3 +1204,9 @@ seattle <-
     setView(lng = -122.3, lat = 47.6, zoom = 9)
 # save map
 htmlwidgets::saveWidget(seattle, file="~/git/displacement-typologies/maps/seattle_udp.html")
+
+#
+# Create file exports
+# --------------------------------------------------------------------------
+
+st_write(df_sf_urban %>% filter(city == "Atlanta"), "~/git/displacement-typologies/data/downloads_for_public/atlanta.gpkg")
