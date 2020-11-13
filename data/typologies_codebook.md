@@ -3,17 +3,17 @@
 | GEOID                          | Tract FIPS code	|
 | pop_18                         | Total population in 2018 |
 | white_18                       | Total white population (not Hispanic or Latino) in 2018 |
-| hh_18                          | Household income in the past 12 months (in 2018 inflation-adjusted dollars) in 2018 |
+| hh_18                          | Total number of households in 2018 |
 | hinc_18                        | Median household income in the past 12 months (in 2018 inflation-adjusted dollars) in 2018 |
 | mhval_18                       | Estimate, median value (dollars), owner-occupied housing units in 2018 |
 | mhval_18_se                    | Margin of error, median value (dollars), owner-occupied housing units in 2018 |
 | mrent_18                       | Estimate, median gross rent (dollars) for renter-occupied housing units paying cash rent in 2018 |
 | mrent_18_se                    | Margin of error, median gross rent (dollars) for renter-occupied housing units paying cash rent in 2018 |
 | total_25_18                    | Total population 25 years and over in 2018 |
-| total_25_col_bd_18             | Total population 25 years and over with a bachelor's degree in 2018 |
-| total_25_col_md_18             | Total population 25 years and over with a master's degree in 2018 |
-| total_25_col_pd_18             | Total population 25 years and over with a professional school degree in 2018 |
-| total_25_col_phd_18            | Total population 25 years and over with a doctorate degree in 2018 |
+| total_25_col_bd_18             | Number of people 25 years and over with a bachelor's degree in 2018 |
+| total_25_col_md_18             | Number of people 25 years and over with a master's degree in 2018 |
+| total_25_col_pd_18             | Number of people 25 years and over with a professional school degree in 2018 |
+| total_25_col_phd_18            | Number of people 25 years and over with a doctorate degree in 2018 |
 | tot_units_built_18             | Total housing units in 2018 |
 | units_40_49_built_18           | Total housing units built 1940 to 1949 in 2018 |
 | units_39_early_built_18        | Total housing units built 1939 or earlier in 2018 |
@@ -43,87 +43,87 @@
 | mov_oc_75000_18                | Number of people (with income $65,000-$74,999) who moved from different county within same state in 2018 |
 | mov_oc_76000_more_18           | Number of people (with income $75,000 or more) who moved from different county within same state in 2018 |
 | mov_os_w_income_18             | Total number of people (with income) who moved from different state in 2018 |
-| mov_os_9000_18                 | Total number of people (with income $1-$9,999 or loss) who moved from different state in 2018 |
-| mov_os_15000_18                | Total number of people (with income $10,000-$14,999) who moved from different state in 2018 |
-| mov_os_25000_18                | Total number of people (with income $15,000-$24,999) who moved from different state in 2018 |
-| mov_os_35000_18                | Total number of people (with income $25,000-$34,999) who moved from different state in 2018 |
-| mov_os_50000_18                | Total number of people (with income $35,000-$49,999) who moved from different state in 2018 |
-| mov_os_65000_18                | Total number of people (with income $50,000-$64,999) who moved from different state in 2018 |
-| mov_os_75000_18                | Total number of people (with income $65,000-$74,999) who moved from different state in 2018 |
-| mov_os_76000_more_18           | Total number of people (with income $75,000 or more) who moved from different state in 2018 |
-| mov_fa_w_income_18             |	|
-| mov_fa_9000_18                 |	|
-| mov_fa_15000_18                |	|
-| mov_fa_25000_18                |	|
-| mov_fa_35000_18                |	|
-| mov_fa_50000_18                |	|
-| mov_fa_65000_18                |	|
-| mov_fa_75000_18                |	|
-| mov_fa_76000_more_18           |	|
+| mov_os_9000_18                 | Number of people (with income $1-$9,999 or loss) who moved from different state in 2018 |
+| mov_os_15000_18                | Number of people (with income $10,000-$14,999) who moved from different state in 2018 |
+| mov_os_25000_18                | Number of people (with income $15,000-$24,999) who moved from different state in 2018 |
+| mov_os_35000_18                | Number of people (with income $25,000-$34,999) who moved from different state in 2018 |
+| mov_os_50000_18                | Number of people (with income $35,000-$49,999) who moved from different state in 2018 |
+| mov_os_65000_18                | Number of people (with income $50,000-$64,999) who moved from different state in 2018 |
+| mov_os_75000_18                | Number of people (with income $65,000-$74,999) who moved from different state in 2018 |
+| mov_os_76000_more_18           | Number of people (with income $75,000 or more) who moved from different state in 2018 |
+| mov_fa_w_income_18             | Total number of people (with income) who moved from abroad in 2018 |
+| mov_fa_9000_18                 | Number of people (with income $1-$9,999 or loss) who moved from abroad in 2018 |
+| mov_fa_15000_18                | Number of people (with income $10,000-$14,999) who moved from abroad in 2018 |
+| mov_fa_25000_18                | Number of people (with income $15,000-$24,999) who moved from abroad in 2018 |
+| mov_fa_35000_18                | Number of people (with income $25,000-$34,999) who moved from abroad in 2018 |
+| mov_fa_50000_18                | Number of people (with income $35,000-$49,999) who moved from abroad in 2018 |
+| mov_fa_65000_18                | Number of people (with income $50,000-$64,999) who moved from abroad in 2018 |
+| mov_fa_75000_18                | Number of people (with income $65,000-$74,999) who moved from abroad in 2018 |
+| mov_fa_76000_more_18           | Number of people (with income $75,000 or more) who moved from abroad in 2018 |
 | FIPS                           |	|
-| mhval_12                       |	|
-| mhval_12_se                    |	|
-| mrent_12                       |	|
-| mrent_12_se                    |	|
-| mov_wc_w_income_12             |	|
-| mov_wc_9000_12                 |	|
-| mov_wc_15000_12                |	|
-| mov_wc_25000_12                |	|
-| mov_wc_35000_12                |	|
-| mov_wc_50000_12                |	|
-| mov_wc_65000_12                |	|
-| mov_wc_75000_12                |	|
-| mov_wc_76000_more_12           |	|
-| mov_oc_w_income_12             |	|
-| mov_oc_9000_12                 |	|
-| mov_oc_15000_12                |	|
-| mov_oc_25000_12                |	|
-| mov_oc_35000_12                |	|
-| mov_oc_50000_12                |	|
-| mov_oc_65000_12                |	|
-| mov_oc_75000_12                |	|
-| mov_oc_76000_more_12           |	|
-| mov_os_w_income_12             |	|
-| mov_os_9000_12                 |	|
-| mov_os_15000_12                |	|
-| mov_os_25000_12                |	|
-| mov_os_35000_12                |	|
-| mov_os_50000_12                |	|
-| mov_os_65000_12                |	|
-| mov_os_75000_12                |	|
-| mov_os_76000_more_12           |	|
-| mov_fa_w_income_12             |	|
-| mov_fa_9000_12                 |	|
-| mov_fa_15000_12                |	|
-| mov_fa_25000_12                |	|
-| mov_fa_35000_12                |	|
-| mov_fa_50000_12                |	|
-| mov_fa_65000_12                |	|
-| mov_fa_75000_12                |	|
-| mov_fa_76000_more_12           |	|
-| iinc_12                        |	|
-| pop_00                         |	|
-| white_00                       |	|
-| hu_00                          |	|
-| ohu_00                         |	|
-| rhu_00                         |	|
+| mhval_12                       | Estimate, median value (dollars), owner-occupied housing units in 2012 |
+| mhval_12_se                    | Margin of error, median value (dollars), owner-occupied housing units in 2012 |
+| mrent_12                       | Estimate, median gross rent (dollars) for renter-occupied housing units paying cash rent in 2012 |
+| mrent_12_se                    | Margin of error, median gross rent (dollars) for renter-occupied housing units paying cash rent in 2012 |
+| mov_wc_w_income_12             | Total number of people (with income) who moved within same county in 2012 |
+| mov_wc_9000_12                 | Number of people (with income $1-$9,999 or loss) who moved within same county in 2012 |
+| mov_wc_15000_12                | Number of people (with income $10,000-$14,999) who moved within same county in 2012 |
+| mov_wc_25000_12                | Number of people (with income $15,000-$24,999) who moved within same county in 2012 |
+| mov_wc_35000_12                | Number of people (with income $25,000-$34,999) who moved within same county in 2012 |
+| mov_wc_50000_12                | Number of people (with income $35,000-$49,999) who moved within same county in 2012 |
+| mov_wc_65000_12                | Number of people (with income $50,000-$64,999) who moved within same county in 2012 |
+| mov_wc_75000_12                | Number of people (with income $65,000-$74,999) who moved within same county in 2012 |
+| mov_wc_76000_more_12           | Number of people (with income $75,000 or more) who moved within same county in 2012 |
+| mov_oc_w_income_12             | Total number of people (with income) who moved from different county within same state in 2012 |
+| mov_oc_9000_12                 | Number of people (with income $1-$9,999 or loss) who moved from different county within same state in 2012 |
+| mov_oc_15000_12                | Number of people (with income $10,000-$14,999) who moved from different county within same state in 2012 |
+| mov_oc_25000_12                | Number of people (with income $15,000-$24,999) who moved from different county within same state in 2012 |
+| mov_oc_35000_12                | Number of people (with income $25,000-$34,999) who moved from different county within same state in 2012 |
+| mov_oc_50000_12                | Number of people (with income $35,000-$49,999) who moved from different county within same state in 2012 |
+| mov_oc_65000_12                | Number of people (with income $50,000-$64,999) who moved from different county within same state in 2012 |
+| mov_oc_75000_12                | Number of people (with income $65,000-$74,999) who moved from different county within same state in 2012 |
+| mov_oc_76000_more_12           | Number of people (with income $75,000 or more) who moved from different county within same state in 2012 |
+| mov_os_w_income_12             | Total number of people (with income) who moved from different state in 2012 |
+| mov_os_9000_12                 | Number of people (with income $1-$9,999 or loss) who moved from different state in 2012 |
+| mov_os_15000_12                | Number of people (with income $10,000-$14,999) who moved from different state in 2012 |
+| mov_os_25000_12                | Number of people (with income $15,000-$24,999) who moved from different state in 2012 |
+| mov_os_35000_12                | Number of people (with income $25,000-$34,999) who moved from different state in 2012 |
+| mov_os_50000_12                | Number of people (with income $35,000-$49,999) who moved from different state in 2012 |
+| mov_os_65000_12                | Number of people (with income $50,000-$64,999) who moved from different state in 2012 |
+| mov_os_75000_12                | Number of people (with income $65,000-$74,999) who moved from different state in 2012 |
+| mov_os_76000_more_12           | Number of people (with income $75,000 or more) who moved from different state in 2012 |
+| mov_fa_w_income_12             | Total number of people (with income) who moved from abroad in 2012 |
+| mov_fa_9000_12                 | Number of people (with income $1-$9,999 or loss) who moved from abroad in 2012 |
+| mov_fa_15000_12                | Number of people (with income $10,000-$14,999) who moved from abroad in 2012 |
+| mov_fa_25000_12                | Number of people (with income $15,000-$24,999) who moved from abroad in 2012 |
+| mov_fa_35000_12                | Number of people (with income $25,000-$34,999) who moved from abroad in 2012 |
+| mov_fa_50000_12                | Number of people (with income $35,000-$49,999) who moved from abroad in 2012 |
+| mov_fa_65000_12                | Number of people (with income $50,000-$64,999) who moved from abroad in 2012 |
+| mov_fa_75000_12                | Number of people (with income $65,000-$74,999) who moved from abroad in 2012 |
+| mov_fa_76000_more_12           | Number of people (with income $75,000 or more) who moved from abroad in 2012 |
+| iinc_12                        | Median income in the past 12 months for population 15 years and over with income in 2012 |
+| pop_00                         | Total population in 2000 |
+| white_00                       | Total white population (not Hispanic or Latino) in 2000 |
+| hu_00                          | Total number of occupied housing units in 2000 |
+| ohu_00                         | Total number of owner-occupied housing units in 2000 |
+| rhu_00                         | Total number of renter-occupied housing units in 2000 |
 | state_y                        |	|
 | county_y                       |	|
 | tract_y                        |	|
 | trtid_base_x                   |	|
-| total_25_00                    |	|
-| male_25_col_bd_00              |	|
-| male_25_col_md_00              |	|
-| male_25_col_psd_00             |	|
-| male_25_col_phd_00             |	|
-| female_25_col_bd_00            |	|
-| female_25_col_md_00            |	|
-| female_25_col_psd_00           |	|
-| female_25_col_phd_00           |	|
-| mhval_00                       |	|
-| mrent_00                       |	|
-| hh_00                          |	|
-| hinc_00                        |	|
+| total_25_00                    | Total population 25 years and over in 2000 |
+| male_25_col_bd_00              | Number of males 25 years and over with a bachelor's degree in 2000 |
+| male_25_col_md_00              | Number of males 25 years and over with a master's degree in 2000 |
+| male_25_col_psd_00             | Number of males 25 years and over with a professional school degree in 2000 |
+| male_25_col_phd_00             | Number of males 25 years and over with a doctorate degree in 2000 |
+| female_25_col_bd_00            | Number of females 25 years and over with a bachelor's degree in 2000 |
+| female_25_col_md_00            | Number of females 25 years and over with a master's degree in 2000 |
+| female_25_col_psd_00           | Number of females 25 years and over with a professional school degree in 2000 |
+| female_25_col_phd_00           | Number of females 25 years and over with a doctorate degree in 2000 |
+| mhval_00                       | Median value (dollars) for all owner-occupied housing units in 2000 |
+| mrent_00                       | Median gross rent (dollars) for renter-occupied housing units paying cash rent in 2000 |
+| hh_00                          | Total number of households in 2000 |
+| hinc_00                        | Median household income (dollars) in 2000 |
 | trtid00                        |	|
 | pop_90                         |	|
 | white_90                       |	|
