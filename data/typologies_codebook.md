@@ -125,9 +125,9 @@
 | hh_00                          | Total number of households in 2000 |
 | hinc_00                        | Median household income (dollars) in 2000 |
 | trtid00                        |	|
-| pop_90                         |	|
-| white_90                       |	|
-| hh_90                          |	|
+| pop_90                         | Total population in 1990 |
+| white_90                       | Total white population (not Hispanic or Latino) in 1990 |
+| hh_90                          | Total number of households in 1990 |
 | total_25_col_9th_90            |	|
 | total_25_col_12th_90           |	|
 | total_25_col_hs_90             |	|
