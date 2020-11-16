@@ -145,14 +145,14 @@
 | tract                          |	|
 | trtid_base_y                   |	|
 | trtid90                        |	|
-| inc80_18                       |	|
-| inc120_18                      |	|
-| inc80_00                       |	|
-| inc120_00                      |	|
-| inc80_90                       |	|
-| low_80120_18                   |	|
-| mod_80120_18                   |	|
-| high_80120_18                  |	|
+| inc80_18                       | Percentage of households with incomes under 80% AMI in 2018 |
+| inc120_18                      | Percentage of households with incomes under 120% AMI in 2018 |
+| inc80_00                       | Percentage of households with incomes under 80% AMI in 2000 |
+| inc120_00                      | Percentage of households with incomes under 120% AMI in 2000 |
+| inc80_90                       | Percentage of households with incomes under 80% AMI in 1990 |
+| low_80120_18                   | Percentage of low-income households (under 80% AMI) in 2018 |
+| mod_80120_18                   | Percentage of moderate-income households (80%-120% AMI) in 2018 |
+| high_80120_18                  | Percentage of high-income households (more than 120% AMI) in 2018 |
 | low_pdmt_medhhinc_18           |	|
 | high_pdmt_medhhinc_18          |	|
 | mod_pdmt_medhhinc_18           |	|
@@ -161,9 +161,9 @@
 | mix_high_medhhinc_18           |	|
 | inc_cat_medhhinc_18            |	|
 | inc_cat_medhhinc_encoded18     |	|
-| low_80120_00                   |	|
-| mod_80120_00                   |	|
-| high_80120_00                  |	|
+| low_80120_00                   | Percentage of low-income households (under 80% AMI) in 2000 |
+| mod_80120_00                   | Percentage of moderate-income households (80%-120% AMI) in 2000 |
+| high_80120_00                  | Percentage of high-income households (more than 120% AMI) in 2000 |
 | low_pdmt_medhhinc_00           |	|
 | high_pdmt_medhhinc_00          |	|
 | mod_pdmt_medhhinc_00           |	|
@@ -172,12 +172,12 @@
 | mix_high_medhhinc_00           |	|
 | inc_cat_medhhinc_00            |	|
 | inc_cat_medhhinc_encoded00     |	|
-| per_all_li_90                  |	|
-| per_all_li_00                  |	|
-| per_all_li_18                  |	|
-| all_li_count_90                |	|
-| all_li_count_00                |	|
-| all_li_count_18                |	|
+| per_all_li_90                  | Percentage of low-income households (under 80% AMI) in 1990 |
+| per_all_li_00                  | Percentage of low-income households (under 80% AMI) in 2000 |
+| per_all_li_18                  | Percentage of low-income households (under 80% AMI) in 2018 |
+| all_li_count_90                | Total number of low-income households (under 80% AMI) in 1990 |
+| all_li_count_00                | Total number of low-income households (under 80% AMI) in 2000 |
+| all_li_count_18                | Total number of low-income households (under 80% AMI) in 2018 |
 | real_mhval_90                  |	|
 | real_mrent_90                  |	|
 | real_hinc_90                   |	|
