@@ -153,7 +153,7 @@
 | low_80120_18                   | Percentage of low-income households (under 80% AMI) in 2018 |
 | mod_80120_18                   | Percentage of moderate-income households (80%-120% AMI) in 2018 |
 | high_80120_18                  | Percentage of high-income households (more than 120% AMI) in 2018 |
-| low_pdmt_medhhinc_18           |	|
+| low_pdmt_medhhinc_18           | Binary variable: equal to 1 if percentage of low-income households is greater than or equal to 55% and percentage of moderate- and high-income households are each less than 45% in 2018; equal to 0 if these conditions are not all met |
 | high_pdmt_medhhinc_18          |	|
 | mod_pdmt_medhhinc_18           |	|
 | mix_low_medhhinc_18            |	|
