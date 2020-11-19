@@ -24,13 +24,14 @@ options(scipen = 10) # avoid scientific notation
 
 # load packages
 if (!require("pacman")) install.packages("pacman")
-p_install_gh("timathomas/neighborhood", "jalvesaq/colorout")
-p_load(colorout, neighborhood, readxl, R.utils, bit64, neighborhood, fst, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse)
+if (!require("tidyverse")) install.packages("tidyverse")
+pacman::p_install_gh("timathomas/neighborhood", "jalvesaq/colorout")
+pacman::p_load(colorout, neighborhood, readxl, R.utils, bit64, neighborhood, fst, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse)
 
 update.packages(ask = FALSE)
-no
 # Cache downloaded tiger files
 options(tigris_use_cache = TRUE)
+census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381') #enter your own key here
 
 # ==========================================================================
 # Data
@@ -264,7 +265,11 @@ df <-
             factor( # turn to factor for mapping 
                 case_when(
                     tr_pstudents > .3 ~ "High Student Population",
+            ## Typology ammendments
                     typ_cat == "['AdvG', 'BE']" ~ 'Advanced Gentrification',
+                    typ_cat == "['SLI']" & gent_90_00 == 1 ~ 'Advanced Gentrification',
+                    typ_cat == "['SLI']" & gent_90_00_urban == 1 ~ 'Advanced Gentrification',
+            ## Regular adjustments
                     typ_cat == "['AdvG']" ~ 'Advanced Gentrification',
                     typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive',
                     typ_cat == "['ARG']" ~ 'At Risk of Gentrification',
@@ -384,6 +389,7 @@ df <-
 #     select(GEOID) %>% 
 #     mutate(GEOID = as.numeric(GEOID)) %>% 
 #     st_transform(st_crs(4326)) 
+
 #     saveRDS(tracts, '~/git/displacement-typologies/data/outputs/downloads/state_tracts.RDS')
 ###
 # End
@@ -522,7 +528,7 @@ red <-
 ### Industrial points
 
 industrial <- 
-    read_excel("/Users/timthomas/git/displacement-typologies/data/overlays/industrial/industrial_NATIONAL.xlsx") %>% 
+    read_excel("~/git/displacement-typologies/data/overlays/industrial/industrial_NATIONAL.xlsx") %>% 
     filter(Latitude != '') %>% 
     st_as_sf(
         coords = c('Longitude', 'Latitude'), 
@@ -1194,7 +1200,7 @@ sf <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -122.3, lat = 37.8, zoom = 10)
 # save map
-htmlwidgets::saveWidget(sf, file="~/git/displacement-typologies/maps/sanfrancisco_udp.html")
+htmlwidgets::saveWidget(sf, file="~/git/displacement-typologies/maps/sanfrancisco_udp2.html")
 
 # Seattle, WA
 seattle <- 
@@ -1204,3 +1210,9 @@ seattle <-
     setView(lng = -122.3, lat = 47.6, zoom = 9)
 # save map
 htmlwidgets::saveWidget(seattle, file="~/git/displacement-typologies/maps/seattle_udp.html")
+
+#
+# Create file exports
+# --------------------------------------------------------------------------
+
+st_write(df_sf_urban %>% filter(city == "Atlanta"), "~/git/displacement-typologies/data/downloads_for_public/atlanta.gpkg")

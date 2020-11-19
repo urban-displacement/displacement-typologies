@@ -537,6 +537,7 @@ df['ARG'] = np.where((df['pop00flag'].isna())|
                      (df['mix_low_medhhinc_18'].isna())|
                      (df['lmh_flag_encoded'].isna())|
                      (df['change_flag_encoded'].isna())|
+                     (df['rent_90percentile_ch'].isna())|
                      (df['gent_90_00'].isna())|
                      (df['vul_gent_00'].isna())|
                      (df['dp_PChRent'].isna())|
