@@ -26,7 +26,7 @@ options(scipen = 10) # avoid scientific notation
 if (!require("pacman")) install.packages("pacman")
 if (!require("tidyverse")) install.packages("tidyverse")
 pacman::p_install_gh("timathomas/neighborhood", "jalvesaq/colorout")
-pacman::p_load(colorout, neighborhood, readxl, R.utils, bit64, neighborhood, fst, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse)
+pacman::p_load(colorout, readxl, R.utils, bit64, neighborhood, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse)
 
 update.packages(ask = FALSE)
 # Cache downloaded tiger files
@@ -269,6 +269,8 @@ df <-
                     typ_cat == "['AdvG', 'BE']" ~ 'Advanced Gentrification',
                     typ_cat == "['LISD']" & gent_90_00 == 1 ~ 'Advanced Gentrification',
                     typ_cat == "['LISD']" & gent_90_00_urban == 1 ~ 'Advanced Gentrification',
+                    typ_cat == "['OD']" & gent_90_00 == 1 ~ 'Advanced Gentrification',
+                    typ_cat == "['OD']" & gent_90_00_urban == 1 ~ 'Advanced Gentrification',
             ## Regular adjustments
                     typ_cat == "['AdvG']" ~ 'Advanced Gentrification',
                     typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive',
@@ -1214,5 +1216,5 @@ htmlwidgets::saveWidget(seattle, file="~/git/displacement-typologies/maps/seattl
 #
 # Create file exports
 # --------------------------------------------------------------------------
-atl_df <- df_sf_urban %>% filter(city == "Atlanta")
-st_write(atl_df, "~/git/displacement-typologies/data/downloads_for_public/atlanta.gpkg")
+# atl_df <- df_sf_urban %>% filter(city == "Atlanta")
+# st_write(atl_df, "~/git/displacement-typologies/data/downloads_for_public/atlanta.gpkg")
