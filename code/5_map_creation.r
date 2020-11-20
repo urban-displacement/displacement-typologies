@@ -267,8 +267,8 @@ df <-
                     tr_pstudents > .3 ~ "High Student Population",
             ## Typology ammendments
                     typ_cat == "['AdvG', 'BE']" ~ 'Advanced Gentrification',
-                    typ_cat == "['SLI']" & gent_90_00 == 1 ~ 'Advanced Gentrification',
-                    typ_cat == "['SLI']" & gent_90_00_urban == 1 ~ 'Advanced Gentrification',
+                    typ_cat == "['LISD']" & gent_90_00 == 1 ~ 'Advanced Gentrification',
+                    typ_cat == "['LISD']" & gent_90_00_urban == 1 ~ 'Advanced Gentrification',
             ## Regular adjustments
                     typ_cat == "['AdvG']" ~ 'Advanced Gentrification',
                     typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive',
@@ -277,7 +277,7 @@ df <-
                     typ_cat == "['EOG']" ~ 'Early/Ongoing Gentrification',
                     typ_cat == "['OD']" ~ 'Ongoing Displacement',
                     typ_cat == "['SAE']" ~ 'Stable/Advanced Exclusive', 
-                    typ_cat == "['SLI']" ~ 'Low-Income/Susceptible to Displacement',
+                    typ_cat == "['LISD']" ~ 'Low-Income/Susceptible to Displacement',
                     typ_cat == "['SMMI']" ~ 'Stable Moderate/Mixed Income',
                     TRUE ~ "Unavailable or Unreliable Data"
                 ), 
@@ -1200,7 +1200,7 @@ sf <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -122.3, lat = 37.8, zoom = 10)
 # save map
-htmlwidgets::saveWidget(sf, file="~/git/displacement-typologies/maps/sanfrancisco_udp2.html")
+htmlwidgets::saveWidget(sf, file="~/git/displacement-typologies/maps/sanfrancisco_udp.html")
 
 # Seattle, WA
 seattle <- 
@@ -1214,5 +1214,5 @@ htmlwidgets::saveWidget(seattle, file="~/git/displacement-typologies/maps/seattl
 #
 # Create file exports
 # --------------------------------------------------------------------------
-
-st_write(df_sf_urban %>% filter(city == "Atlanta"), "~/git/displacement-typologies/data/downloads_for_public/atlanta.gpkg")
+atl_df <- df_sf_urban %>% filter(city == "Atlanta")
+st_write(atl_df, "~/git/displacement-typologies/data/downloads_for_public/atlanta.gpkg")

@@ -653,11 +653,11 @@ df['OD'] = np.where((df['OD'] == 1)&(df['EOG']==1), 0, df['OD']) ### This is to 
 ######
 
 # ==========================================================================
-# Stable/Low-Income
+# Low-Income/Susceptible to Displacement
 # ==========================================================================
 
-df['SLI'] = 0
-df['SLI'] = np.where((df['pop00flag'] == 1)&
+df['LISD'] = 0
+df['LISD'] = np.where((df['pop00flag'] == 1)&
                      ((df['low_pdmt_medhhinc_18'] == 1)|(df['mix_low_medhhinc_18'] == 1))&
                      (df['OD']!=1) & (df['ARG']!=1) & (df['EOG']!=1), 1, 0)
 
@@ -666,10 +666,10 @@ df['SLI'] = np.where((df['pop00flag'] == 1)&
 ######
 # print('STABLE LOW INCOME TRACTS')
 # ax = data.plot(color = 'white')
-# ax = data[~data['SLI'].isna()].plot(ax = ax, column = 'SLI', legend = True)
+# ax = data[~data['LISD'].isna()].plot(ax = ax, column = 'LISD', legend = True)
 # plt.show()
-# print('There are ', data['SLI'].isna().sum(), 'census tract with NaN as data')
-# print('There are ',str((data['SLI']==1).sum()), 'Stable Low Income CT')
+# print('There are ', data['LISD'].isna().sum(), 'census tract with NaN as data')
+# print('There are ',str((data['LISD']==1).sum()), 'Stable Low Income CT')
 ######
 # End Test
 ######
@@ -678,11 +678,11 @@ df['SLI'] = np.where((df['pop00flag'] == 1)&
 # Create Typology Variables for All Dummies
 # ==========================================================================
 
-df['double_counted'] = (df['SLI'].fillna(0) + df['OD'].fillna(0) + df['ARG'].fillna(0) + df['EOG'].fillna(0) +
+df['double_counted'] = (df['LISD'].fillna(0) + df['OD'].fillna(0) + df['ARG'].fillna(0) + df['EOG'].fillna(0) +
                        df['AdvG'].fillna(0) + df['ARE'].fillna(0) + df['BE'].fillna(0) + df['SAE'] + df['SMMI'])
     
 df['typology'] = np.nan
-df['typology'] = np.where(df['SLI'] == 1, 1, df['typology'])
+df['typology'] = np.where(df['LISD'] == 1, 1, df['typology'])
 df['typology'] = np.where(df['OD'] == 1, 2, df['typology'])
 df['typology'] = np.where(df['ARG'] == 1, 3, df['typology'])
 df['typology'] = np.where(df['EOG'] == 1, 4, df['typology'])
@@ -702,8 +702,8 @@ cat_i = list()
 # df = data
 for i in range (0, len (df)):
     categories = list()
-    if df['SLI'][i] == 1:
-        categories.append('SLI')
+    if df['LISD'][i] == 1:
+        categories.append('LISD')
     if df['OD'][i] == 1:
         categories.append('OD')
     if df['ARG'][i] == 1:
