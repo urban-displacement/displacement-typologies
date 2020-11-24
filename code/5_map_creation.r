@@ -621,12 +621,12 @@ university <-
 #     st_join(., df_sf_urban %>% select(city), join = st_intersects) %>% 
 #     mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
 #     filter(!is.na(city))
-# st_write(road_map, '~/git/displacement-typologies/data/outputs/downloads/roads.gpkg', append = FALSE)
+# saveRDS(road_map, '~/git/displacement-typologies/data/outputs/downloads/roads.rds')
 ###
 # End
 ###
 
-road_map <- st_read('~/git/displacement-typologies/data/outputs/downloads/roads.gpkg')
+road_map <- readRDS('~/git/displacement-typologies/data/outputs/downloads/roads.rds')
 
 ### Atlanta Beltline
 beltline <- 
@@ -1216,7 +1216,7 @@ seattle <-
     setView(lng = -122.3, lat = 47.6, zoom = 9)
 # save map
 htmlwidgets::saveWidget(seattle, file="~/git/displacement-typologies/maps/seattle_udp.html")
-
+ 
 #
 # Create file exports
 # --------------------------------------------------------------------------
