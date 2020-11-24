@@ -271,6 +271,10 @@ df <-
                     typ_cat == "['LISD']" & gent_90_00_urban == 1 ~ 'Advanced Gentrification',
                     typ_cat == "['OD']" & gent_90_00 == 1 ~ 'Advanced Gentrification',
                     typ_cat == "['OD']" & gent_90_00_urban == 1 ~ 'Advanced Gentrification',
+                    typ_cat == "['LISD']" & gent_00_18 == 1 ~ 'Early/Ongoing Gentrification',
+                    typ_cat == "['LISD']" & gent_00_18_urban == 1 ~ 'Early/Ongoing Gentrification',
+                    typ_cat == "['OD']" & gent_00_18 == 1 ~ 'Early/Ongoing Gentrification',
+                    typ_cat == "['OD']" & gent_00_18_urban == 1 ~ 'Early/Ongoing Gentrification',
             ## Regular adjustments
                     typ_cat == "['AdvG']" ~ 'Advanced Gentrification',
                     typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive',
