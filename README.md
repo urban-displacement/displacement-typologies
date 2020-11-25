@@ -57,7 +57,7 @@ To run the code, fork this repository and navigate to the `code/README.md` file 
 If you find a bug or have questions about our code, analysis, or anything else regarding this repo/project, please create an [issue](https://github.com/urban-displacement/displacement-typologies/issues) and ping `@timathomas`. You're also welcome to reach out via email at <info@urbandisplacement.org> to ask us for questions, help, or suggestions.
  
 <!-- EXISTING MAPS -->
-## Existing Maps: 
+## Existing Maps
 
 * Atlanta: 
   * [2018 Map](https://urban-displacement.github.io/displacement-typologies/maps/atlanta_udp.html)
