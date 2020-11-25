@@ -1220,5 +1220,21 @@ htmlwidgets::saveWidget(seattle, file="~/git/displacement-typologies/maps/seattl
 #
 # Create file exports
 # --------------------------------------------------------------------------
-# atl_df <- df_sf_urban %>% filter(city == "Atlanta")
-# st_write(atl_df, "~/git/displacement-typologies/data/downloads_for_public/atlanta.gpkg")
+atl_sf <- df_sf_urban %>% filter(city == "Atlanta") %>% select(GEOID, Typology)
+st_write(atl_sf, "~/git/displacement-typologies/data/downloads_for_public/atlanta.gpkg", append=FALSE)
+write_csv(atl_sf %>% st_set_geometry(NULL), "~/git/displacement-typologies/data/downloads_for_public/atlanta.csv")
+chi_sf <- df_sf_urban %>% filter(city == "Chicago") %>% select(GEOID, Typology)
+st_write(chi_sf, "~/git/displacement-typologies/data/downloads_for_public/chicago.gpkg", append=FALSE)
+write_csv(chi_sf %>% st_set_geometry(NULL), "~/git/displacement-typologies/data/downloads_for_public/chicago.csv")
+den_sf <- df_sf_urban %>% filter(city == "Denver") %>% select(GEOID, Typology)
+st_write(den_sf, "~/git/displacement-typologies/data/downloads_for_public/denver.gpkg", append=FALSE)
+write_csv(den_sf %>% st_set_geometry(NULL), "~/git/displacement-typologies/data/downloads_for_public/denver.csv")
+la_sf <- df_sf_urban %>% filter(city == "LosAngeles") %>% select(GEOID, Typology)
+st_write(la_sf, "~/git/displacement-typologies/data/downloads_for_public/losangeles.gpkg", append=FALSE)
+write_csv(la_sf %>% st_set_geometry(NULL), "~/git/displacement-typologies/data/downloads_for_public/losangeles.csv")
+sf_sf <- df_sf_urban %>% filter(city == "SanFrancisco") %>% select(GEOID, Typology)
+st_write(sf_sf, "~/git/displacement-typologies/data/downloads_for_public/sanfrancisco.gpkg", append=FALSE)
+write_csv(sf_sf %>% st_set_geometry(NULL), "~/git/displacement-typologies/data/downloads_for_public/sanfrancisco.csv")
+sea_sf <- df_sf_urban %>% filter(city == "Seattle") %>% select(GEOID, Typology)
+st_write(sea_sf, "~/git/displacement-typologies/data/downloads_for_public/seattle.gpkg", append=FALSE)
+write_csv(sea_sf %>% st_set_geometry(NULL), "~/git/displacement-typologies/data/downloads_for_public/seattle.csv")
