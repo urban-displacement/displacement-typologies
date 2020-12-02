@@ -35,21 +35,21 @@ output_path = home+'/git/displacement-typologies/data/outputs/'
 # Set API Key
 # ==========================================================================
 
-key = '' #insert your API key here!
+key = '1a0f3553fb26dda539560e810788039f66b02e71' #insert your API key here!
 c = census.Census(key)
 
 # ==========================================================================
-# Choose Cities 
+# Choose Cities
 # ==========================================================================
 
 # Choose City and Census Tracts of Interest
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 # To get city data, run the following code in the terminal
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
 city_name = str(sys.argv[1])
-#If reproducing for another city, add elif for 
+#If reproducing for another city, add elif for
 #that city & desired counties after last line
 
 if city_name == 'Chicago':
@@ -69,7 +69,10 @@ elif city_name == 'Los Angeles':
     FIPS = ['037', '059', '073']
 elif city_name == 'San Francisco':
     state = '06'
-    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']  
+    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']
+elif city_name == 'San Joaquin':
+    state = '06'
+    FIPS = ['077']
 elif city_name == 'Seattle':
     state = '53'
     FIPS = ['033', '053', '061']
@@ -88,9 +91,9 @@ else:
     sql_query_1='state:{} county:*'.format(state[0])
     sql_query_2='state:{} county:*'.format(state[1])
 
-# Create Filter Function 
-# -------------------------------------------------------------------------- 
-# Note - Memphis and Boston is different 
+# Create Filter Function
+# --------------------------------------------------------------------------
+# Note - Memphis and Boston is different
 # because they're located in 2 states
 
 def filter_FIPS(df):
@@ -110,7 +113,7 @@ def filter_FIPS(df):
 # ==========================================================================
 
 # Download ACS 2018 5-Year Estimates
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 
 df_vars_18=['B03002_001E',
             'B03002_003E',
@@ -164,7 +167,7 @@ else:
     var_dict_acs5 = var_dict_1+var_dict_2
 
 # Convert and Rename Variables
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 
 ### Converts variables into dataframe and filters only FIPS of interest
 
@@ -250,7 +253,7 @@ df_vars_18 = df_vars_18.rename(columns = {'B03002_001E':'pop_18',
 # Download ACS 2012 5-Year Estimates
 # --------------------------------------------------------------------------
 # Note: If additional cities are added, make sure to change create_lag_vars.r
-# accordingly. 
+# accordingly.
 
 ### List variables of interest
 
@@ -297,7 +300,7 @@ df_vars_12=['B25077_001E',
             'B06011_001E']
 
 # Run API query
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 # NOTE: Memphis is located in two states so the query looks different
 
 if (city_name not in ('Memphis', 'Boston')):
@@ -311,7 +314,7 @@ else:
     var_dict_acs5 = var_dict_1+var_dict_2
 
 # Convert and Rename Variabls
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 
 ### Converts variables into dataframe and filters only FIPS of interest
 
@@ -383,7 +386,7 @@ var_sf3=['P037001',
          'H085001',
          'H063001',
          'P052001',
-         'P053001'] 
+         'P053001']
 
 var_str = 'P0'
 var_list = []
@@ -393,9 +396,9 @@ for i in range (2, 18):
 var_sf3 = var_sf3 + var_list
 
 # Run API query
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 # NOTE: on certain days, Census API may argue about too many queries and this section
-# may get hung up. 
+# may get hung up.
 
 # SF1
 if (city_name not in ('Memphis', 'Boston')):
@@ -407,7 +410,7 @@ else:
     var_dict_2 = (c.sf1.get(var_sf1, geo = {'for': 'tract:*',
                                  'in': sql_query_2}, year=2000))
     var_dict_sf1 = var_dict_1+var_dict_2
-    
+
 # SF3
 if (city_name not in ('Memphis', 'Boston')):
     var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
@@ -420,7 +423,7 @@ else:
     var_dict_sf3 = var_dict_1+var_dict_2
 
 # Convert and Rename Variables
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 
 ### Converts variables into dataframe and filters only FIPS of interest
 
@@ -482,7 +485,7 @@ var_sf3=['P0010001',
          'P0570004',
          'P0570005',
          'P0570006',
-         'P0570007',         
+         'P0570007',
          'H061A001',
          'H043A001',
          'P080A001',
@@ -496,8 +499,8 @@ for i in range (1, 26):
 
 var_sf3 = var_sf3 + var_list
 
-# Run API Query 
-# -------------------------------------------------------------------------- 
+# Run API Query
+# --------------------------------------------------------------------------
 # NOTE: Memphis is located in two states so the query looks different
 
 # SF1 - All of the variables are found in the SF3
@@ -511,9 +514,9 @@ else:
     var_dict_2 = (c.sf3.get(var_sf3, geo = {'for': 'tract:*',
                                  'in': sql_query_2}, year=1990))
     var_dict_sf3 = var_dict_1+var_dict_2
-    
+
 # Convert and Rename Variables
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 
 ### Converts variables into dataframe and filters only FIPS of interest
 
