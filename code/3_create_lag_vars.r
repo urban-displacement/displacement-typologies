@@ -131,7 +131,6 @@ tr_rents <-
                 TRUE ~ medrent12),
         tr_chrent = tr_medrent18 - tr_medrent12,
         tr_pchrent = (tr_medrent18 - tr_medrent12)/tr_medrent12,
-### CHANGE THIS TO INCLUDE RM of region rather than county
         rm_medrent18 = median(tr_medrent18, na.rm = TRUE), 
         rm_medrent12 = median(tr_medrent12, na.rm = TRUE)) %>% 
     select(-medrent12, -medrent18) %>% 
