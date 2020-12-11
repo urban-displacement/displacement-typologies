@@ -22,7 +22,7 @@
 * [Contact](#contact)
 * [Existing Maps](#existing-maps)
 * [Download Data](#download-data)
-
+* [Cite the Code](#citation)
 
 <!-- ABOUT THE PROJECT -->
 ## Project Overview
@@ -85,3 +85,7 @@ If you find a bug or have questions about our code, analysis, or anything else r
 * GeoPackages (similar to shapefiles) & CSV's with GEOID & Typologies: [Download](https://github.com/urban-displacement/displacement-typologies/tree/main/data/downloads_for_public)
 * Full typology data as CSV: [Download](https://github.com/urban-displacement/displacement-typologies/tree/main/data/outputs/typologies)
 * Codebook for full typology dataset: [link](https://github.com/urban-displacement/displacement-typologies/blob/main/data/outputs/typologies/typologies_codebook.md)
+
+## Citation
+
+  Urban Displacement Project, Displacement Typologies, (2020), GitHub repository, https://github.com/urban-displacement/displacement-typologies
