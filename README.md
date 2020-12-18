@@ -1,17 +1,6 @@
+<a href='https://urbandisplacement.org/'><img src='.assets/images/blue_udp_logo.png' align="right" height="120" /></a>  
 
-<!-- PROJECT LOGO -->
-<br />
-<p align="center">
-  <a href='https://www.urbandisplacement.org/'>
-  	<img src='.assets/images/blue_udp_logo.png' align="top" height="120">
-  </a>
-
-  <h3 align="center">Urban Displacement Project</h3>
-  <p align="center"> 
-  	Displacement and Gentrification Typologies
-   	<br />
-   </p>
-</p>
+# Displacement and Gentrification Typologies
 
 [![DOI](https://zenodo.org/badge/214491182.svg)](https://zenodo.org/badge/latestdoi/214491182)  
 
