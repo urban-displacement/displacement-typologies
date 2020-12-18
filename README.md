@@ -78,5 +78,4 @@ If you find a bug or have questions about our code, analysis, or anything else r
 * Codebook for full typology dataset: [link](https://github.com/urban-displacement/displacement-typologies/blob/main/data/outputs/typologies/typologies_codebook.md)
 
 ## Citation
-
-  Urban Displacement Project, Displacement Typologies, (2020), GitHub repository, https://github.com/urban-displacement/displacement-typologies
+Thomas, Tim, Anna Driscoll, Gabriela Picado Aguilar, Carson Hartman, Julia Greenberg, Alex Ramiller, Anna Cash, Miriam Zuk, and Karen Chapple. “Urban-displacement/displacement-typologies: Release 1.1”. Zenodo, December 18, 2020. doi:10.5281/zenodo.4356684.
