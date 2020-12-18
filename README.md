@@ -12,7 +12,9 @@
    	<br />
    </p>
 </p>
-[![DOI](https://zenodo.org/badge/214491182.svg)](https://zenodo.org/badge/latestdoi/214491182)
+
+[![DOI](https://zenodo.org/badge/214491182.svg)](https://zenodo.org/badge/latestdoi/214491182)  
+
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
 
