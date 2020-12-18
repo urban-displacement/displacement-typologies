@@ -3,7 +3,7 @@
 <br />
 <p align="center">
   <a href='https://www.urbandisplacement.org/'>
-  	<img src='.assets/images/blue_udp_logo.png' align="right" height="120">
+  	<img src='.assets/images/blue_udp_logo.png' align="top" height="120">
   </a>
 
   <h3 align="center">Urban Displacement Project</h3>
