@@ -1,17 +1,8 @@
+<a href='https://urbandisplacement.org/'><img src='.assets/images/blue_udp_logo.png' align="right" height="120" /></a>  
 
-<!-- PROJECT LOGO -->
-<br />
-<p align="center">
-  <a href='https://www.urbandisplacement.org/'>
-  	<img src='.assets/images/blue_udp_logo.png' align="top" height="120">
-  </a>
+# Displacement and Gentrification Typologies
 
-  <h3 align="center">Urban Displacement Project</h3>
-  <p align="center"> 
-  	Displacement and Gentrification Typologies
-   	<br />
-   </p>
-</p>
+[![DOI](https://zenodo.org/badge/214491182.svg)](https://zenodo.org/badge/latestdoi/214491182)  
 
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
@@ -87,5 +78,4 @@ If you find a bug or have questions about our code, analysis, or anything else r
 * Codebook for full typology dataset: [link](https://github.com/urban-displacement/displacement-typologies/blob/main/data/outputs/typologies/typologies_codebook.md)
 
 ## Citation
-
-  Urban Displacement Project, Displacement Typologies, (2020), GitHub repository, https://github.com/urban-displacement/displacement-typologies
+Thomas, Tim, Anna Driscoll, Gabriela Picado Aguilar, Carson Hartman, Julia Greenberg, Alex Ramiller, Anna Cash, Miriam Zuk, and Karen Chapple. “Urban-displacement/displacement-typologies: Release 1.1”. https://github.com/urban-displacement/displacement-typologies. doi:10.5281/zenodo.4356684.
