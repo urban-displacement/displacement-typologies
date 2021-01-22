@@ -25,12 +25,12 @@ options(scipen = 10) # avoid scientific notation
 # load packages
 if (!require("pacman")) install.packages("pacman")
 if (!require("tidyverse")) install.packages("tidyverse")
-pacman::p_install_gh("timathomas/neighborhood", "jalvesaq/colorout")
-pacman::p_load(colorout, readxl, R.utils, bit64, neighborhood, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse)
+pacman::p_load_gh("timathomas/neighborhood", "jalvesaq/colorout")
+pacman::p_load(readxl, R.utils, bit64, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse)
 
 update.packages(ask = FALSE)
 # Cache downloaded tiger files
-options(tigris_use_cache = TRUE)
+options(scipen=10, width=Sys.getenv("COLUMNS"), tigris_use_cache = TRUE) # avoid scientific notation
 census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381') #enter your own key here
 
 # ==========================================================================

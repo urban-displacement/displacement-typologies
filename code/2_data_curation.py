@@ -340,6 +340,12 @@ else:
 
 census = acs_data.merge(data_2000, on = 'FIPS', how = 'outer').merge(data_1990, on = 'FIPS', how = 'outer')
 
+#
+# NOTE: Sometimes, depending on the region, the `outer` merge should be converted to `inner`. 
+# We've found that in some cases, due to the Zillow files, one or the other will create 
+# a NULL dataframe. Report any issues on github if you run into this problem. 
+#
+
 ## CPI indexing values
 ## This is based on the yearly CPI average
 ## Add in new CPI based on current year: https://www.bls.gov/data/inflation_calculator.htm
