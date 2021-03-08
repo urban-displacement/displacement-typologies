@@ -26,7 +26,7 @@ options(scipen = 10) # avoid scientific notation
 if (!require("pacman")) install.packages("pacman")
 if (!require("tidyverse")) install.packages("tidyverse")
 pacman::p_install_gh("timathomas/neighborhood", "jalvesaq/colorout")
-pacman::p_load(colorout, readxl, R.utils, bit64, neighborhood, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse)
+pacman::p_load(readxl, R.utils, bit64, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse)
 
 update.packages(ask = FALSE)
 # Cache downloaded tiger files
@@ -1161,7 +1161,7 @@ atlanta <-
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-htmlwidgets::saveWidget(atlanta, file="~/git/displacement-typologies/maps/atlanta_udp.html")
+htmlwidgets::saveWidget(atlanta, file="~/git/displacement-typologies/maps/atlanta_udp_patch.html")
 
 # Chicago, IL
 chicago <- 
@@ -1170,7 +1170,7 @@ chicago <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-htmlwidgets::saveWidget(chicago, file="~/git/displacement-typologies/maps/chicago_udp.html")
+htmlwidgets::saveWidget(chicago, file="~/git/displacement-typologies/maps/chicago_udp_patch.html")
 
 # Denver, CO
 denver <- 
@@ -1179,7 +1179,7 @@ denver <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -104.98, lat = 39.75, zoom = 11)
 # # save map
-htmlwidgets::saveWidget(denver, file="~/git/displacement-typologies/maps/denver_udp.html")
+htmlwidgets::saveWidget(denver, file="~/git/displacement-typologies/maps/denver_udp_patch.html")
 
 # San Francisco, CA
 la <- 
@@ -1196,7 +1196,7 @@ la <-
         ) %>% 
     setView(lng = -118.2, lat = 34, zoom = 10)
 # save map
-htmlwidgets::saveWidget(la, file="~/git/displacement-typologies/maps/losangeles_udp.html")
+htmlwidgets::saveWidget(la, file="~/git/displacement-typologies/maps/losangeles_udp_patch.html")
 
 # San Francisco, CA
 sf <- 
@@ -1205,7 +1205,7 @@ sf <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -122.3, lat = 37.8, zoom = 10)
 # save map
-htmlwidgets::saveWidget(sf, file="~/git/displacement-typologies/maps/sanfrancisco_udp.html")
+htmlwidgets::saveWidget(sf, file="~/git/displacement-typologies/maps/sanfrancisco_udp_patch.html")
 
 # Seattle, WA
 seattle <- 
@@ -1214,7 +1214,7 @@ seattle <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -122.3, lat = 47.6, zoom = 9)
 # save map
-htmlwidgets::saveWidget(seattle, file="~/git/displacement-typologies/maps/seattle_udp.html")
+htmlwidgets::saveWidget(seattle, file="~/git/displacement-typologies/maps/seattle_udp_patch.html")
  
 #
 # Create file exports
