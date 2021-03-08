@@ -265,6 +265,7 @@ df <-
                 case_when(
                     tr_pstudents > .3 ~ "High Student Population",
             ## Typology ammendments
+                    typ_cat == "['AdvG', 'BE']" ~ 'Advanced Gentrification',
                     typ_cat == "['LISD']" & gent_90_00 == 1 & dense==0~ 'Advanced Gentrification',
                     typ_cat == "['LISD']" & gent_90_00_urban == 1 & dense==1 ~ 'Advanced Gentrification',
                     typ_cat == "['OD']" & gent_90_00 == 1 & dense==0 ~ 'Advanced Gentrification',
