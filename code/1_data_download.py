@@ -83,6 +83,18 @@ elif city_name == 'Cleveland':
 elif city_name == 'Boston':
     state = ['25', '33']
     FIPS = {'25': ['009', '017', '021', '023', '025'], '33': ['015', '017']}
+elif city_name == 'Riverside':
+    state = '06'
+    FIPS = {'065'}
+elif city_name == 'San Bernardino':
+    state = '06'
+    FIPS = {'071'}
+elif city_name == 'Imperial':
+    state = '06'
+    FIPS = {'025'}
+elif city_name == 'Ventura':
+    state = '06'
+    FIPS = {'111'}
 else:
     print ('There is not information for the selected city')
 
