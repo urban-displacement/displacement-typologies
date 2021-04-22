@@ -3,8 +3,8 @@
 # ==========================================================================
 # Data Download
 # Note: As of 2020, the Census API has been somewhat unreliable. We encourage
-# everyone to save all their downloads so you don't run into delays while 
-# working on your project. Don't rely on the API to download everyday. 
+# everyone to save all their downloads so you don't run into delays while
+# working on your project. Don't rely on the API to download everyday.
 # ==========================================================================
 # ==========================================================================
 # ==========================================================================
@@ -42,18 +42,18 @@ key = '4c26aa6ebbaef54a55d3903212eabbb506ade381' #insert your API key here!
 c = census.Census(key)
 
 # ==========================================================================
-# Choose Cities 
+# Choose Cities
 # ==========================================================================
 
 # Choose City and Census Tracts of Interest
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 # To get city data, run the following code in the terminal
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
 city_name = str(sys.argv[1])
 # city_name = 'Atlanta'
-#If reproducing for another city, add elif for 
+#If reproducing for another city, add elif for
 #that city & desired counties after last line
 
 if city_name == 'Chicago':
@@ -73,7 +73,7 @@ elif city_name == 'Los Angeles':
     FIPS = ['037', '059', '073']
 elif city_name == 'San Francisco':
     state = '06'
-    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']  
+    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']
 elif city_name == 'Seattle':
     state = '53'
     FIPS = ['033', '053', '061']
@@ -104,9 +104,9 @@ else:
     sql_query_1='state:{} county:*'.format(state[0])
     sql_query_2='state:{} county:*'.format(state[1])
 
-# Create Filter Function 
-# -------------------------------------------------------------------------- 
-# Note - Memphis and Boston is different 
+# Create Filter Function
+# --------------------------------------------------------------------------
+# Note - Memphis and Boston is different
 # because they're located in 2 states
 
 def filter_FIPS(df):
@@ -126,7 +126,7 @@ def filter_FIPS(df):
 # ==========================================================================
 
 # Download ACS 2018 5-Year Estimates
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 
 df_vars_18=['B03002_001E',
             'B03002_003E',
@@ -180,7 +180,7 @@ else:
     var_dict_acs5 = var_dict_1+var_dict_2
 
 # Convert and Rename Variables
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 
 ### Converts variables into dataframe and filters only FIPS of interest
 
@@ -266,7 +266,7 @@ df_vars_18 = df_vars_18.rename(columns = {'B03002_001E':'pop_18',
 # Download ACS 2012 5-Year Estimates
 # --------------------------------------------------------------------------
 # Note: If additional cities are added, make sure to change create_lag_vars.r
-# accordingly. 
+# accordingly.
 
 ### List variables of interest
 
@@ -313,7 +313,7 @@ df_vars_12=['B25077_001E',
             'B06011_001E']
 
 # Run API query
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 # NOTE: Memphis is located in two states so the query looks different
 
 if (city_name not in ('Memphis', 'Boston')):
@@ -327,7 +327,7 @@ else:
     var_dict_acs5 = var_dict_1+var_dict_2
 
 # Convert and Rename Variabls
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 
 ### Converts variables into dataframe and filters only FIPS of interest
 
@@ -379,167 +379,362 @@ df_vars_12 = df_vars_12.rename(columns = {'B25077_001E':'mhval_12',
                                           'B07010_066E':'mov_fa_76000_more_12',
                                           'B06011_001E':'iinc_12'})
 
+
+### Download 2000 Decennial Census data
+# ---------------------------------------------------------------------------
+# Read CSV from Social Explorer, already filtered for columns of interest
+
+usecolumns = ['SF1_P004001',
+              'SF1_P004005',
+              'SF1_H004001',
+              'SF1_H004002',
+              'SF1_H004003',
+              'SF3_P037001',
+              'SF3_P037015',
+              'SF3_P037016',
+              'SF3_P037017',
+              'SF3_P037018',
+              'SF3_P037032',
+              'SF3_P037033',
+              'SF3_P037034',
+              'SF3_P037035',
+              'SF3_H085001',
+              'SF3_H063001',
+              'SF3_P052001',
+              'SF3_P053001',
+              'SF3_P052002',
+              'SF3_P052003',
+              'SF3_P052004',
+              'SF3_P052005',
+              'SF3_P052006',
+              'SF3_P052007',
+              'SF3_P052008',
+              'SF3_P052009',
+              'SF3_P052010',
+              'SF3_P052011',
+              'SF3_P052012',
+              'SF3_P052013',
+              'SF3_P052014',
+              'SF3_P052015',
+              'SF3_P052016',
+              'SF3_P052017',
+              'Geo_COUNTY',
+              'Geo_STATE',
+              'Geo_FIPS']
+
+
+dtypes = {"Geo_COUNTY": "str","Geo_STATE": "str", "Geo_FIPS":"str"}
+
+ca_00_sf1_sf3 = pd.read_csv("C:/Users/emery/Documents/GitHub/displacement-typologies/data/inputs/US_00_sf1_sf3.csv",
+                            usecols = usecolumns, dtype = dtypes )
+
+
+# filter for only FIPS of interest
+ca_00_sf1_sf3 = ca_00_sf1_sf3[(ca_00_sf1_sf3['Geo_STATE'] == state) &
+                               (ca_00_sf1_sf3['Geo_COUNTY'] == FIPS)]
+
+
+# rename varianbles
+df_vars_00 = ca_00_sf1_sf3.rename(columns = {'SF1_P004001':'pop_00',
+                                            'SF1_P004005':'white_00',
+                                            'SF1_H004001':'hu_00',
+                                            'SF1_H004002':'ohu_00',
+                                            'SF1_H004003':'rhu_00',
+                                            'SF3_P037001':'total_25_00',
+                                            'SF3_P037015':'male_25_col_bd_00',
+                                            'SF3_P037016':'male_25_col_md_00',
+                                            'SF3_P037017':'male_25_col_psd_00',
+                                            'SF3_P037018':'male_25_col_phd_00',
+                                            'SF3_P037032':'female_25_col_bd_00',
+                                            'SF3_P037033':'female_25_col_md_00',
+                                            'SF3_P037034':'female_25_col_psd_00',
+                                            'SF3_P037035':'female_25_col_phd_00',
+                                            'SF3_H085001':'mhval_00',
+                                            'SF3_H063001':'mrent_00',
+                                            'SF3_P052001':'hh_00',
+                                            'SF3_P053001':'hinc_00',
+                                            'SF3_P052002':'I_10000_00',
+                                            'SF3_P052003':'I_15000_00',
+                                            'SF3_P052004':'I_20000_00',
+                                            'SF3_P052005':'I_25000_00',
+                                            'SF3_P052006':'I_30000_00',
+                                            'SF3_P052007':'I_35000_00',
+                                            'SF3_P052008':'I_40000_00',
+                                            'SF3_P052009':'I_45000_00',
+                                            'SF3_P052010':'I_50000_00',
+                                            'SF3_P052011':'I_60000_00',
+                                            'SF3_P052012':'I_75000_00',
+                                            'SF3_P052013':'I_100000_00',
+                                            'SF3_P052014':'I_125000_00',
+                                            'SF3_P052015':'I_150000_00',
+                                            'SF3_P052016':'I_200000_00',
+                                            'SF3_P052017':'I_201000_00'})
+### Download 1990 Decennial Census data
+# ---------------------------------------------------------------------------
+# Read CSV from Social Explorer, already filtered for columns of interest
+
+usecolumns_90 = ['STF3_P001_001',
+              'STF3_P012_001',
+              'STF3_P005_001',
+              'STF3_P057_001',
+              'STF3_P057_002',
+              'STF3_P057_003',
+              'STF3_P057_004',
+              'STF3_P057_005',
+              'STF3_P057_006',
+              'STF3_P057_007',
+              'STF3_H061A_001',
+              'STF3_H043A_001',
+              'STF3_P080A_001',
+              'STF3_H008_001',
+              'STF3_H008_002',
+              'STF3_P080_001',
+              'STF3_P080_002',
+              'STF3_P080_003',
+              'STF3_P080_004',
+              'STF3_P080_005',
+              'STF3_P080_006',
+              'STF3_P080_007',
+              'STF3_P080_008',
+              'STF3_P080_009',
+              'STF3_P080_010',
+              'STF3_P080_011',
+              'STF3_P080_012',
+              'STF3_P080_013',
+              'STF3_P080_014',
+              'STF3_P080_015',
+              'STF3_P080_016',
+              'STF3_P080_017',
+              'STF3_P080_018',
+              'STF3_P080_019',
+              'STF3_P080_020',
+              'STF3_P080_021',
+              'STF3_P080_022',
+              'STF3_P080_023',
+              'STF3_P080_024',
+              'STF3_P080_025',
+              'Geo_COUNTY',
+              'Geo_STATE',
+              'Geo_FIPS']
+
+
+
+dtypes = {"Geo_COUNTY": "str","Geo_STATE": "str", "Geo_FIPS":"str"}
+
+ca_90_sf1_sf3 = pd.read_csv("C:/Users/emery/Documents/GitHub/displacement-typologies/data/inputs/US_90_sf3.csv",
+                            usecols = usecolumns_90, dtype = dtypes )
+
+
+# filter for only FIPS of interest
+ca_90_sf1_sf3 = ca_90_sf1_sf3[(ca_90_sf1_sf3['Geo_STATE'] == state) &
+                               (ca_90_sf1_sf3['Geo_COUNTY'] == FIPS)]
+
+
+# rename varianbles
+df_vars_90 = ca_90_sf1_sf3.rename(columns = {
+              'STF3_P001_001':'pop_90',
+              'STF3_P012_001':'white_90',
+              'STF3_P005_001':'hh_90',
+              'STF3_P057_001':'total_25_col_9th_90',
+              'STF3_P057_002':'total_25_col_12th_90',
+              'STF3_P057_003':'total_25_col_hs_90',
+              'STF3_P057_004':'total_25_col_sc_90',
+              'STF3_P057_005':'total_25_col_bd_90',
+              'STF3_P057_006':'total_25_col_gd_90',
+              'STF3_P057_007':'mhval_00',
+              'STF3_H061A_001':'mrent_00',
+              'STF3_H043A_001':'hh_00',
+              'STF3_P080A_001':'hinc_00',
+              'STF3_H008_001':'ohu_90',
+              'STF3_H008_002':'rhu_90',
+              'STF3_P080_001':'I_5000_90',
+              'STF3_P080_002':'I_10000_90',
+              'STF3_P080_003':'I_12500_90',
+              'STF3_P080_004':'I_15000_90',
+              'STF3_P080_005':'I_17500_90',
+              'STF3_P080_006':'I_20000_90',
+              'STF3_P080_007':'I_22500_90',
+              'STF3_P080_008':'I_25000_90',
+              'STF3_P080_009':'I_27500_90',
+              'STF3_P080_010':'I_30000_90',
+              'STF3_P080_011':'I_32500_90',
+              'STF3_P080_012':'I_35000_90',
+              'STF3_P080_013':'I_37500_90',
+              'STF3_P080_014':'I_40000_90',
+              'STF3_P080_015':'I_42500_90',
+              'STF3_P080_016':'I_45000_90',
+              'STF3_P080_017':'I_47500_90',
+              'STF3_P080_018':'I_50000_90',
+              'STF3_P080_019':'I_55000_90',
+              'STF3_P080_020':'I_60000_90',
+              'STF3_P080_021':'I_75000_90',
+              'STF3_P080_022':'I_100000_90',
+              'STF3_P080_023':'I_125000_90',
+              'STF3_P080_024':'I_150000_90',
+              'STF3_P080_025':'I_150001_90'})
+
 ### Decennial Census 2000 Variables
 
-var_sf1=['P004001',
-         'P004005',
-         'H004001',
-         'H004002',
-         'H004003']
+#var_sf1=['P004001',
+#         'P004005',
+#         'H004001',
+#         'H004002',
+#         'H004003']
 
-var_sf3=['P037001',
-         'P037015',
-         'P037016',
-         'P037017',
-         'P037018',
-         'P037032',
-         'P037033',
-         'P037034',
-         'P037035',
-         'H085001',
-         'H063001',
-         'P052001',
-         'P053001'] 
+#var_sf3=['P037001',
+#         'P037015',
+#         'P037016',
+#         'P037017',
+#         'P037018',
+#         'P037032',
+#         'P037033',
+#         'P037034',
+#         'P037035',
+#         'H085001',
+#         'H063001',
+#         'P052001',
+#         'P053001']
 
-var_str = 'P0'
-var_list = []
-for i in range (2, 18):
-    var_list.append(var_str+str(52000+i))
+#var_str = 'P0'
+#var_list = []
+#for i in range (2, 18):
+#    var_list.append(var_str+str(52000+i))
 
-var_sf3 = var_sf3 + var_list
+#var_sf3 = var_sf3 + var_list
 
 # Run API query
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 # NOTE: on certain days, Census API may argue about too many queries and this section
-# may get hung up. 
+# may get hung up.
 
 # SF1
-if (city_name not in ('Memphis', 'Boston')):
-    var_dict_sf1 = c.sf1.get(var_sf1, geo = {'for': 'tract:*',
-                                 'in': sql_query}, year=2000)
-else:
-    var_dict_1 = c.sf1.get(var_sf1, geo = {'for': 'tract:*',
-                                 'in': sql_query_1}, year=2000)
-    var_dict_2 = (c.sf1.get(var_sf1, geo = {'for': 'tract:*',
-                                 'in': sql_query_2}, year=2000))
-    var_dict_sf1 = var_dict_1+var_dict_2
-    
+#if (city_name not in ('Memphis', 'Boston')):
+#    var_dict_sf1 = c.sf1.get(var_sf1, geo = {'for': 'tract:*',
+#                                 'in': sql_query}, year=2000)
+#else:
+#    var_dict_1 = c.sf1.get(var_sf1, geo = {'for': 'tract:*',
+#                                 'in': sql_query_1}, year=2000)
+#    var_dict_2 = (c.sf1.get(var_sf1, geo = {'for': 'tract:*',
+#                                 'in': sql_query_2}, year=2000))
+#    var_dict_sf1 = var_dict_1+var_dict_2
+
 # SF3
-if (city_name not in ('Memphis', 'Boston')):
-    var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
-                                 'in': sql_query}, year=2000)
-else:
-    var_dict_1 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
-                                 'in': sql_query_1}, year=2000)
-    var_dict_2 = (c.sf3.get(var_sf3, geo = {'for': 'tract:*',
-                                 'in': sql_query_2}, year=2000))
-    var_dict_sf3 = var_dict_1+var_dict_2
+#if (city_name not in ('Memphis', 'Boston')):
+#    var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
+#                                 'in': sql_query}, year=2000)
+#else:
+#    var_dict_1 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
+#                                 'in': sql_query_1}, year=2000)
+#    var_dict_2 = (c.sf3.get(var_sf3, geo = {'for': 'tract:*',
+#                                 'in': sql_query_2}, year=2000))
+#    var_dict_sf3 = var_dict_1+var_dict_2
 
 # Convert and Rename Variables
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 
 ### Converts variables into dataframe and filters only FIPS of interest
 
-df_vars_sf1 = pd.DataFrame.from_dict(var_dict_sf1)
-df_vars_sf3 = pd.DataFrame.from_dict(var_dict_sf3)
-df_vars_sf1['FIPS']=df_vars_sf1['state']+df_vars_sf1['county']+df_vars_sf1['tract']
-df_vars_sf3['FIPS']=df_vars_sf3['state']+df_vars_sf3['county']+df_vars_sf3['tract']
-df_vars_sf1 = filter_FIPS(df_vars_sf1)
-df_vars_sf3 = filter_FIPS(df_vars_sf3)
+#df_vars_sf1 = pd.DataFrame.from_dict(var_dict_sf1)
+#df_vars_sf3 = pd.DataFrame.from_dict(var_dict_sf3)
+#df_vars_sf1['FIPS']=df_vars_sf1['state']+df_vars_sf1['county']+df_vars_sf1['tract']
+#df_vars_sf3['FIPS']=df_vars_sf3['state']+df_vars_sf3['county']+df_vars_sf3['tract']
+#df_vars_sf1 = filter_FIPS(df_vars_sf1)
+#df_vars_sf3 = filter_FIPS(df_vars_sf3)
 
 ### Renames variables
 
-df_vars_sf1 = df_vars_sf1.rename(columns = {'P004001':'pop_00',
-                                            'P004005':'white_00',
-                                            'H004001':'hu_00',
-                                            'H004002':'ohu_00',
-                                            'H004003':'rhu_00'})
+d#f_vars_sf1 = df_vars_sf1.rename(columns = {'P004001':'pop_00',
+#                                            'P004005':'white_00',
+#                                            'H004001':'hu_00',
+#                                            'H004002':'ohu_00',
+#                                            'H004003':'rhu_00'})
 
-df_vars_sf3 = df_vars_sf3.rename(columns = {'P037001':'total_25_00',
-                                            'P037015':'male_25_col_bd_00',
-                                            'P037016':'male_25_col_md_00',
-                                            'P037017':'male_25_col_psd_00',
-                                            'P037018':'male_25_col_phd_00',
-                                            'P037032':'female_25_col_bd_00',
-                                            'P037033':'female_25_col_md_00',
-                                            'P037034':'female_25_col_psd_00',
-                                            'P037035':'female_25_col_phd_00',
-                                            'H085001':'mhval_00',
-                                            'H063001':'mrent_00',
-                                            'P052001':'hh_00',
-                                            'P053001':'hinc_00',
-                                            'P052002':'I_10000_00',
-                                            'P052003':'I_15000_00',
-                                            'P052004':'I_20000_00',
-                                            'P052005':'I_25000_00',
-                                            'P052006':'I_30000_00',
-                                            'P052007':'I_35000_00',
-                                            'P052008':'I_40000_00',
-                                            'P052009':'I_45000_00',
-                                            'P052010':'I_50000_00',
-                                            'P052011':'I_60000_00',
-                                            'P052012':'I_75000_00',
-                                            'P052013':'I_100000_00',
-                                            'P052014':'I_125000_00',
-                                            'P052015':'I_150000_00',
-                                            'P052016':'I_200000_00',
-                                            'P052017':'I_201000_00'})
+#df_vars_sf3 = df_vars_sf3.rename(columns = {'P037001':'total_25_00',
+#                                            'P037015':'male_25_col_bd_00',
+#                                            'P037016':'male_25_col_md_00',
+#                                            'P037017':'male_25_col_psd_00',
+#                                            'P037018':'male_25_col_phd_00',
+#                                            'P037032':'female_25_col_bd_00',
+#                                            'P037033':'female_25_col_md_00',
+#                                            'P037034':'female_25_col_psd_00',
+#                                            'P037035':'female_25_col_phd_00',
+#                                            'H085001':'mhval_00',
+#                                            'H063001':'mrent_00',
+#                                            'P052001':'hh_00',
+#                                            'P053001':'hinc_00',
+#                                            'P052002':'I_10000_00',
+#                                            'P052003':'I_15000_00',
+#                                            'P052004':'I_20000_00',
+#                                            'P052005':'I_25000_00',
+#                                            'P052006':'I_30000_00',
+#                                            'P052007':'I_35000_00',
+#                                            'P052008':'I_40000_00',
+#                                            'P052009':'I_45000_00',
+#                                            'P052010':'I_50000_00',
+#                                            'P052011':'I_60000_00',
+#                                            'P052012':'I_75000_00',
+#                                            'P052013':'I_100000_00',
+#                                            'P052014':'I_125000_00',
+#                                            'P052015':'I_150000_00',
+#                                            'P052016':'I_200000_00',
+#                                            'P052017':'I_201000_00'})
 
-df_vars_00 = df_vars_sf1.merge(df_vars_sf3.drop(columns=['county', 'state', 'tract']), on = 'FIPS')
+#df_vars_00 = df_vars_sf1.merge(df_vars_sf3.drop(columns=['county', 'state', 'tract']), on = 'FIPS')
+
 
 ### Download Decennial Census 1990 Variables
 
-var_sf3=['P0010001',
-         'P0120001',
-         'P0050001',
-         'P0570001',
-         'P0570002',
-         'P0570003',
-         'P0570004',
-         'P0570005',
-         'P0570006',
-         'P0570007',         
-         'H061A001',
-         'H043A001',
-         'P080A001',
-         'H0080001',
-         'H0080002']
+#var_sf3=['P0010001',
+#         'P0120001',
+#         'P0050001',
+#         'P0570001',
+#         'P0570002',
+#         'P0570003',
+#         'P0570004',
+#         'P0570005',
+#         'P0570006',
+#         'P0570007',
+#         'H061A001',
+#         'H043A001',
+#         'P080A001',
+#         'H0080001',
+#         'H0080002']
 
-var_str = 'P0'
-var_list = []
-for i in range (1, 26):
-    var_list.append(var_str+str(800000+i))
+#var_str = 'P0'
+#var_list = []
+#for i in range (1, 26):
+#    var_list.append(var_str+str(800000+i))
 
-var_sf3 = var_sf3 + var_list
+#var_sf3 = var_sf3 + var_list
 
-# Run API Query 
-# -------------------------------------------------------------------------- 
+# Run API Query
+# --------------------------------------------------------------------------
 # NOTE: Memphis is located in two states so the query looks different
 
 # SF1 - All of the variables are found in the SF3
 # SF3
-if (city_name not in ('Memphis', 'Boston')):
-    var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
+#if (city_name not in ('Memphis', 'Boston')):
+#    var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
                                  'in': sql_query}, year=1990)
-else:
-    var_dict_1 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
+#else:
+#    var_dict_1 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
                                  'in': sql_query_1} , year=1990)
-    var_dict_2 = (c.sf3.get(var_sf3, geo = {'for': 'tract:*',
+#    var_dict_2 = (c.sf3.get(var_sf3, geo = {'for': 'tract:*',
                                  'in': sql_query_2}, year=1990))
-    var_dict_sf3 = var_dict_1+var_dict_2
-    
+#    var_dict_sf3 = var_dict_1+var_dict_2
+
 # Convert and Rename Variables
-# -------------------------------------------------------------------------- 
+# --------------------------------------------------------------------------
 
 ### Converts variables into dataframe and filters only FIPS of interest
 
-df_vars_90 = pd.DataFrame.from_dict(var_dict_sf3)
-df_vars_90['FIPS']=df_vars_90['state']+df_vars_90['county']+df_vars_90['tract']
-df_vars_90 = filter_FIPS(df_vars_90)
+#df_vars_90 = pd.DataFrame.from_dict(var_dict_sf3)
+#df_vars_90['FIPS']=df_vars_90['state']+df_vars_90['county']+df_vars_90['tract']
+#df_vars_90 = filter_FIPS(df_vars_90)
 
 ### Renames variables
 
-df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
+#df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
                                             'P0120001':'white_90',
                                             'P0050001':'hh_90',
                                             'P0570001':'total_25_col_9th_90',
