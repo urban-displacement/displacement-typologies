@@ -32,7 +32,7 @@ pd.options.display.float_format = '{:.2f}'.format # avoid scientific notation
 
 home = str(Path.home())
 input_path = home+'/git/displacement-typologies/data/inputs/'
-output_path = home+'/git/displacement-typologies/data/outputs/'
+output_path = home+'/Documents/GitHub/displacement-typologies/data/outputs/'
 
 # ==========================================================================
 # Set API Key
@@ -51,8 +51,8 @@ c = census.Census(key)
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-city_name = str(sys.argv[1])
-# city_name = 'Atlanta'
+#city_name = str(sys.argv[1])
+city_name = 'San Bernardino'
 #If reproducing for another city, add elif for
 #that city & desired counties after last line
 
@@ -85,16 +85,16 @@ elif city_name == 'Boston':
     FIPS = {'25': ['009', '017', '021', '023', '025'], '33': ['015', '017']}
 elif city_name == 'Riverside':
     state = '06'
-    FIPS = {'065'}
+    FIPS = '065'
 elif city_name == 'San Bernardino':
     state = '06'
-    FIPS = {'071'}
+    FIPS = '071'
 elif city_name == 'Imperial':
     state = '06'
-    FIPS = {'025'}
+    FIPS = '025'
 elif city_name == 'Ventura':
     state = '06'
-    FIPS = {'111'}
+    FIPS = '111'
 else:
     print ('There is not information for the selected city')
 
@@ -111,7 +111,7 @@ else:
 
 def filter_FIPS(df):
     if (city_name not in ('Memphis', 'Boston')):
-        df = df[df['county'].isin(FIPS)]
+        df = df[df['county'] == FIPS]
     else:
         fips_list = []
         for i in state:
@@ -420,9 +420,10 @@ usecolumns = ['SF1_P004001',
               'SF3_P052017',
               'Geo_COUNTY',
               'Geo_STATE',
+              'Geo_TRACT',
               'Geo_FIPS']
 
-
+# read Census csv
 dtypes = {"Geo_COUNTY": "str","Geo_STATE": "str", "Geo_FIPS":"str"}
 
 ca_00_sf1_sf3 = pd.read_csv("C:/Users/emery/Documents/GitHub/displacement-typologies/data/inputs/US_00_sf1_sf3.csv",
@@ -434,7 +435,7 @@ ca_00_sf1_sf3 = ca_00_sf1_sf3[(ca_00_sf1_sf3['Geo_STATE'] == state) &
                                (ca_00_sf1_sf3['Geo_COUNTY'] == FIPS)]
 
 
-# rename varianbles
+# rename variables
 df_vars_00 = ca_00_sf1_sf3.rename(columns = {'SF1_P004001':'pop_00',
                                             'SF1_P004005':'white_00',
                                             'SF1_H004001':'hu_00',
@@ -468,7 +469,11 @@ df_vars_00 = ca_00_sf1_sf3.rename(columns = {'SF1_P004001':'pop_00',
                                             'SF3_P052014':'I_125000_00',
                                             'SF3_P052015':'I_150000_00',
                                             'SF3_P052016':'I_200000_00',
-                                            'SF3_P052017':'I_201000_00'})
+                                            'SF3_P052017':'I_201000_00',
+                                            'Geo_STATE': 'state',
+                                            'Geo_COUNTY': 'county',
+                                            'Geo_TRACT' : 'tract',
+                                            'Geo_FIPS': 'FIPS'})
 ### Download 1990 Decennial Census data
 # ---------------------------------------------------------------------------
 # Read CSV from Social Explorer, already filtered for columns of interest
@@ -515,10 +520,11 @@ usecolumns_90 = ['STF3_P001_001',
               'STF3_P080_025',
               'Geo_COUNTY',
               'Geo_STATE',
+              'Geo_TRACT',
               'Geo_FIPS']
 
 
-
+# read Census csv
 dtypes = {"Geo_COUNTY": "str","Geo_STATE": "str", "Geo_FIPS":"str"}
 
 ca_90_sf1_sf3 = pd.read_csv("C:/Users/emery/Documents/GitHub/displacement-typologies/data/inputs/US_90_sf3.csv",
@@ -529,7 +535,6 @@ ca_90_sf1_sf3 = pd.read_csv("C:/Users/emery/Documents/GitHub/displacement-typolo
 ca_90_sf1_sf3 = ca_90_sf1_sf3[(ca_90_sf1_sf3['Geo_STATE'] == state) &
                                (ca_90_sf1_sf3['Geo_COUNTY'] == FIPS)]
 
-
 # rename varianbles
 df_vars_90 = ca_90_sf1_sf3.rename(columns = {
               'STF3_P001_001':'pop_90',
@@ -539,12 +544,12 @@ df_vars_90 = ca_90_sf1_sf3.rename(columns = {
               'STF3_P057_002':'total_25_col_12th_90',
               'STF3_P057_003':'total_25_col_hs_90',
               'STF3_P057_004':'total_25_col_sc_90',
-              'STF3_P057_005':'total_25_col_bd_90',
-              'STF3_P057_006':'total_25_col_gd_90',
-              'STF3_P057_007':'mhval_00',
-              'STF3_H061A_001':'mrent_00',
-              'STF3_H043A_001':'hh_00',
-              'STF3_P080A_001':'hinc_00',
+              'STF3_P057_005':'total_25_col_ad_90',
+              'STF3_P057_006':'total_25_col_bd_90',
+              'STF3_P057_007':'total_25_col_gd_90',
+              'STF3_H061A_001':'mhval_90',
+              'STF3_H043A_001':'mrent_90',
+              'STF3_P080A_001':'hinc_90',
               'STF3_H008_001':'ohu_90',
               'STF3_H008_002':'rhu_90',
               'STF3_P080_001':'I_5000_90',
@@ -571,7 +576,11 @@ df_vars_90 = ca_90_sf1_sf3.rename(columns = {
               'STF3_P080_022':'I_100000_90',
               'STF3_P080_023':'I_125000_90',
               'STF3_P080_024':'I_150000_90',
-              'STF3_P080_025':'I_150001_90'})
+              'STF3_P080_025':'I_150001_90',
+              'Geo_STATE': 'state',
+              'Geo_COUNTY': 'county',
+              'Geo_TRACT' : 'tract',
+              'Geo_FIPS': 'FIPS'})
 
 ### Decennial Census 2000 Variables
 
@@ -643,7 +652,7 @@ df_vars_90 = ca_90_sf1_sf3.rename(columns = {
 
 ### Renames variables
 
-d#f_vars_sf1 = df_vars_sf1.rename(columns = {'P004001':'pop_00',
+#df_vars_sf1 = df_vars_sf1.rename(columns = {'P004001':'pop_00',
 #                                            'P004005':'white_00',
 #                                            'H004001':'hu_00',
 #                                            'H004002':'ohu_00',
@@ -715,12 +724,12 @@ d#f_vars_sf1 = df_vars_sf1.rename(columns = {'P004001':'pop_00',
 # SF3
 #if (city_name not in ('Memphis', 'Boston')):
 #    var_dict_sf3 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
-                                 'in': sql_query}, year=1990)
+#                                 'in': sql_query}, year=1990)
 #else:
 #    var_dict_1 = c.sf3.get(var_sf3, geo = {'for': 'tract:*',
-                                 'in': sql_query_1} , year=1990)
+#                                 'in': sql_query_1} , year=1990)
 #    var_dict_2 = (c.sf3.get(var_sf3, geo = {'for': 'tract:*',
-                                 'in': sql_query_2}, year=1990))
+#                                 'in': sql_query_2}, year=1990))
 #    var_dict_sf3 = var_dict_1+var_dict_2
 
 # Convert and Rename Variables
@@ -735,45 +744,45 @@ d#f_vars_sf1 = df_vars_sf1.rename(columns = {'P004001':'pop_00',
 ### Renames variables
 
 #df_vars_90 = df_vars_90.rename(columns = {'P0010001':'pop_90',
-                                            'P0120001':'white_90',
-                                            'P0050001':'hh_90',
-                                            'P0570001':'total_25_col_9th_90',
-                                            'P0570002':'total_25_col_12th_90',
-                                            'P0570003':'total_25_col_hs_90',
-                                            'P0570004':'total_25_col_sc_90',
-                                            'P0570005':'total_25_col_ad_90',
-                                            'P0570006':'total_25_col_bd_90',
-                                            'P0570007':'total_25_col_gd_90',
-                                            'H061A001':'mhval_90',
-                                            'H043A001':'mrent_90',
-                                            'P080A001':'hinc_90',
-                                            'H0080001':'ohu_90',
-                                            'H0080002':'rhu_90',
-                                            'P0800001':'I_5000_90',
-                                            'P0800002':'I_10000_90',
-                                            'P0800003':'I_12500_90',
-                                            'P0800004':'I_15000_90',
-                                            'P0800005':'I_17500_90',
-                                            'P0800006':'I_20000_90',
-                                            'P0800007':'I_22500_90',
-                                            'P0800008':'I_25000_90',
-                                            'P0800009':'I_27500_90',
-                                            'P0800010':'I_30000_90',
-                                            'P0800011':'I_32500_90',
-                                            'P0800012':'I_35000_90',
-                                            'P0800013':'I_37500_90',
-                                            'P0800014':'I_40000_90',
-                                            'P0800015':'I_42500_90',
-                                            'P0800016':'I_45000_90',
-                                            'P0800017':'I_47500_90',
-                                            'P0800018':'I_50000_90',
-                                            'P0800019':'I_55000_90',
-                                            'P0800020':'I_60000_90',
-                                            'P0800021':'I_75000_90',
-                                            'P0800022':'I_100000_90',
-                                            'P0800023':'I_125000_90',
-                                            'P0800024':'I_150000_90',
-                                            'P0800025':'I_150001_90'})
+#                                            'P0120001':'white_90',
+#                                            'P0050001':'hh_90',
+#                                            'P0570001':'total_25_col_9th_90',
+#                                            'P0570002':'total_25_col_12th_90',
+#                                            'P0570003':'total_25_col_hs_90',
+#                                            'P0570004':'total_25_col_sc_90',
+#                                            'P0570005':'total_25_col_ad_90',
+#                                            'P0570006':'total_25_col_bd_90',
+#                                            'P0570007':'total_25_col_gd_90',
+#                                            'H061A001':'mhval_90',
+#                                            'H043A001':'mrent_90',
+#                                            'P080A001':'hinc_90',
+#                                            'H0080001':'ohu_90',
+#                                            'H0080002':'rhu_90',
+#                                            'P0800001':'I_5000_90',
+#                                            'P0800002':'I_10000_90',
+#                                            'P0800003':'I_12500_90',
+#                                            'P0800004':'I_15000_90',
+#                                            'P0800005':'I_17500_90',
+#                                            'P0800006':'I_20000_90',
+#                                            'P0800007':'I_22500_90',
+#                                            'P0800008':'I_25000_90',
+#                                            'P0800009':'I_27500_90',
+#                                            'P0800010':'I_30000_90',
+#                                            'P0800011':'I_32500_90',
+#                                            'P0800012':'I_35000_90',
+#                                            'P0800013':'I_37500_90',
+#                                            'P0800014':'I_40000_90',
+#                                            'P0800015':'I_42500_90',
+#                                            'P0800016':'I_45000_90',
+#                                            'P0800017':'I_47500_90',
+#                                            'P0800018':'I_50000_90',
+#                                            'P0800019':'I_55000_90',
+#                                            'P0800020':'I_60000_90',
+#                                            'P0800021':'I_75000_90',
+#                                            'P0800022':'I_100000_90',
+#                                            'P0800023':'I_125000_90',
+#                                            'P0800024':'I_150000_90',
+#                                            'P0800025':'I_150001_90'})
 
 # ==========================================================================
 # Export Files
