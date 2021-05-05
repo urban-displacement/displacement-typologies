@@ -51,8 +51,8 @@ c = census.Census(key)
 # Example: python data.py Atlanta
 
 #city_name = str(sys.argv[1])
-city_name = 'San Bernardino'
-#If reproducing for another city, add elif for
+city_name = "Riverside"
+##If reproducing for another city, add elif for
 #that city & desired counties after last line
 
 if city_name == 'Chicago':

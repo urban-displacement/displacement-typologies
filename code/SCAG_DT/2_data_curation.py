@@ -46,7 +46,7 @@ c = census.Census(key)
 
 # For testing different cities while working within the code,
 # uncomment the following and rename city as needed
-city_name = "San Bernardino"
+city_name = "Ventura"
 
 # ==========================================================================
 # ==========================================================================
@@ -690,7 +690,7 @@ len(census)
 
 def filter_PUMS(df, FIPS):
     if (city_name not in ('Memphis', 'Boston')):
-        
+
         df = df[(df['STATEA'] == int(state))&(df['COUNTYA'] == int(FIPS))].reset_index(drop = True)
     else:
         fips_list = []
@@ -761,7 +761,7 @@ pums = income_interpolation (pums, '18', 1.2, aff_18, 'ohu_tot_18', 'O', 'own')
 
 
 
-##### ######### Below not merging - 
+##### ######### Below not merging -
 ######## PUMS filtering for wrong counties???
 pums['FIPS'] = pums['FIPS'].astype(float).astype('int64')
 pums = pums.merge(census[['FIPS', 'mmhcosts_18']], on = 'FIPS')

@@ -23,21 +23,21 @@ import sys
 # `python data.py <city name>`
 # Example: python data.py Atlanta
 
-city_name = str(sys.argv[1])
+#city_name = str(sys.argv[1])
 ###
-# When testing city analysis, use: 
-# city_name = "San Francisco"
+# When testing city analysis, use:
+city_name = "Ventura"
 # Run create_lag_vars.r to create lag variables
 # --------------------------------------------------------------------------
 # Note: If additional cities are added, make sure to change create_lag_vars.r
-# accordingly. 
+# accordingly.
 
-lag = pd.read_csv('~/git/displacement-typologies/data/outputs/lags/lag.csv')
+lag = pd.read_csv('~/Documents/Github/displacement-typologies/data/outputs/lags/lag.csv')
 
 home = str(Path.home())
 
-input_path = home+'/git/displacement-typologies/data/inputs/'
-output_path = home+'/git/displacement-typologies/data/outputs/'
+input_path = home+'/Documents/Github/displacement-typologies/data/inputs/'
+output_path = home+'/Documents/Github/displacement-typologies/data/outputs/'
 
 typology_input = pd.read_csv(output_path+'/databases/'+city_name.replace(" ", "")+'_database_2018.csv', index_col = 0) ### Read file
 typology_input['geometry'] = typology_input['geometry'].apply(wkt.loads) ### Read geometry as a shp attribute
@@ -296,11 +296,11 @@ data = pd.merge(data,lag[['dp_PChRent','dp_RentGap','GEOID', 'tr_rent_gap', 'rm_
 # ==========================================================================
 # ==========================================================================
 # Note: Make flags for each typology definition
-# goal is to make them flags so we can compare across typologies to check 
-# if any are being double counted or missed. 
-# Note on missing data: will code it so that the typology is missing if any 
-# of the core data elements are missing, but for any additional risk or stability 
-# criteria, will be coded so that it pulls from a shorter list 
+# goal is to make them flags so we can compare across typologies to check
+# if any are being double counted or missed.
+# Note on missing data: will code it so that the typology is missing if any
+# of the core data elements are missing, but for any additional risk or stability
+# criteria, will be coded so that it pulls from a shorter list
 # if any are missing so as not to throw it all out
 
 # ==========================================================================
@@ -312,7 +312,7 @@ df = data
 df['SAE'] = 0
 df['SAE'] = np.where((df['pop00flag']==1)&
                      (df['high_pdmt_medhhinc_00'] == 1)&
-                     (df['high_pdmt_medhhinc_18'] == 1)&                 
+                     (df['high_pdmt_medhhinc_18'] == 1)&
                      ((df['lmh_flag_encoded'] == 3)|(df['lmh_flag_encoded'] == 6))&
                      ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2)|
                      (df['change_flag_encoded'] == 3)), 1, 0)
@@ -365,11 +365,11 @@ proximity = df[df.geometry.touches(exclusive.unary_union)]
 df['AdvG'] = 0
 df['AdvG'] = np.where((df['pop00flag']==1)&
                     ((df['mod_pdmt_medhhinc_18'] == 1)|(df['mix_mod_medhhinc_18'] == 1)|
-                     (df['mix_high_medhhinc_18'] == 1)|(df['high_pdmt_medhhinc_18'] == 1))&                    
+                     (df['mix_high_medhhinc_18'] == 1)|(df['high_pdmt_medhhinc_18'] == 1))&
                     ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
                      (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
                     ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2)|(df['change_flag_encoded'] == 3))&
-                    ((df['pctch_real_mhval_00_18'] > 0) | (df['pctch_real_mrent_12_18'] > 0)) & 
+                    ((df['pctch_real_mhval_00_18'] > 0) | (df['pctch_real_mrent_12_18'] > 0)) &
                      (
                         # (df['gent_90_00']==1)|
                         # (df['gent_00_18']==1)
@@ -409,14 +409,14 @@ df['AdvG'] = np.where((df['AdvG'] == 1)&(df['SAE']==1), 0, df['AdvG']) ### This 
 ####
 
 # ==========================================================================
-# At Risk of Becoming Exclusive 
+# At Risk of Becoming Exclusive
 # ==========================================================================
 
 # df = data
 df['ARE'] = 0
 df['ARE'] = np.where((df['pop00flag']==1)&
                     ((df['mod_pdmt_medhhinc_18'] == 1)|(df['mix_mod_medhhinc_18'] == 1)|
-                     (df['mix_high_medhhinc_18'] == 1)|(df['high_pdmt_medhhinc_18'] == 1))&                    
+                     (df['mix_high_medhhinc_18'] == 1)|(df['high_pdmt_medhhinc_18'] == 1))&
                     ((df['lmh_flag_encoded'] == 2)|(df['lmh_flag_encoded'] == 3)|
                      (df['lmh_flag_encoded'] == 5)|(df['lmh_flag_encoded'] == 6))&
                     ((df['change_flag_encoded'] == 1)|(df['change_flag_encoded'] == 2)), 1, 0)
@@ -496,7 +496,7 @@ df['BE'] = np.where((df['BE'] == 1)&(df['SAE']==1), 0, df['BE']) ### This is to 
 df['SMMI'] = 0
 df['SMMI'] = np.where((df['pop00flag']==1)&
                      ((df['mod_pdmt_medhhinc_18'] == 1)|(df['mix_mod_medhhinc_18'] == 1)|
-                      (df['mix_high_medhhinc_18'] == 1)|(df['high_pdmt_medhhinc_18'] == 1))&             
+                      (df['mix_high_medhhinc_18'] == 1)|(df['high_pdmt_medhhinc_18'] == 1))&
                      (df['ARE']==0)&(df['BE']==0)&(df['SAE']==0)&(df['AdvG']==0), 1, 0)
 
 df['SMMI'] = np.where((df['pop00flag'].isna())|
@@ -567,9 +567,9 @@ df['ARG'] = np.where((df['pop00flag'].isna())|
 ### ****EOG ****
 df['EOG'] = 0
 df['EOG'] = np.where((df['pop00flag']==1)& # pop > 500
-                    ((df['low_pdmt_medhhinc_18']==1)|(df['mix_low_medhhinc_18']==1))& # low and mix low income households. 
-                     # (df['ch_per_limove_12_18']<0)& # percent change in low income movers              
-                    ( 
+                    ((df['low_pdmt_medhhinc_18']==1)|(df['mix_low_medhhinc_18']==1))& # low and mix low income households.
+                     # (df['ch_per_limove_12_18']<0)& # percent change in low income movers
+                    (
                         # (df['lmh_flag_encoded'] == 1)| # affordable to low income households
                         (df['lmh_flag_encoded'] == 2)| # predominantly middle income
                         # (df['lmh_flag_encoded'] == 4)| # Mixed low
@@ -599,7 +599,7 @@ df['EOG'] = np.where((df['pop00flag'].isna())|
                      (df['lmh_flag_encoded'].isna())|
                      (df['change_flag_encoded'].isna())|
                      (df['gent_90_00'].isna())|
-                     (df['gent_00_18'].isna())|                     
+                     (df['gent_00_18'].isna())|
                      (df['gent_90_00_urban'].isna())|
                      (df['gent_00_18_urban'].isna())|
                      (df['ab_50pct_ch'].isna())|
@@ -680,7 +680,7 @@ df['LISD'] = np.where((df['pop00flag'] == 1)&
 
 df['double_counted'] = (df['LISD'].fillna(0) + df['OD'].fillna(0) + df['ARG'].fillna(0) + df['EOG'].fillna(0) +
                        df['AdvG'].fillna(0) + df['ARE'].fillna(0) + df['BE'].fillna(0) + df['SAE'] + df['SMMI'])
-    
+
 df['typology'] = np.nan
 df['typology'] = np.where(df['LISD'] == 1, 1, df['typology'])
 df['typology'] = np.where(df['OD'] == 1, 2, df['typology'])
@@ -721,7 +721,7 @@ for i in range (0, len (df)):
     if df['SAE'][i] == 1:
         categories.append('SAE')
     cat_i.append(str(categories))
-    
+
 df['typ_cat'] = cat_i
 df.groupby('typ_cat').count()['FIPS']
 print('TYPOLOGIES')
@@ -742,10 +742,9 @@ print('TYPOLOGIES')
 # ==========================================================================
 # Export Date
 # ==========================================================================
-# Note: You'll need to change the 'output path' variable above in order to output 
+# Note: You'll need to change the 'output path' variable above in order to output
 # to your desired location
 
 df['FIPS'] = df['FIPS'].astype(str)
 df = df.drop(columns = 'geometry')
 df.to_csv(output_path+'/typologies/'+city_name.replace(" ", "")+'_typology_output.csv')
-
