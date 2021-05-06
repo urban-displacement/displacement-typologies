@@ -804,7 +804,7 @@ map_it <- function(city_name, st){
         title = "Displacement Typology"
     ) %>% 
 # Redlined areas
-    #addPolygons(
+    addPolygons(
         data = red %>% filter(city == city_name), 
         group = "Redlined Areas", 
         label = ~Grade,
@@ -847,8 +847,7 @@ map_it <- function(city_name, st){
         popup = ~popup,
         popupOptions = popupOptions(maxHeight = 215, closeOnClick = TRUE)
     ) %>%
-    addLegend(,
-        # position = 'bottomright',s
+    addLegend(data = df_sf_urban %>% filter(city == city_name),
         pal = nt_pal,
         values = ~nt_conc,
         group = "Neighborhood Segregation",
