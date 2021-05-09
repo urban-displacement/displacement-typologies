@@ -25,8 +25,8 @@ options(scipen = 10) # avoid scientific notation
 # load packages
 if (!require("pacman")) install.packages("pacman")
 if (!require("tidyverse")) install.packages("tidyverse")
-pacman::p_install_gh("timathomas/neighborhood", "jalvesaq/colorout")
-pacman::p_load(colorout, readxl, R.utils, bit64, neighborhood, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse)
+pacman::p_load(readxl, R.utils, bit64, rmapshaper, sf, geojsonsf, scales, data.table, tigris, tidycensus, leaflet, tidyverse)
+pacman::p_load_gh("timathomas/neighborhood", "jalvesaq/colorout")
 
 update.packages(ask = FALSE)
 # Cache downloaded tiger files
@@ -41,35 +41,36 @@ census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381') #enter your own key h
 # Pull in data: change this when there's new data
 # --------------------------------------------------------------------------
 
-path = 'C:\\users\\Documents/Git'
+# path = 'C:\\users\\Documents/Git'
+path = '~/git'
 
 data <- 
     bind_rows( # pull in data
-        read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/typologies/Atlanta_typology_output.csv') %>% 
+        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Atlanta_typology_output.csv')) %>% 
             mutate(city = 'Atlanta'),
-        read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/typologies/Chicago_typology_output.csv') %>% 
+        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Chicago_typology_output.csv')) %>% 
             mutate(city = 'Chicago'),
-        read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/typologies/Cleveland_typology_output.csv') %>% 
+        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Cleveland_typology_output.csv')) %>% 
             mutate(city = 'Cleveland'),    
-        read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/typologies/Denver_typology_output.csv') %>%
+        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Denver_typology_output.csv')) %>%
             mutate(city = 'Denver'),            
-        read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/typologies/LosAngeles_typology_output.csv') %>% 
+        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/LosAngeles_typology_output.csv')) %>% 
             mutate(city = 'LosAngeles'), 
-        read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/typologies/SanFrancisco_typology_output.csv') %>% 
+        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/SanFrancisco_typology_output.csv')) %>% 
             mutate(city = 'SanFrancisco'),
-        read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/typologies/Seattle_typology_output.csv') %>% 
+        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Seattle_typology_output.csv')) %>% 
             mutate(city = 'Seattle'),
-        read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/typologies/Imperial_typology_output.csv') %>% 
+        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Imperial_typology_output.csv')) %>% 
           mutate(city = 'SCAG'),
-        read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/typologies/Riverside_typology_output.csv') %>% 
+        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Riverside_typology_output.csv')) %>% 
           mutate(city = 'SCAG'),
-        read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/typologies/SanBernardino_typology_output.csv') %>% 
+        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/SanBernardino_typology_output.csv')) %>% 
           mutate(city = 'SCAG'),
-        read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/typologies/Ventura_typology_output.csv') %>% 
+        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Ventura_typology_output.csv')) %>% 
           mutate(city = 'SCAG')
     ) %>% 
     left_join(., 
-        read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/overlays/oppzones.csv') %>% 
+        read_csv(paste0(path, '/displacement-typologies/data/overlays/oppzones.csv')) %>% 
         select(
           GEOID = geoid, 
           opp_zone = tract_type
@@ -101,13 +102,13 @@ states <- c(
 # ntcheck(df_nt)
 # glimpse(df_nt)
 # df_nt %>% group_by(nt_conc) %>% count() %>% arrange(desc(n))
-#fwrite(df_nt, 'C:/users/emery/Documents/Github/displacement-typologies/data/outputs/downloads/df_nt.csv.gz')
+#fwrite(df_nt, paste0(path, '/displacement-typologies/data/outputs/downloads/df_nt.csv.gz'))
 ###
 # End
 ###
 
 # Read in data from above API and reassign factor levels
-df_nt <- read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/downloads/dt_nt.csv.gz') %>%
+df_nt <- read_csv(paste0(path,'/displacement-typologies/data/outputs/downloads/dt_nt.csv.gz')) %>%
   mutate(nt_conc =
     factor(nt_conc,
       levels = c(
@@ -160,12 +161,12 @@ df_nt <- read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/
 #     cache_table = TRUE,
 #     year = 2018
 #   )
-# fwrite(tr_dem_acs, 'C:/users/emery/Documents/Github/displacement-typologies/data/outputs/downloads/tr_dem_acs.csv.gz')
+# fwrite(tr_dem_acs, paste0(path, '/displacement-typologies/data/outputs/downloads/tr_dem_acs.csv.gz'))
 ### 
 # End
 ###
 
-tr_dem_acs <- read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/downloads/tr_dem_acs.csv.gz')
+tr_dem_acs <- read_csv(paste0(path, '/displacement-typologies/data/outputs/downloads/tr_dem_acs.csv.gz'))
 
 tr_dem <- 
   tr_dem_acs %>% 
@@ -178,7 +179,7 @@ tr_dem <-
     )
 
 # Load UCLA indicators for LA maps
-ucla_df <- read_excel("C:/users/emery/Documents/Github/displacement-typologies/data/inputs/UCLAIndicators/UCLA_CNK_COVID19_Vulnerability_Indicators_8_20_2020.xls")
+ucla_df <- read_excel(paste0(path, "/displacement-typologies/data/inputs/UCLAIndicators/UCLA_CNK_COVID19_Vulnerability_Indicators_8_20_2020.xls"))
 #
 # Prep dataframe for mapping
 # --------------------------------------------------------------------------
@@ -405,12 +406,12 @@ df <-
 #     mutate(GEOID = as.numeric(GEOID)) %>% 
 #     st_transform(st_crs(4326)) 
 
-#     saveRDS(tracts, 'C:/users/emery/Documents/Github/displacement-typologies/data/outputs/downloads/state_tracts.RDS')
+#     saveRDS(tracts, paste0(path, '/displacement-typologies/data/outputs/downloads/state_tracts.RDS'))
 ###
 # End
 ###
 
-tracts <- readRDS('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/downloads/state_tracts.RDS')
+tracts <- readRDS(paste0(path, '/displacement-typologies/data/outputs/downloads/state_tracts.RDS'))
 
 # Join the tracts to the dataframe
 
@@ -429,13 +430,13 @@ df_sf <-
 # urban_areas <- 
 #   urban_areas() %>% 
 #   st_transform(st_crs(df_sf))
-# saveRDS(urban_areas, "C:/users/emery/Documents/Github/displacement-typologies/data/outputs/downloads/urban_areas.rds")
+# saveRDS(urban_areas, paste0(path, "/displacement-typologies/data/outputs/downloads/urban_areas.rds"))
 ### 
 # End Download
 ###
 
 urban_areas <-
-  readRDS("C:/users/emery/Documents/Github/displacement-typologies/data/outputs/downloads/urban_areas.rds") 
+  readRDS(paste0(path, "/displacement-typologies/data/outputs/downloads/urban_areas.rds")) 
 
 #
 # Download water
@@ -466,12 +467,12 @@ urban_areas <-
 #     }) %>% 
 # st_transform(st_crs(df_sf))
 #
-# saveRDS(water, "C:/users/emery/Documents/Github/displacement-typologies/data/outputs/downloads/water.rds")
+# saveRDS(water, paste0(path, "/displacement-typologies/data/outputs/downloads/water.rds"))
 ###
 # End
 ###
 
-water <- readRDS("C:/users/emery/Documents/Github/displacement-typologies/data/outputs/downloads/water.rds")
+water <- readRDS(paste0(path, "/displacement-typologies/data/outputs/downloads/water.rds"))
 
 #
 # Remove water & non-urban areas & simplify spatial features
@@ -499,25 +500,25 @@ df_sf_urban <-
     ###add your city here
 red <- 
     rbind(
-        geojson_sf('C:/users/emery/Documents/Github/displacement-typologies/data/overlays/CODenver1938_1.geojson') %>% 
+        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CODenver1938_1.geojson')) %>% 
         mutate(city = 'Denver'),
-        geojson_sf('C:/users/emery/Documents/Github/displacement-typologies/data/overlays/GAAtlanta1938_1.geojson') %>% 
+        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/GAAtlanta1938_1.geojson')) %>% 
         mutate(city = 'Atlanta'),
-        geojson_sf('C:/users/emery/Documents/Github/displacement-typologies/data/overlays/ILChicago1940_1.geojson') %>% 
+        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/ILChicago1940_1.geojson')) %>% 
         mutate(city = 'Chicago'),
-        geojson_sf('C:/users/emery/Documents/Github/displacement-typologies/data/overlays/TNMemphis19XX_1.geojson') %>% 
+        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/TNMemphis19XX_1.geojson')) %>% 
         mutate(city = 'Memphis'),
-        geojson_sf('C:/users/emery/Documents/Github/displacement-typologies/data/overlays/CALosAngeles1939.geojson') %>% 
+        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CALosAngeles1939.geojson')) %>% 
         mutate(city = 'LosAngeles'),
-        geojson_sf('C:/users/emery/Documents/Github/displacement-typologies/data/overlays/WASeattle1936.geojson') %>% 
+        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/WASeattle1936.geojson')) %>% 
         mutate(city = 'Seattle'),
-        geojson_sf('C:/users/emery/Documents/Github/displacement-typologies/data/overlays/WATacoma1937.geojson') %>% 
+        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/WATacoma1937.geojson')) %>% 
         mutate(city = 'Seattle'), 
-        geojson_sf('C:/users/emery/Documents/Github/displacement-typologies/data/overlays/CASacramento1937.geojson') %>% 
+        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CASacramento1937.geojson')) %>% 
         mutate(city = 'SanFrancisco'),
-        geojson_sf('C:/users/emery/Documents/Github/displacement-typologies/data/overlays/CAOakland1937.geojson') %>% 
+        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CAOakland1937.geojson')) %>% 
         mutate(city = 'SanFrancisco'),
-        geojson_sf('C:/users/emery/Documents/Github/displacement-typologies/data/overlays/CASanFrancisco1937.geojson') %>% 
+        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CASanFrancisco1937.geojson')) %>% 
         mutate(city = 'SanFrancisco')) %>% 
     mutate(
         Grade = 
@@ -543,7 +544,7 @@ red <-
 ### Industrial points
 
 industrial <- 
-  read_excel("C:/users/emery/Documents/Github/displacement-typologies/data/overlays/industrial/industrial_NATIONAL.xlsx") %>% 
+  read_excel(paste0(path, "/displacement-typologies/data/overlays/industrial/industrial_NATIONAL.xlsx")) %>%
   filter(Latitude != '') %>% 
   st_as_sf(
     coords = c('Longitude', 'Latitude'), 
@@ -553,7 +554,7 @@ industrial <-
 ### HUD
 
 hud <- 
-    read_csv('C:/users/emery/Documents/Github/displacement-typologies/data/overlays/Public_Housing_Buildings.csv.gz') %>% 
+    read_csv(paste0(path, '/displacement-typologies/data/overlays/Public_Housing_Buildings.csv.gz')) %>%
     filter(X != '') %>%
     st_as_sf(
         coords = c("X","Y"), 
@@ -563,7 +564,7 @@ hud <-
 ### Rail data
 rail <- 
     st_join(
-        fread('C:/users/emery/Documents/Github/displacement-typologies/data/inputs/tod_database_download.csv') %>% 
+        fread(paste0(path, '/displacement-typologies/data/inputs/tod_database_download.csv')) %>%
             st_as_sf(
                 coords = c('Longitude', 'Latitude'), 
                 crs = 4269
@@ -577,7 +578,7 @@ rail <-
 ### Hospitals
 hospitals <- 
     st_join(
-        fread('C:/users/emery/Documents/Github/displacement-typologies/data/inputs/Hospitals.csv') %>% 
+        fread(paste0(path, '/displacement-typologies/data/inputs/Hospitals.csv')) %>%
             st_as_sf(
                 coords = c('X', 'Y'), 
                 crs = 4269
@@ -596,7 +597,7 @@ hospitals <-
 ### Universities
 university <- 
     st_join(
-        fread('C:/users/emery/Documents/Github/displacement-typologies/data/inputs/university_HD2016.csv') %>% 
+        fread(paste0(path, '/displacement-typologies/data/inputs/university_HD2016.csv')) %>%
             st_as_sf(
                 coords = c('LONGITUD', 'LATITUDE'), 
                 crs = 4269
@@ -630,22 +631,22 @@ university <-
 #     st_join(., df_sf_urban %>% select(city), join = st_intersects) %>% 
 #     mutate(rt = case_when(RTTYP == 'I' ~ 'Interstate', RTTYP == 'U' ~ 'US Highway')) %>% 
 #     filter(!is.na(city))
-# saveRDS(road_map, 'C:/users/emery/Documents/Github/displacement-typologies/data/outputs/downloads/roads.rds')
+# saveRDS(road_map, paste0(path, '/displacement-typologies/data/outputs/downloads/roads.rds'))
 ###
 # End
 ###
 
-road_map <- readRDS('C:/users/emery/Documents/Github/displacement-typologies/data/outputs/downloads/roads.rds')
+road_map <- readRDS(paste0(path, '/displacement-typologies/data/outputs/downloads/roads.rds'))
 
 ### Atlanta Beltline
 beltline <- 
-  st_read("C:/users/emery/Documents/Github/displacement-typologies/data/overlays/beltline.shp") %>% 
+  st_read(paste0(path, "/displacement-typologies/data/overlays/beltline.shp")) %>%
   mutate(name = "Beltline", 
     name2 = "Possible Gentrifier")
 
 ### Opportunity Zones
 opp_zone <- 
-  st_read("C:/users/emery/Documents/Github/displacement-typologies/data/overlays/OpportunityZones/OpportunityZones.gpkg") %>%
+  st_read(paste0(path, "/displacement-typologies/data/overlays/OpportunityZones/OpportunityZones.gpkg")) %>% 
   st_transform(st_crs(df_sf_urban)) %>% 
   st_join(., df_sf_urban %>% select(city), join = st_intersects) %>% 
   filter(!is.na(city))
@@ -765,7 +766,7 @@ ucla_pal2 <-
 # Mapping functions
 # ==========================================================================
 
-map_it <- function(city_name, st){
+map_it <- function(city_name){
   leaflet(data = df_sf_urban %>% filter(city == city_name)) %>% 
     addMapPane(name = "polygons", zIndex = 410) %>% 
     addMapPane(name = "maplabels", zIndex = 420) %>% # higher zIndex rendered on top
@@ -1161,7 +1162,7 @@ options <- function(
 
 # Atlanta, GA
 atlanta <- 
-    map_it("Atlanta", 'GA') %>% 
+    map_it("Atlanta") %>% 
     oz(city_name = "Atlanta") %>% 
     belt() %>% 
     options(
@@ -1170,29 +1171,29 @@ atlanta <-
     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
 # save map
-htmlwidgets::saveWidget(atlanta, file="C:/users/emery/Documents/Github/displacement-typologies/maps/atlanta_udp.html")
+htmlwidgets::saveWidget(atlanta, file=paste0(path, "/displacement-typologies/maps/atlanta_udp.html"))
 
 # Chicago, IL
 chicago <- 
-    map_it("Chicago", 'IL') %>% 
+    map_it("Chicago") %>% 
     oz(city_name = "Chicago") %>% 
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -87.7, lat = 41.9, zoom = 10)
 # save map
-htmlwidgets::saveWidget(chicago, file="C:/users/emery/Documents/Github/displacement-typologies/maps/chicago_udp.html")
+htmlwidgets::saveWidget(chicago, file=paste0(path, "/displacement-typologies/maps/chicago_udp.html"))
 
 # Denver, CO
 denver <- 
-    map_it("Denver", 'CO') %>% 
+    map_it("Denver") %>% 
     oz(city_name = "Denver") %>%     
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -104.98, lat = 39.75, zoom = 11)
 # # save map
-htmlwidgets::saveWidget(denver, file="C:/users/emery/Documents/Github/displacement-typologies/maps/denver_udp.html")
+htmlwidgets::saveWidget(denver, file=paste0(path, "/displacement-typologies/maps/denver_udp.html"))
 
 # Los Angeles, CA
 la <- 
-    map_it("LosAngeles", 'CA') %>% 
+    map_it("LosAngeles") %>% 
     oz(city_name = "LosAngeles") %>% 
     ucla(city_name = "LosAngeles") %>% 
     options(
@@ -1205,16 +1206,16 @@ la <-
         ) %>% 
     setView(lng = -118.2, lat = 34, zoom = 10)
 # save map
-htmlwidgets::saveWidget(la, file="C:/users/emery/Documents/Github/displacement-typologies/maps/losangeles_udp.html")
+htmlwidgets::saveWidget(la, file=paste0(path, "/displacement-typologies/maps/losangeles_udp.html"))
 
 # San Francisco, CA
 sf <- 
-    map_it("SanFrancisco", 'CA') %>% 
+    map_it("SanFrancisco") %>% 
     oz(city_name = "SanFrancisco") %>% 
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -122.3, lat = 37.8, zoom = 10)
 # save map
-htmlwidgets::saveWidget(sf, file="C:/users/emery/Documents/Github/displacement-typologies/maps/sanfrancisco_udp.html")
+htmlwidgets::saveWidget(sf, file=paste0(path, "/displacement-typologies/maps/sanfrancisco_udp.html"))
 
 # Seattle, WA
 seattle <- 
@@ -1223,35 +1224,35 @@ seattle <-
     options(oz = "Opportunity Zones") %>% 
     setView(lng = -122.3, lat = 47.6, zoom = 9)
 # save map
-htmlwidgets::saveWidget(seattle, file="C:/users/emery/Documents/Github/displacement-typologies/maps/seattle_udp.html")
+htmlwidgets::saveWidget(seattle, file=paste0(path, "/displacement-typologies/maps/seattle_udp.html"))
 
 
 # SCAG Region, CA
 SCAG <- 
-  map_it('SCAG', 'CA') %>% 
+  map_it('SCAG') %>% 
   oz(city_name = "SCAG") %>% 
   options(oz = "Opportunity Zones") %>% 
   setView(lng = -122.3, lat = 47.6, zoom = 10)
 # save map
-htmlwidgets::saveWidget(SCAG, file="C:/users/emery/Documents/Github/displacement-typologies/maps/SCAG_udp.html")
+htmlwidgets::saveWidget(SCAG, file=paste0(path, "/displacement-typologies/maps/SCAG_udp.html"))
 #
 # Create file exports
 # --------------------------------------------------------------------------
 atl_sf <- df_sf_urban %>% filter(city == "Atlanta") %>% select(GEOID, Typology)
-st_write(atl_sf, "C:/users/emery/Documents/Github/displacement-typologies/data/downloads_for_public/atlanta.gpkg", append=FALSE)
-write_csv(atl_sf %>% st_set_geometry(NULL), "C:/users/emery/Documents/Github/displacement-typologies/data/downloads_for_public/atlanta.csv")
+st_write(atl_sf, paste0(path, "/displacement-typologies/data/downloads_for_public/atlanta.gpkg", append=FALSE))
+write_csv(atl_sf %>% st_set_geometry(NULL), paste0(path, "/displacement-typologies/data/downloads_for_public/atlanta.csv"))
 chi_sf <- df_sf_urban %>% filter(city == "Chicago") %>% select(GEOID, Typology)
-st_write(chi_sf, "C:/users/emery/Documents/Github/displacement-typologies/data/downloads_for_public/chicago.gpkg", append=FALSE)
-write_csv(chi_sf %>% st_set_geometry(NULL), "C:/users/emery/Documents/Github/displacement-typologies/data/downloads_for_public/chicago.csv")
+st_write(chi_sf, paste0(path, "/displacement-typologies/data/downloads_for_public/chicago.gpkg", append=FALSE))
+write_csv(chi_sf %>% st_set_geometry(NULL), paste0(path, "/displacement-typologies/data/downloads_for_public/chicago.csv"))
 den_sf <- df_sf_urban %>% filter(city == "Denver") %>% select(GEOID, Typology)
-st_write(den_sf, "C:/users/emery/Documents/Github/displacement-typologies/data/downloads_for_public/denver.gpkg", append=FALSE)
-write_csv(den_sf %>% st_set_geometry(NULL), "C:/users/emery/Documents/Github/displacement-typologies/data/downloads_for_public/denver.csv")
+st_write(den_sf, paste0(path, "/displacement-typologies/data/downloads_for_public/denver.gpkg", append=FALSE))
+write_csv(den_sf %>% st_set_geometry(NULL), paste0(path, "/displacement-typologies/data/downloads_for_public/denver.csv"))
 la_sf <- df_sf_urban %>% filter(city == "LosAngeles") %>% select(GEOID, Typology)
-st_write(la_sf, "C:/users/emery/Documents/Github/displacement-typologies/data/downloads_for_public/losangeles.gpkg", append=FALSE)
-write_csv(la_sf %>% st_set_geometry(NULL), "C:/users/emery/Documents/Github/displacement-typologies/data/downloads_for_public/losangeles.csv")
+st_write(la_sf, paste0(path, "/displacement-typologies/data/downloads_for_public/losangeles.gpkg", append=FALSE))
+write_csv(la_sf %>% st_set_geometry(NULL), paste0(path, "/displacement-typologies/data/downloads_for_public/losangeles.csv"))
 sf_sf <- df_sf_urban %>% filter(city == "SanFrancisco") %>% select(GEOID, Typology)
-st_write(sf_sf, "C:/users/emery/Documents/Github/displacement-typologies/data/downloads_for_public/sanfrancisco.gpkg", append=FALSE)
-write_csv(sf_sf %>% st_set_geometry(NULL), "C:/users/emery/Documents/Github/displacement-typologies/data/downloads_for_public/sanfrancisco.csv")
+st_write(sf_sf, paste0(path, "/displacement-typologies/data/downloads_for_public/sanfrancisco.gpkg", append=FALSE))
+write_csv(sf_sf %>% st_set_geometry(NULL), paste0(path, "/displacement-typologies/data/downloads_for_public/sanfrancisco.csv"))
 sea_sf <- df_sf_urban %>% filter(city == "Seattle") %>% select(GEOID, Typology)
-st_write(sea_sf, "C:/users/emery/Documents/Github/displacement-typologies/data/downloads_for_public/seattle.gpkg", append=FALSE)
-write_csv(sea_sf %>% st_set_geometry(NULL), "C:/users/emery/Documents/Github/displacement-typologies/data/downloads_for_public/seattle.csv")
+st_write(sea_sf, paste0(path, "/displacement-typologies/data/downloads_for_public/seattle.gpkg", append=FALSE))
+write_csv(sea_sf %>% st_set_geometry(NULL), paste0(path, "/displacement-typologies/data/downloads_for_public/seattle.csv"))
