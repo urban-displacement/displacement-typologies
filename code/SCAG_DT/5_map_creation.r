@@ -46,20 +46,20 @@ path = '~/git'
 
 data <- 
     bind_rows( # pull in data
-        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Atlanta_typology_output.csv')) %>% 
-            mutate(city = 'Atlanta'),
-        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Chicago_typology_output.csv')) %>% 
-            mutate(city = 'Chicago'),
-        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Cleveland_typology_output.csv')) %>% 
-            mutate(city = 'Cleveland'),    
-        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Denver_typology_output.csv')) %>%
-            mutate(city = 'Denver'),            
+        # read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Atlanta_typology_output.csv')) %>% 
+        #     mutate(city = 'Atlanta'),
+        # read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Chicago_typology_output.csv')) %>% 
+        #     mutate(city = 'Chicago'),
+        # read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Cleveland_typology_output.csv')) %>% 
+        #     mutate(city = 'Cleveland'),    
+        # read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Denver_typology_output.csv')) %>%
+        #     mutate(city = 'Denver'),            
         read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/LosAngeles_typology_output.csv')) %>% 
-            mutate(city = 'LosAngeles'), 
-        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/SanFrancisco_typology_output.csv')) %>% 
-            mutate(city = 'SanFrancisco'),
-        read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Seattle_typology_output.csv')) %>% 
-            mutate(city = 'Seattle'),
+            mutate(city = 'SCAG'), 
+        # read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/SanFrancisco_typology_output.csv')) %>% 
+        #     mutate(city = 'SanFrancisco'),
+        # read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Seattle_typology_output.csv')) %>% 
+        #     mutate(city = 'Seattle'),
         read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Imperial_typology_output.csv')) %>% 
           mutate(city = 'SCAG'),
         read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Riverside_typology_output.csv')) %>% 
@@ -491,6 +491,8 @@ df_sf_urban <-
   st_erase(water) %>% 
   ms_simplify(keep = 0.5)
 
+saveRDS(df_sf_urban, paste0(path, '/displacement-typologies/data/midpoints/df_sf_urban_scag.rds'))
+df_sf_urban <- readRDS(paste0(path, '/displacement-typologies/data/midpoints/df_sf_urban_scag.rds'))
 # ==========================================================================
 # overlays
 # ==========================================================================
@@ -500,26 +502,31 @@ df_sf_urban <-
     ###add your city here
 red <- 
     rbind(
-        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CODenver1938_1.geojson')) %>% 
-        mutate(city = 'Denver'),
-        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/GAAtlanta1938_1.geojson')) %>% 
-        mutate(city = 'Atlanta'),
-        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/ILChicago1940_1.geojson')) %>% 
-        mutate(city = 'Chicago'),
-        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/TNMemphis19XX_1.geojson')) %>% 
-        mutate(city = 'Memphis'),
         geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CALosAngeles1939.geojson')) %>% 
-        mutate(city = 'LosAngeles'),
-        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/WASeattle1936.geojson')) %>% 
-        mutate(city = 'Seattle'),
-        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/WATacoma1937.geojson')) %>% 
-        mutate(city = 'Seattle'), 
-        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CASacramento1937.geojson')) %>% 
-        mutate(city = 'SanFrancisco'),
-        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CAOakland1937.geojson')) %>% 
-        mutate(city = 'SanFrancisco'),
-        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CASanFrancisco1937.geojson')) %>% 
-        mutate(city = 'SanFrancisco')) %>% 
+            mutate(city = 'SCAG'), 
+        geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CASanDiego1938.geojson')) %>% 
+            mutate(city = 'SCAG')
+            ) %>% 
+    #     geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CODenver1938_1.geojson')) %>% 
+    #     mutate(city = 'Denver'),
+    #     geojson_sf(paste0(path, '/displacement-typologies/data/overlays/GAAtlanta1938_1.geojson')) %>% 
+    #     mutate(city = 'Atlanta'),
+    #     geojson_sf(paste0(path, '/displacement-typologies/data/overlays/ILChicago1940_1.geojson')) %>% 
+    #     mutate(city = 'Chicago'),
+    #     geojson_sf(paste0(path, '/displacement-typologies/data/overlays/TNMemphis19XX_1.geojson')) %>% 
+    #     mutate(city = 'Memphis'),
+    #     geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CALosAngeles1939.geojson')) %>% 
+    #     mutate(city = 'LosAngeles'),
+    #     geojson_sf(paste0(path, '/displacement-typologies/data/overlays/WASeattle1936.geojson')) %>% 
+    #     mutate(city = 'Seattle'),
+    #     geojson_sf(paste0(path, '/displacement-typologies/data/overlays/WATacoma1937.geojson')) %>% 
+    #     mutate(city = 'Seattle'), 
+    #     geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CASacramento1937.geojson')) %>% 
+    #     mutate(city = 'SanFrancisco'),
+    #     geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CAOakland1937.geojson')) %>% 
+    #     mutate(city = 'SanFrancisco'),
+    #     geojson_sf(paste0(path, '/displacement-typologies/data/overlays/CASanFrancisco1937.geojson')) %>% 
+    #     mutate(city = 'SanFrancisco')) %>% 
     mutate(
         Grade = 
             factor(
@@ -804,31 +811,6 @@ map_it <- function(city_name){
         group = "Displacement Typology", 
         title = "Displacement Typology"
     ) %>% 
-# Redlined areas
-    addPolygons(
-        data = red %>% filter(city == city_name), 
-        group = "Redlined Areas", 
-        label = ~Grade,
-        labelOptions = labelOptions(textsize = "12px"),
-        fillOpacity = .3, 
-        color = ~redline_pal(Grade), 
-        stroke = TRUE, 
-        weight = 1, 
-        opacity = .8, 
-        highlightOptions = highlightOptions(
-                            color = "#ff4a4a", 
-                            weight = 5,
-                            bringToFront = TRUE
-                            ), 
-        popup = ~popup
-    ) %>%   
-    addLegend(
-        data = red, 
-        pal = redline_pal, 
-        values = ~Grade, 
-        group = "Redlined Areas",
-        title = "Redline Zones"
-    ) %>%  
 # Neighborhood Segregation
     addPolygons(
         data = df_sf_urban %>% filter(city == city_name),
@@ -953,7 +935,32 @@ map_it <- function(city_name){
             weight = 5, 
             # opacity = .1    
         )}  
-
+# Redlined areas
+redline <- function(map = ., city_name){
+map %>% addPolygons(
+        data = red %>% filter(city == city_name), 
+        group = "Redlined Areas", 
+        label = ~Grade,
+        labelOptions = labelOptions(textsize = "12px"),
+        fillOpacity = .3, 
+        color = ~redline_pal(Grade), 
+        stroke = TRUE, 
+        weight = 1, 
+        opacity = .8, 
+        highlightOptions = highlightOptions(
+                            color = "#ff4a4a", 
+                            weight = 5,
+                            bringToFront = TRUE
+                            ), 
+        popup = ~popup
+    ) %>%   
+    addLegend(
+        data = red, 
+        pal = redline_pal, 
+        values = ~Grade, 
+        group = "Redlined Areas",
+        title = "Redline Zones"
+    )}
 # Opportunity Zones
 oz <- function(map = ., city_name){
   map %>% 
@@ -1111,6 +1118,7 @@ ucla <- function(map = ., city_name){
 # Options
 options <- function(
     map = ., 
+    redline = NULL, 
     belt = NULL, 
     oz = NULL, 
     ucla1 = NULL, 
@@ -1123,7 +1131,7 @@ options <- function(
          overlayGroups = 
              c("Displacement Typology", 
                 "Neighborhood Segregation",
-                "Redlined Areas", 
+                redline, 
                 oz,#
                  "Hospitals", 
                  "Universities & Colleges", 
@@ -1140,7 +1148,7 @@ options <- function(
          options = layersControlOptions(collapsed = FALSE, maxHeight = "auto")) %>% 
      hideGroup(
          c(oz,
-          "Redlined Areas", 
+          redline, 
           "Neighborhood Segregation",
              "Hospitals", 
              "Universities & Colleges", 
@@ -1160,79 +1168,88 @@ options <- function(
 # City specific displacement-typologies map
 # --------------------------------------------------------------------------
 
-# Atlanta, GA
-atlanta <- 
-    map_it("Atlanta") %>% 
-    oz(city_name = "Atlanta") %>% 
-    belt() %>% 
-    options(
-        belt = "Beltline",
-        oz = "Opportunity Zones") %>% 
-    setView(lng = -84.3, lat = 33.749, zoom = 10)
+# # Atlanta, GA
+# atlanta <- 
+#     map_it("Atlanta") %>% 
+#     redline("Atlanta") %>% 
+#     oz(city_name = "Atlanta") %>% 
+#     belt() %>% 
+#     options(
+#         redline = "Redlined Areas", 
+#         belt = "Beltline",
+#         oz = "Opportunity Zones") %>% 
+#     setView(lng = -84.3, lat = 33.749, zoom = 10)
 
-# save map
-htmlwidgets::saveWidget(atlanta, file=paste0(path, "/displacement-typologies/maps/atlanta_udp.html"))
-
-# Chicago, IL
-chicago <- 
-    map_it("Chicago") %>% 
-    oz(city_name = "Chicago") %>% 
-    options(oz = "Opportunity Zones") %>% 
-    setView(lng = -87.7, lat = 41.9, zoom = 10)
-# save map
-htmlwidgets::saveWidget(chicago, file=paste0(path, "/displacement-typologies/maps/chicago_udp.html"))
-
-# Denver, CO
-denver <- 
-    map_it("Denver") %>% 
-    oz(city_name = "Denver") %>%     
-    options(oz = "Opportunity Zones") %>% 
-    setView(lng = -104.98, lat = 39.75, zoom = 11)
 # # save map
-htmlwidgets::saveWidget(denver, file=paste0(path, "/displacement-typologies/maps/denver_udp.html"))
+# htmlwidgets::saveWidget(atlanta, file=paste0(path, "/displacement-typologies/maps/atlanta_udp.html"))
 
-# Los Angeles, CA
-la <- 
-    map_it("LosAngeles") %>% 
-    oz(city_name = "LosAngeles") %>% 
-    ucla(city_name = "LosAngeles") %>% 
-    options(
-        oz = "Opportunity Zones",
-        ucla1 = "Job Displacement Risk",
-        ucla2 = "Without Unemployment Insurance",
-        ucla3 = "Shelter-in-Place Burden",
-        ucla4 = "Renter Vulnerability Index", 
-        ucla5 = "Census Non-Response Rate"
-        ) %>% 
-    setView(lng = -118.2, lat = 34, zoom = 10)
-# save map
-htmlwidgets::saveWidget(la, file=paste0(path, "/displacement-typologies/maps/losangeles_udp.html"))
+# # Chicago, IL
+# chicago <- 
+#     map_it("Chicago") %>% 
+#     redline("Chicago") %>% 
+#     oz(city_name = "Chicago") %>% 
+#     options(redline = "Redlined Areas", oz = "Opportunity Zones") %>% 
+#     setView(lng = -87.7, lat = 41.9, zoom = 10)
+# # save map
+# htmlwidgets::saveWidget(chicago, file=paste0(path, "/displacement-typologies/maps/chicago_udp.html"))
 
-# San Francisco, CA
-sf <- 
-    map_it("SanFrancisco") %>% 
-    oz(city_name = "SanFrancisco") %>% 
-    options(oz = "Opportunity Zones") %>% 
-    setView(lng = -122.3, lat = 37.8, zoom = 10)
-# save map
-htmlwidgets::saveWidget(sf, file=paste0(path, "/displacement-typologies/maps/sanfrancisco_udp.html"))
+# # Denver, CO
+# denver <- 
+#     map_it("Denver") %>% 
+#     redline("Denver") %>% 
+#     oz(city_name = "Denver") %>%     
+#     options(redline = "Redlined Areas", oz = "Opportunity Zones") %>% 
+#     setView(lng = -104.98, lat = 39.75, zoom = 11)
+# # # save map
+# htmlwidgets::saveWidget(denver, file=paste0(path, "/displacement-typologies/maps/denver_udp.html"))
 
-# Seattle, WA
-seattle <- 
-    map_it("Seattle", 'WA') %>% 
-    oz(city_name = "Seattle") %>% 
-    options(oz = "Opportunity Zones") %>% 
-    setView(lng = -122.3, lat = 47.6, zoom = 9)
-# save map
-htmlwidgets::saveWidget(seattle, file=paste0(path, "/displacement-typologies/maps/seattle_udp.html"))
+# # Los Angeles, CA
+# la <- 
+#     map_it("LosAngeles") %>% 
+#     redline("LosAngeles") %>% 
+#     oz(city_name = "LosAngeles") %>% 
+#     ucla(city_name = "LosAngeles") %>% 
+#     options(
+#         redline = "Redlined Areas", 
+#         oz = "Opportunity Zones",
+#         ucla1 = "Job Displacement Risk",
+#         ucla2 = "Without Unemployment Insurance",
+#         ucla3 = "Shelter-in-Place Burden",
+#         ucla4 = "Renter Vulnerability Index", 
+#         ucla5 = "Census Non-Response Rate"
+#         ) %>% 
+#     setView(lng = -118.2, lat = 34, zoom = 10)
+# # save map
+# htmlwidgets::saveWidget(la, file=paste0(path, "/displacement-typologies/maps/losangeles_udp.html"))
+
+# # San Francisco, CA
+# sf <- 
+#     map_it("SanFrancisco") %>% 
+#     redline("SanFrancisco") %>% 
+#     oz(city_name = "SanFrancisco") %>% 
+#     options(redline = "Redlined Areas", oz = "Opportunity Zones") %>% 
+#     setView(lng = -122.3, lat = 37.8, zoom = 10)
+# # save map
+# htmlwidgets::saveWidget(sf, file=paste0(path, "/displacement-typologies/maps/sanfrancisco_udp.html"))
+
+# # Seattle, WA
+# seattle <- 
+#     map_it("Seattle") %>% 
+#     redline("Seattle") %>% 
+#     oz(city_name = "Seattle") %>% 
+#     options(redline = "Redlined Areas", oz = "Opportunity Zones") %>% 
+#     setView(lng = -122.3, lat = 47.6, zoom = 9)
+# # save map
+# htmlwidgets::saveWidget(seattle, file=paste0(path, "/displacement-typologies/maps/seattle_udp.html"))
 
 
 # SCAG Region, CA
 SCAG <- 
   map_it('SCAG') %>% 
+  redline('SCAG') %>% 
   oz(city_name = "SCAG") %>% 
-  options(oz = "Opportunity Zones") %>% 
-  setView(lng = -122.3, lat = 47.6, zoom = 10)
+  options(redline = "Redlined Areas", oz = "Opportunity Zones") #%>% 
+  # setView(lng = -122.3, lat = 47.6, zoom = 10)
 # save map
 htmlwidgets::saveWidget(SCAG, file=paste0(path, "/displacement-typologies/maps/SCAG_udp.html"))
 #
