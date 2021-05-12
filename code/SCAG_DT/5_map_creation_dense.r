@@ -55,7 +55,7 @@ data <-
         # read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Denver_typology_output.csv')) %>%
         #     mutate(city = 'Denver'),            
         read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/LosAngeles_typology_output.csv')) %>% 
-            mutate(city = 'SCAG'), 
+            mutate(city = 'LA'), 
         # read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/SanFrancisco_typology_output.csv')) %>% 
         #     mutate(city = 'SanFrancisco'),
         # read_csv(paste0(path, '/displacement-typologies/data/outputs/typologies/Seattle_typology_output.csv')) %>% 
@@ -180,6 +180,7 @@ tr_dem <-
 
 # Load UCLA indicators for LA maps
 ucla_df <- read_excel(paste0(path, "/displacement-typologies/data/inputs/UCLAIndicators/UCLA_CNK_COVID19_Vulnerability_Indicators_8_20_2020.xls"))
+
 #
 # Prep dataframe for mapping
 # --------------------------------------------------------------------------
@@ -276,15 +277,25 @@ df <-
                 case_when(
                     tr_pstudents > .3 ~ "High Student Population",
             ## Typology ammendments
-                    typ_cat == "['AdvG', 'BE']" ~ 'Advanced Gentrification',
-                    typ_cat == "['LISD']" & gent_90_00 == 1 & dense==0~ 'Advanced Gentrification',
-                    typ_cat == "['LISD']" & gent_90_00_urban == 1 & dense==1 ~ 'Advanced Gentrification',
-                    typ_cat == "['OD']" & gent_90_00 == 1 & dense==0 ~ 'Advanced Gentrification',
-                    typ_cat == "['OD']" & gent_90_00_urban == 1 & dense==1 ~ 'Advanced Gentrification',
-                    typ_cat == "['LISD']" & gent_00_18 == 1 & dense==0 ~ 'Early/Ongoing Gentrification',
-                    typ_cat == "['LISD']" & gent_00_18_urban == 1 & dense==1 ~ 'Early/Ongoing Gentrification',
-                    typ_cat == "['OD']" & gent_00_18 == 1 & dense==0 ~ 'Early/Ongoing Gentrification',
-                    typ_cat == "['OD']" & gent_00_18_urban == 1 & dense==1 ~ 'Early/Ongoing Gentrification',
+                    city == 'LA' & typ_cat == "['AdvG', 'BE']" ~ 'Advanced Gentrification',
+                    city == 'LA' & typ_cat == "['LISD']" & gent_90_00 == 1~ 'Advanced Gentrification',
+                    city == 'LA' & typ_cat == "['LISD']" & gent_90_00_urban == 1 ~ 'Advanced Gentrification',
+                    city == 'LA' & typ_cat == "['OD']" & gent_90_00 == 1 ~ 'Advanced Gentrification',
+                    city == 'LA' & typ_cat == "['OD']" & gent_90_00_urban == 1 ~ 'Advanced Gentrification',
+                    city == 'LA' & typ_cat == "['LISD']" & gent_00_18 == 1 ~ 'Early/Ongoing Gentrification',
+                    city == 'LA' & typ_cat == "['LISD']" & gent_00_18_urban == 1 ~ 'Early/Ongoing Gentrification',
+                    city == 'LA' & typ_cat == "['OD']" & gent_00_18 == 1 ~ 'Early/Ongoing Gentrification',
+                    city == 'LA' & typ_cat == "['OD']" & gent_00_18_urban == 1 ~ 'Early/Ongoing Gentrification',
+
+                    city == 'SCAG' & typ_cat == "['AdvG', 'BE']" ~ 'Becoming Exclusive',
+                    city == 'SCAG' & typ_cat == "['LISD']" & gent_90_00 == 1 & dense==0~ 'Advanced Gentrification',
+                    city == 'SCAG' & typ_cat == "['LISD']" & gent_90_00_urban == 1 & dense==1 ~ 'Advanced Gentrification',
+                    city == 'SCAG' & typ_cat == "['OD']" & gent_90_00 == 1 & dense==0 ~ 'Advanced Gentrification',
+                    city == 'SCAG' & typ_cat == "['OD']" & gent_90_00_urban == 1 & dense==1 ~ 'Advanced Gentrification',
+                    city == 'SCAG' & typ_cat == "['LISD']" & gent_00_18 == 1 & dense==0 ~ 'Early/Ongoing Gentrification',
+                    city == 'SCAG' & typ_cat == "['LISD']" & gent_00_18_urban == 1 & dense==1 ~ 'Early/Ongoing Gentrification',
+                    city == 'SCAG' & typ_cat == "['OD']" & gent_00_18 == 1 & dense==0 ~ 'Early/Ongoing Gentrification',
+                    city == 'SCAG' & typ_cat == "['OD']" & gent_00_18_urban == 1 & dense==1 ~ 'Early/Ongoing Gentrification',
             ## Regular adjustments
                     typ_cat == "['AdvG']" ~ 'Advanced Gentrification',
                     typ_cat == "['ARE']" ~ 'At Risk of Becoming Exclusive',
@@ -490,6 +501,8 @@ df_sf_urban <-
   st_crop(urban_areas) %>%
   st_erase(water) %>% 
   ms_simplify(keep = 0.5)
+
+df_sf_urban <- df_sf_urban %>% mutate(city = 'SCAG')
 
 saveRDS(df_sf_urban, paste0(path, '/displacement-typologies/data/midpoints/df_sf_urban_scag.rds'))
 df_sf_urban <- readRDS(paste0(path, '/displacement-typologies/data/midpoints/df_sf_urban_scag.rds'))
@@ -1251,7 +1264,7 @@ SCAG <-
   options(redline = "Redlined Areas", oz = "Opportunity Zones") #%>% 
   # setView(lng = -122.3, lat = 47.6, zoom = 10)
 # save map
-htmlwidgets::saveWidget(SCAG, file=paste0(path, "/displacement-typologies/maps/SCAG_udp_dense.html"))
+htmlwidgets::saveWidget(SCAG, file=paste0(path, "/displacement-typologies/maps/SCAG_udp_dense_rural.html"))
 
 #
 # Create file exports
