@@ -34,9 +34,9 @@
 | mov_oc_9000_18                 | Number of people (with income $1-$9,999 or loss) who moved from different county within same state in 2018 |
 | mov_oc_15000_18                | Number of people (with income $10,000-$14,999) who moved from different county within same state in 2018 |
 | mov_oc_25000_18                | Number of people (with income $15,000-$24,999) who moved from different county within same state in 2018 |
-| state_x                        | |
-| county_x                       | |
-| tract_x                        | |
+| state_x                        | Duplicate of state field|
+| county_x                       | Duplicate of county field|
+| tract_x                        | Duplicate of tract field|
 | mov_oc_35000_18                | Number of people (with income $25,000-$34,999) who moved from different county within same state in 2018 |
 | mov_oc_50000_18                | Number of people (with income $35,000-$49,999) who moved from different county within same state in 2018 |
 | mov_oc_65000_18                | Number of people (with income $50,000-$64,999) who moved from different county within same state in 2018 |
@@ -60,7 +60,7 @@
 | mov_fa_65000_18                | Number of people (with income $50,000-$64,999) who moved from abroad in 2018 |
 | mov_fa_75000_18                | Number of people (with income $65,000-$74,999) who moved from abroad in 2018 |
 | mov_fa_76000_more_18           | Number of people (with income $75,000 or more) who moved from abroad in 2018 |
-| FIPS                           |	|
+| FIPS                           | U.S. Census tract FIPS code |
 | mhval_12                       | Estimate, median value (dollars), owner-occupied housing units in 2012 |
 | mhval_12_se                    | Margin of error, median value (dollars), owner-occupied housing units in 2012 |
 | mrent_12                       | Estimate, median gross rent (dollars) for renter-occupied housing units paying cash rent in 2012 |
@@ -159,8 +159,8 @@
 | mix_low_medhhinc_18            |	Binary variable: equal to 1 if percentage of high-, low- and moderate-income households are each less than 45% and the median income is no more than 80% of the regional median income |
 | mix_mod_medhhinc_18            |	Binary variable: equal to 1 if percentage of high-, low- and moderate-income households are each less than 45% and the median income is between 80% and 120% of the regional median income |
 | mix_high_medhhinc_18           |	Binary variable: equal to 1 if percentage of high-, low- and moderate-income households are each less than 45% and the median income is above 120% of the regional median income |
-| inc_cat_medhhinc_18            |	|
-| inc_cat_medhhinc_encoded18     |	|
+| inc_cat_medhhinc_18            |	Numerical median household income category |
+| inc_cat_medhhinc_encoded18     |	Typological income category |
 | low_80120_00                   | Percentage of low-income households (under 80% AMI) in 2000 |
 | mod_80120_00                   | Percentage of moderate-income households (80%-120% AMI) in 2000 |
 | high_80120_00                  | Percentage of high-income households (more than 120% AMI) in 2000 |
@@ -170,8 +170,8 @@
 | mix_low_medhhinc_00            | Binary variable: equal to 1 if percentage of high-, low- and moderate-income households are each less than 45% and the median income is no more than 80% of the regional median income |
 | mix_mod_medhhinc_00            | Binary variable: equal to 1 if percentage of high-, low- and moderate-income households are each less than 45% and the median income is between 80% and 120% of the regional median income |
 | mix_high_medhhinc_00           | Binary variable: equal to 1 if percentage of high-, low- and moderate-income households are each less than 45% and the median income is above 120% of the regional median income |
-| inc_cat_medhhinc_00            |	|
-| inc_cat_medhhinc_encoded00     |	|
+| inc_cat_medhhinc_00            |	Numerical median household income category |
+| inc_cat_medhhinc_encoded00     |	Typological income category |
 | per_all_li_90                  | Percentage of low-income households (under 80% AMI) in 1990 |
 | per_all_li_00                  | Percentage of low-income households (under 80% AMI) in 2000 |
 | per_all_li_18                  | Percentage of low-income households (under 80% AMI) in 2018 |
@@ -287,19 +287,19 @@
 | gent_90_00_urban               | Binary Variable Indicating Gentrification between 1990 - 2000, Urban Census Tracts |
 | gent_00_18                     | Binary Variable Indicating Gentrification between 2000 - 2018, Urban Census Tracts |
 | gent_00_18_urban               | Binary Variable Indicating Gentrification between 2000 - 2018, Urban Census Tracts |
-| dp_PChRent                     |	|
-| dp_RentGap                     |	|
+| dp_PChRent                     |	Dummy variable where 1 = the percent change in tract rent is greater than 0 and the regional percent change in tract rent AND the nearby percent change in tract rent is greater than the regional median in nearby percent change in tract rent. (see `3_create_lag_vars.r` line 231) |
+| dp_RentGap                     |	Dummy variable where 1 = the rent gap (nearby minus local rent) is greater than 0 and greater than the regional median rent gap. |
 | tr_rent_gap                    | Rent Gap Tracts to Surrounding Tracts, 2018 |
 | rm_rent_gap                    | Regional Median Rent Gap, 2018	|
 | dense                          | Binary Variable Indicating Dense Tracts |
-| SAE                            | Binary Variable Indicating Stable Advanced Exclusive Typlogy |
-| AdvG                           | Binary Variable Indicating Advancaed Gentrification Typlogy |
-| ARE                            | Binary Variable Indicating At Risk of Being Exclusive Typlogy |
+| SAE                            | Binary Variable Indicating Stable Advanced Exclusive Typology |
+| AdvG                           | Binary Variable Indicating Advanced Gentrification Typology |
+| ARE                            | Binary Variable Indicating At Risk of Being Exclusive Typology |
 | BE                             | Binary Variable Indicating Becoming Exclusive |
 | SMMI                           | Binary Variable Indicating Stable Middle/Moderate Income |
 | ARG                            | Binary Variable Indicating At Risk of Gentrification |
-| EOG                            | Binary Variable Indicating Early Ongoing Gentrifciation |
-| OD                             | Binary Variable Indicating Onging Displacement|
+| EOG                            | Binary Variable Indicating Early Ongoing Gentrification |
+| OD                             | Binary Variable Indicating Ongoing Displacement|
 | OD_loss                        | Artifact of Variable Creation  |
 | SLI                            | Binary Variable Indicating Low Income |
 | double_counted                 | Binary Variable Indicating a Double Count in Variable Creation |
@@ -319,44 +319,44 @@
 | pLatinx                        | Percent Latin Population Estimate, 2018|
 | pOther                         | Percent Other Population Estimate, 2018|
 | NeighType                      | Neighborhood Racial Composition Type, 2018|
-| nt_conc                        |  |
-| st_unitsE                      |	|
-| st_unitsM                      |	|
-| st_vacantE                     |	|
-| st_vacantM                     |	|
-| st_ownoccE                     |	|
-| st_ownoccM                     |	|
-| st_rentoccE                    |	|
-| st_rentoccM                    |	|
-| st_totenrollE                  |	|
-| st_totenrollM                  |	|
-| st_colenrollE                  |	|
-| st_colenrollM                  |	|
-| st_proenrollE                  |	|
-| st_proenrollM                  |	|
-| st_pov_underE                  |	|
-| st_pov_underM                  |	|
-| st_pov_gradE                   |	|
-| st_pov_gradM                   |	|
-| tr_pstudents                   |	|
-| tr_prenters                    |	|
-| tr_pvacant                     |	|
-| county.y                       |	|
-| pct_atrisk_workers             |	|
-| pct_wo_UI                      |	|
-| SIPBI_dec                      |	|
-| RVI_dec                        |	|
-| Nr_Aug                         |	|
-| cat_pct_atrisk_workers         |	|
-| cat_pct_wo_UI                  |	|
-| cat_SIPBI_dec                  |	|
-| cat_RVI_dec                    |	|
-| cat_Nr_Aug                     |	|
-| Typology                       |	|
+| nt_conc                        |  Concatenated neighborhood racial typology: see the R [neighborhood](https://github.com/timathomas/neighborhood) package. |
+| st_unitsE                      |	Number of housing units estimate|
+| st_unitsM                      |	Number of housing units margin of error|
+| st_vacantE                     |	Number of vacant units estimate|
+| st_vacantM                     |	Number of vacant units margin of error|
+| st_ownoccE                     |	Number of owned housing units estimate|
+| st_ownoccM                     |	Number of owned housing units margin of error|
+| st_rentoccE                    |	Number of occupied rental units estimate|
+| st_rentoccM                    |	Number of occupied rental units margin of error|
+| st_totenrollE                  |	Number of total enrolled students population (including unenrolled) estimate|
+| st_totenrollM                  |	Number of total enrolled students population (including unenrolled) margin of error|
+| st_colenrollE                  |	Number of college enrolled students estimate|
+| st_colenrollM                  |	Number of college enrolled students margin of error|
+| st_proenrollE                  |	Number of professional degree enrolled students estimate|
+| st_proenrollM                  |	Number of professional degree enrolled students margin of error|
+| st_pov_underE                  |	Number of enrolled undergrads estimate|
+| st_pov_underM                  |	Number of enrolled undergrads margin of error|
+| st_pov_gradE                   |	Number of enrolled estimate|
+| st_pov_gradM                   |	Number of enrolled margin of error|
+| tr_pstudents                   |	Percent students in a tract |
+| tr_prenters                    |	Percent renters in a tract|
+| tr_pvacant                     |	percent vacant |
+| county.y                       |	Duplicate county variable |
+| pct_atrisk_workers             |	Percent of workers at risk of unemployment (from UCLA indicators `UCLAIndicators/UCLA_CNK_COVID19_Vulnerability_Indicators_8_20_2020.xls`|
+| pct_wo_UI                      |	Percent of workers without unemployment insurance (from UCLA indicators `UCLAIndicators/UCLA_CNK_COVID19_Vulnerability_Indicators_8_20_2020.xls`|
+| SIPBI_dec                      |	Shelter in Place Burden (from UCLA indicators `UCLAIndicators/UCLA_CNK_COVID19_Vulnerability_Indicators_8_20_2020.xls`|
+| RVI_dec                        |	Renter vulnerability index (from UCLA indicators `UCLAIndicators/UCLA_CNK_COVID19_Vulnerability_Indicators_8_20_2020.xls`|
+| Nr_Aug                         |	Census non response rate (from UCLA indicators `UCLAIndicators/UCLA_CNK_COVID19_Vulnerability_Indicators_8_20_2020.xls`|
+| cat_pct_atrisk_workers         |	Discrete category for Percent of workers at risk of unemployment | 
+| cat_pct_wo_UI                  |	Discrete category for Percent of workers without unemployment insurance |
+| cat_SIPBI_dec                  |	Discrete category for Shelter in Place Burden|
+| cat_RVI_dec                    |	Discrete category for Renter vulnerability index|
+| cat_Nr_Aug                     |	Discrete category for non response rate|
+| Typology                       |	Displacement typology|
 | rm_real_mhval_18               | Regional Median Home Value (Census), 2018|
 | rm_real_mrent_18               | Regional Median Home Value (Census), 2018|
 | rm_per_nonwhite_18             | Regional Median Percent Non White (Census), 2018|
 | rm_per_col_18                  | Regional Median Percent Population over 25, College Educated, 2018|
 | per_ch_li                      | Percent Change in Low Income, 2000-2018|
 | ci                             | Community input text. If our typology does not capture a tract appropriately, we can add text here for specific tracts to describe  ammendments that should be considered	|
-| popup                          |	|
+| popup                          | Map popup code and text|

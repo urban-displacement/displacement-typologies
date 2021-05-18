@@ -27,6 +27,8 @@ This repository holds all the code needed to produce [UDP's Displacement Typolog
 <!-- TYPOLOGIES -->
 ## Typologies
 
+This repository is a continuation of the [Urban Displacement Replication Project](https://www.urbandisplacement.org/sites/default/files/udp_replication_project_methodology_10.16.2020-converted.pdf) in collaboration with the Strong, Prosperous, And Resilient Communities Challenge ([SPARCC](https://www.sparcchub.org)). You can read the last report that UDP conducted with SPARCC [here](https://www.urbandisplacement.org/sites/default/files/udp_replication_project_methodology_10.16.2020-converted.pdf) to learn more about this projects methodology and typologies. 
+
 UDP's Displacement Typologies use housing and demographic data from the US Census, as well as real estate market data from Zillow to classify a metropolitain area's census tracts into eight distinct categories. Each category represents a stage of neighborhood change, although should not be taken to represent a linear trajectory or to predetermine neighborhood outcomes. Instead, typologies allow practictionners and researchers to see patterns in their regions over a specified time period, and are meant to start conversations about how policy interventions and investment could respond and support more equitable development.
 
 It is important to note that in considering the entire metropolitan region, UDP's typologies classify both low- and middle-income neighborhods at risk of or experiencing displacement or gentrification, as well as high-income neighborhoods where housing markets are becoming increasingly 'exclusive' to low income residents. UDP believes that classifying tracts in such a way allows practionners to get a broader picture of neighborhood dynamics, specifically the concentration of poverty and wealth within a region. 
@@ -45,7 +47,7 @@ To run the code, fork this repository and navigate to the `code/README.md` file 
 <!-- CONTACT -->
 ## Contact or issues
  
-If you find a bug or have questions about our code, analysis, or anything else regarding this repo/project, please create an [issue](https://github.com/urban-displacement/displacement-typologies/issues) and ping `@timathomas`. You're also welcome to reach out via email at <info@urbandisplacement.org> to ask us for questions, help, or suggestions.
+This is a work in progress and we happily invite community feedback and collaboration in improving this work. If you find a bug or have questions about our code, analysis, or anything else regarding this repo/project, please create an [issue](https://github.com/urban-displacement/displacement-typologies/issues) and ping `@timathomas`. You're also welcome to reach out via email at <info@urbandisplacement.org> to ask us for questions, help, or suggestions.
  
 <!-- EXISTING MAPS -->
 ## Existing Maps
