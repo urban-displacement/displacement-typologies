@@ -90,3 +90,7 @@ summary(test2)
 
 test3 <- glm(Rate ~ Typology2 + tr_rent_gap + real_mrent_18 + real_mhval_18 + white_18, data = df)
 summary(test3)
+
+#### Does prior displacement in 90's predict gentrification in the teens or vice versa 
+
+
