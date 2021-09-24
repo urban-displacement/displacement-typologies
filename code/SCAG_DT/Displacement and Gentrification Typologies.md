@@ -39,11 +39,11 @@ UDP's Typologies have evolved over time in response to community and partner fee
 ## Maps and Downloads
 
 
-[SCAG Map](https://ereifsnyder.github.io/displacement-typologies/maps/SCAG_udp_dense_rural.html)
+[SCAG Map](https://urban-displacement.github.io/displacement-typologies/maps/SCAG_udp_dense_rural.html)
 
-* GeoPackages (similar to shapefiles) & CSV's with GEOID & Typologies: [Download](https://github.com/ereifsnyder/displacement-typologies/blob/main/data/downloads_for_public/scag.gpkg)
-* Full Typology as Shapefile: [Download](https://github.com/ereifsnyder/displacement-typologies/blob/main/data/downloads_for_public/scag.zip)
-* Full typology data as CSV: [Download](https://github.com/ereifsnyder/displacement-typologies/blob/main/data/downloads_for_public/scag.csv)
+* GeoPackages (similar to shapefiles) & CSV's with GEOID & Typologies: [Download](https://github.com/urban-displacement/displacement-typologies/blob/main/data/downloads_for_public/scag.gpkg)
+* Full Typology as Shapefile: [Download](https://github.com/urban-displacement/displacement-typologies/blob/main/data/downloads_for_public/scag.zip)
+* Full typology data as CSV: [Download](https://github.com/urban-displacement/displacement-typologies/blob/main/data/downloads_for_public/scag.csv)
 * Codebook for full typology dataset: [link](https://github.com/urban-displacement/displacement-typologies/blob/main/data/outputs/typologies/typologies_codebook.md)
 
 <!-- Findings -->
@@ -62,4 +62,4 @@ This is a work in progress and we happily invite community feedback and collabor
 
 
 ## Citation
-Tim Thomas, Anna Cash, Anna Driscoll, Gabriela Picado Aguilar, Carson Hartman, Julia Greenberg, Alex Ramiller, Emery Reifsnyder, Miriam Zuk, and Karen Chapple. “Urban-displacement/displacement-typologies: Release 1.1”. https://github.com/ereifsnyder/displacement-typologies. doi:10.5281/zenodo.4356684.
+Tim Thomas, Anna Cash, Anna Driscoll, Gabriela Picado Aguilar, Carson Hartman, Julia Greenberg, Alex Ramiller, Emery Reifsnyder, Miriam Zuk, and Karen Chapple. “Urban-displacement/displacement-typologies: Release 1.1”. https://github.com/urban-displacement/displacement-typologies. doi:10.5281/zenodo.4356684.
