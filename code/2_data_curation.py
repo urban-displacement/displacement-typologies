@@ -5,7 +5,7 @@
 # ==========================================================================
 # ==========================================================================
 # ==========================================================================
-# Note: (input needed) in title bars indicates that in order to bring in new city information 
+# Note: (input needed) in title bars indicates that in order to bring in new city information
 # users must input new code in the section
 
 # ==========================================================================
@@ -40,11 +40,11 @@ c = census.Census(key)
 
 # Choose City and run census tracts of interest
 # --------------------------------------------------------------------------
-# For command line operation (e.g. python3 2_data_curation.py Atlanta), 
+# For command line operation (e.g. python3 2_data_curation.py Atlanta),
 # uncomment the following (default)
 city_name = str(sys.argv[1])
 
-# For testing different cities while working within the code, 
+# For testing different cities while working within the code,
 # uncomment the following and rename city as needed
 # city_name = "Atlanta"
 
@@ -57,12 +57,12 @@ city_name = str(sys.argv[1])
 # ==========================================================================
 
 # ==========================================================================
-# Read Files 
+# Read Files
 # ==========================================================================
-# Note: Most of the input files are located on google drive. 
-# UDP suggests downloading [Google's Drive File Stream](https://support.google.com/a/answer/7491144?utm_medium=et&utm_source=aboutdrive&utm_content=getstarted&utm_campaign=en_us) 
+# Note: Most of the input files are located on google drive.
+# UDP suggests downloading [Google's Drive File Stream](https://support.google.com/a/answer/7491144?utm_medium=et&utm_source=aboutdrive&utm_content=getstarted&utm_campaign=en_us)
 # app, which doesn't download all Google Drive items to your computer
-# but rather pulls them as necessary. This will save a lot of space but compromises speed. 
+# but rather pulls them as necessary. This will save a lot of space but compromises speed.
 
 # Data files
 census_90 = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_90_2018.csv', index_col = 0)
@@ -95,7 +95,7 @@ elif city_name == 'Los Angeles':
     FIPS = ['037', '059', '073']
 elif city_name == 'San Francisco':
     state = '06'
-    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']  
+    FIPS = ['001', '013', '041', '055', '067', '075', '077', '081', '085', '087', '095', '097', '113']
 elif city_name == 'Seattle':
     state = '53'
     FIPS = ['033', '053', '061']
@@ -110,7 +110,7 @@ else:
 
 # ==========================================================================
 # Create Crosswalk Functions / Files
-# ==========================================================================    
+# ==========================================================================
 
 # Create a Filter Function
 # --------------------------------------------------------------------------
@@ -131,7 +131,7 @@ def filter_FIPS(df):
 
 def crosswalk_files (df, xwalk, counts, medians, df_fips_base, xwalk_fips_base, xwalk_fips_horizon):
     # merge dataframe with xwalk file
-    df_merge = df.merge(xwalk[['weight', xwalk_fips_base, xwalk_fips_horizon]], left_on = df_fips_base, right_on = xwalk_fips_base, how='left')                             
+    df_merge = df.merge(xwalk[['weight', xwalk_fips_base, xwalk_fips_horizon]], left_on = df_fips_base, right_on = xwalk_fips_base, how='left')
     df = df_merge
     # apply interpolation weight
     new_var_list = list(counts)+(medians)
@@ -141,7 +141,7 @@ def crosswalk_files (df, xwalk, counts, medians, df_fips_base, xwalk_fips_base, 
     df = df.groupby(xwalk_fips_horizon).sum().reset_index()
     # rename trtid10 to FIPS & FIPS to trtid_base
     df = df.rename(columns = {'FIPS':'trtid_base',
-                              'trtid10':'FIPS'})  
+                              'trtid10':'FIPS'})
     # fix state, county and fips code
     df ['state'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[0:2]
     df ['county'] = df['FIPS'].astype('int64').astype(str).str.zfill(11).str[2:5]
@@ -188,10 +188,10 @@ census_00_filtered = filter_FIPS(census_00_xwalked)
 # ==========================================================================
 # Setup / Read Files (inputs needed)
 # ==========================================================================
-# Note: Below is the Google File Drive Stream pathway for a Mac. 
+# Note: Below is the Google File Drive Stream pathway for a Mac.
 # input_path = '~/git/displacement-typologies/data/inputs/'
 # Use this to draw in the 'input_path' variable needed below
-# You will need to redesignate this path if you have a Windows 
+# You will need to redesignate this path if you have a Windows
 # output_path = output_path
 
 shp_folder = input_path+'shp/'+city_name.replace(" ", "")+'/'
@@ -245,7 +245,7 @@ pub_hous = pd.read_csv(input_path+'Public_Housing_Buildings.csv.gz')
 # Read Shapefile Data (inputs needed)
 # ==========================================================================
 # Note: Similar to above, add a 'elif' for you city here
-# Pull cartographic boundary files from here: 
+# Pull cartographic boundary files from here:
 # https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.2017.html
 
 if city_name == 'Memphis':
@@ -279,13 +279,13 @@ if city_name == 'Chicago':
     state_init = ['IL']
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
     rail_agency = ['CTA']
-    zone = '16T'  
+    zone = '16T'
 elif city_name == 'Atlanta':
     state = '13'
     state_init = ['GA']
     FIPS = ['057', '063', '067', '089', '097', '113', '121', '135', '151', '247']
     rail_agency = ['MARTA']
-    zone = '16S' 
+    zone = '16S'
 elif city_name == 'Denver':
     state = '08'
     state_init = ['CO']
@@ -366,7 +366,7 @@ rm_iinc_12 = np.nanmedian(census['iinc_12'])
 
 print(rm_hinc_18, rm_hinc_00, rm_hinc_90, rm_iinc_18, rm_iinc_12)
 
-## Income Interpolation Function 
+## Income Interpolation Function
 ## This function interpolates population counts using income buckets provided by the Census
 
 def income_interpolation (census, year, cutoff, mhinc, tot_var, var_suffix, out):
@@ -386,10 +386,10 @@ def income_interpolation (census, year, cutoff, mhinc, tot_var, var_suffix, out)
     column = []
     for i in number:
         column.append('prop_'+str(i))
-        income_cat['prop_'+str(i)] = income_cat[var_suffix+'_'+str(i)+'_'+year]/income_cat[tot_var]          
+        income_cat['prop_'+str(i)] = income_cat[var_suffix+'_'+str(i)+'_'+year]/income_cat[tot_var]
     reg_median_cutoff = cutoff*mhinc
     cumulative = out+str(int(cutoff*100))+'_cumulative'
-    income = out+str(int(cutoff*100))+'_'+year 
+    income = out+str(int(cutoff*100))+'_'+year
     df = income_cat
     df[cumulative] = 0
     df[income] = 0
@@ -399,10 +399,10 @@ def income_interpolation (census, year, cutoff, mhinc, tot_var, var_suffix, out)
         prop = str(number[i+1])
         df[cumulative] = df[cumulative]+df['prop_'+a]
         if (reg_median_cutoff>=int(a))&(reg_median_cutoff<b):
-            df[income] = ((reg_median_cutoff - int(a))/(b-int(a)))*df['prop_'+prop] + df[cumulative] 
+            df[income] = ((reg_median_cutoff - int(a))/(b-int(a)))*df['prop_'+prop] + df[cumulative]
     df = df.drop(columns = [cumulative])
-    prop_col = df.columns[df.columns.str[0:4]=='prop'] 
-    df = df.drop(columns = prop_col)     
+    prop_col = df.columns[df.columns.str[0:4]=='prop']
+    df = df.drop(columns = prop_col)
     census = census.merge (df[['FIPS', income]], on = 'FIPS')
     return census
 
@@ -412,26 +412,26 @@ census = income_interpolation (census, '00', 0.8, rm_hinc_00, 'hh_00', 'I', 'inc
 census = income_interpolation (census, '00', 1.2, rm_hinc_00, 'hh_00', 'I', 'inc')
 census = income_interpolation (census, '90', 0.8, rm_hinc_90, 'hh_00', 'I', 'inc')
 
-income_col = census.columns[census.columns.str[0:2]=='I_'] 
+income_col = census.columns[census.columns.str[0:2]=='I_']
 census = census.drop(columns = income_col)
 
 # ==========================================================================
-# Generate Income Categories 
+# Generate Income Categories
 # ==========================================================================
 
 # Create Category Function + Run
 # --------------------------------------------------------------------------
 
 def income_categories (df, year, mhinc, hinc):
-    df['hinc_'+year] = np.where(df['hinc_'+year]<0, 0, df['hinc_'+year])  
+    df['hinc_'+year] = np.where(df['hinc_'+year]<0, 0, df['hinc_'+year])
     reg_med_inc80 = 0.8*mhinc
     reg_med_inc120 = 1.2*mhinc
-    low = 'low_80120_'+year 
+    low = 'low_80120_'+year
     mod = 'mod_80120_'+year
     high = 'high_80120_'+year
     df[low] = df['inc80_'+year]
     df[mod] = df['inc120_'+year] - df['inc80_'+year]
-    df[high] = 1 - df['inc120_'+year]  
+    df[high] = 1 - df['inc120_'+year]
     ## Low income
     df['low_pdmt_medhhinc_'+year] = np.where((df['low_80120_'+year]>=0.55)&(df['mod_80120_'+year]<0.45)&(df['high_80120_'+year]<0.45),1,0)
     ## High income
@@ -453,14 +453,14 @@ def income_categories (df, year, mhinc, hinc):
     df['mix_high_medhhinc_'+year] = np.where((df['low_pdmt_medhhinc_'+year]==0)&
                                                   (df['mod_pdmt_medhhinc_'+year]==0)&
                                                   (df['high_pdmt_medhhinc_'+year]==0)&
-                                                  (df[hinc]>=reg_med_inc120),1,0)   
+                                                  (df[hinc]>=reg_med_inc120),1,0)
     df['inc_cat_medhhinc_'+year] = 0
     df.loc[df['low_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 1
     df.loc[df['mix_low_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 2
     df.loc[df['mod_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 3
     df.loc[df['mix_mod_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 4
     df.loc[df['mix_high_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 5
-    df.loc[df['high_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 6    
+    df.loc[df['high_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_'+year] = 6
     df['inc_cat_medhhinc_encoded'+year] = 0
     df.loc[df['low_pdmt_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'low_pdmt'
     df.loc[df['mix_low_medhhinc_'+year]==1, 'inc_cat_medhhinc_encoded'+year] = 'mix_low'
@@ -496,7 +496,7 @@ census['all_li_count_18'] = census['per_all_li_18']*census['hh_18']
 len(census)
 
 # ==========================================================================
-# Rent, Median income, Home Value Data 
+# Rent, Median income, Home Value Data
 # ==========================================================================
 
 census['real_mhval_90'] = census['mhval_90']*CPI_89_18
@@ -516,7 +516,7 @@ census['real_mrent_18'] = census['mrent_18']
 census['real_hinc_18'] = census['hinc_18']
 
 # ==========================================================================
-# Demographic Data 
+# Demographic Data
 # ==========================================================================
 
 df = census
@@ -628,10 +628,10 @@ def income_interpolation_movein (census, year, cutoff, rm_iinc):
         prop = str(number[i+1])
         df[cumulative] = df[cumulative]+df['prop_mov_'+a]
         if (reg_median_cutoff>=int(a))&(reg_median_cutoff<b):
-            df[per_limove] = ((reg_median_cutoff - int(a))/(b-int(a)))*df['prop_mov_'+prop] + df[cumulative]           
+            df[per_limove] = ((reg_median_cutoff - int(a))/(b-int(a)))*df['prop_mov_'+prop] + df[cumulative]
     df = df.drop(columns = [cumulative])
-    prop_col = df.columns[df.columns.str[0:4]=='prop'] 
-    df = df.drop(columns = prop_col)     
+    prop_col = df.columns[df.columns.str[0:4]=='prop']
+    df = df.drop(columns = prop_col)
     col_list = [per_limove]+['mov_tot_w_income_'+year]
     census = census.merge (df[['FIPS'] + col_list], on = 'FIPS')
     return census
@@ -643,7 +643,7 @@ len(census)
 
 # ==========================================================================
 # Housing Affordability Variables
-# ==========================================================================  
+# ==========================================================================
 
 def filter_PUMS(df, FIPS):
     if (city_name not in ('Memphis', 'Boston')):
@@ -737,7 +737,7 @@ pums['pct_low_18'] = pums['low_tot_18']/pums['hu_tot_18']
 pums['pct_mod_18'] = pums['mod_tot_18']/pums['hu_tot_18']
 pums['pct_high_18'] = pums['high_tot_18']/pums['hu_tot_18']
 
-# Classifying tracts by housing afforablde by income  
+# Classifying tracts by housing afforablde by income
 # --------------------------------------------------------------------------
 
 ## Low income
@@ -845,7 +845,7 @@ len(census)
 # Zillow Data
 # ==========================================================================
 
-# Load Zillow Data 
+# Load Zillow Data
 # --------------------------------------------------------------------------
 
 def filter_ZILLOW(df, FIPS):
@@ -856,7 +856,7 @@ def filter_ZILLOW(df, FIPS):
         fips_list = []
         for i in state:
             county = FIPS[str(i)]
-            FIPS_pre = [str(i)+county for county in county]         
+            FIPS_pre = [str(i)+county for county in county]
         df = df[(df['FIPS'].astype(str).str.zfill(11).str[:5].isin(FIPS_pre))].reset_index(drop = True)
     return df
 
@@ -894,10 +894,10 @@ zillow['ab_50pct_ch'] = np.where(zillow['per_ch_zillow_12_18']>0.5, 1, 0)
 zillow['ab_90percentile_ch'] = np.where(zillow['per_ch_zillow_12_18']>percentile_90, 1, 0)
 census_zillow = census.merge(zillow[['FIPS', 'per_ch_zillow_12_18', 'ab_50pct_ch', 'ab_90percentile_ch']], on = 'FIPS')
 census_zillow.head()
-census_zillow.info() 
-census.info() 
+census_zillow.info()
+census.info()
 
-## Create 90th percentile for rent - 
+## Create 90th percentile for rent -
 # census['rent_percentile_90'] = census['pctch_real_mrent_12_18'].quantile(q = 0.9)
 census_zillow['rent_50pct_ch'] = np.where(census_zillow['pctch_real_mrent_12_18']>=0.5, 1, 0)
 census_zillow['rent_90percentile_ch'] = np.where(census_zillow['pctch_real_mrent_12_18']>=0.9, 1, 0)
@@ -933,7 +933,7 @@ rm_real_hinc_00 = np.nanmedian(census_zillow['real_hinc_00'])
 rm_real_hinc_18 = np.nanmedian(census_zillow['real_hinc_18'])
 rm_per_units_pre50_18 = np.nanmedian(census_zillow['per_units_pre50_18'])
 rm_per_ch_zillow_12_18 = np.nanmedian(census_zillow['per_ch_zillow_12_18'])
-rm_pctch_real_mrent_12_18 = np.nanmedian(census_zillow['pctch_real_mrent_12_18'])  
+rm_pctch_real_mrent_12_18 = np.nanmedian(census_zillow['pctch_real_mrent_12_18'])
 
 ## Above regional median change home value and rent
 census_zillow['hv_abrm_ch'] = np.where(census_zillow['per_ch_zillow_12_18'] > rm_per_ch_zillow_12_18, 1, 0)
@@ -1082,28 +1082,28 @@ presence_ph_LIHTC = lihtc[['geometry']].append(pub_hous[['geometry']])
 city_shp['presence_ph_LIHTC'] = city_shp.intersects(presence_ph_LIHTC.unary_union)
 
 ####
-# Begin Map Plot 
+# Begin Map Plot
 ####
 # ax = city_shp.plot(color = 'grey')
 # city_shp.plot(ax = ax, column = 'presence_ph_LIHTC')
 # presence_ph_LIHTC.plot(ax = ax)
 # plt.show()
 ####
-# End Map Plot 
+# End Map Plot
 ####
 
 # ==========================================================================
-# Merge Census and Zillow Data 
+# Merge Census and Zillow Data
 # ==========================================================================
 
 city_shp['GEOID'] = city_shp['GEOID'].astype('int64')
 
-census_zillow = census_zillow.merge(city_shp[['GEOID','geometry','rail', 
-	# 'anchor_institution', 
+census_zillow = census_zillow.merge(city_shp[['GEOID','geometry','rail',
+	# 'anchor_institution',
 	'presence_ph_LIHTC']], right_on = 'GEOID', left_on = 'FIPS')
 census_zillow.query("FIPS == 13121011100")
 # ==========================================================================
-# Export Data 
+# Export Data
 # ==========================================================================
 
 census_zillow.to_csv(output_path+'databases/'+city_name.replace(" ", "")+'_database_2018.csv')
