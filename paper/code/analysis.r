@@ -1,12 +1,25 @@
 # ==========================================================================
 # Displacement Typologies Methods Paper
-# Notes: https://docs.google.com/document/d/1WKuu3LoRlHzKtGBzmytRni5kzdUc--_BboicjcoNTfs/edit
-# Modeling Strategy 1: 
-# 	displacement typology = eviction + disinvestment + gentrification typology
+# Notes: 
+# 	https://docs.google.com/document/d/1WKuu3LoRlHzKtGBzmytRni5kzdUc--_BboicjcoNTfs/edit
+# Research Question: 
+# 	Does displacement occur prior to gentrification? 
 # ==========================================================================
 
 pacman::p_load(foreign, nnet, reshape2, tidyverse)
 options(scipen = 10, width=Sys.getenv("COLUMNS")) # avoid scientific notation
+
+# ==========================================================================
+# Data
+# ==========================================================================
+
+chi <- 
+	read_csv("~/git/displacement-typologies/data/outputs/typologies/Chicago_typology_output.csv") %>% 
+	select(-X1)
+
+# ==========================================================================
+# 
+# ==========================================================================
 
 ml <- read.dta("https://stats.idre.ucla.edu/stat/data/hsbdemo.dta")
 
