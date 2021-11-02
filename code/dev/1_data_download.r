@@ -35,25 +35,74 @@ counties <- c("Santa Cruz", "Monterey", "San Luis Obispo", "Santa Barbara", "Ven
 # 1990 Decenial Census Variables
 # --------------------------------------------------------------------------
 
+census_90 <-
+	read_csv('~/git/displacement-typologies/data/inputs/US_90_sf3.csv') %>% 
+	select(
+		pop_90 = STF3_P001_001,
+		white_90 = STF3_P012_001,
+		hh_90 = STF3_P005_001,
+		total_25_col_9th_90 = STF3_P057_001,
+		total_25_col_12th_90 = STF3_P057_002,
+		total_25_col_hs_90 = STF3_P057_003,
+		total_25_col_sc_90 = STF3_P057_004,
+		total_25_col_ad_90 = STF3_P057_005,
+		total_25_col_bd_90 = STF3_P057_006,
+		total_25_col_gd_90 = STF3_P057_007,
+		mhval_90 = STF3_H061A_001,
+		mrent_90 = STF3_H043A_001,
+		hinc_90 = STF3_P080A_001,
+		ohu_90 = STF3_H008_001,
+		rhu_90 = STF3_H008_002,
+		I_5000_90 = STF3_P080_001,
+		I_10000_90 = STF3_P080_002,
+		I_12500_90 = STF3_P080_003,
+		I_15000_90 = STF3_P080_004,
+		I_17500_90 = STF3_P080_005,
+		I_20000_90 = STF3_P080_006,
+		I_22500_90 = STF3_P080_007,
+		I_25000_90 = STF3_P080_008,
+		I_27500_90 = STF3_P080_009,
+		I_30000_90 = STF3_P080_010,
+		I_32500_90 = STF3_P080_011,
+		I_35000_90 = STF3_P080_012,
+		I_37500_90 = STF3_P080_013,
+		I_40000_90 = STF3_P080_014,
+		I_42500_90 = STF3_P080_015,
+		I_45000_90 = STF3_P080_016,
+		I_47500_90 = STF3_P080_017,
+		I_50000_90 = STF3_P080_018,
+		I_55000_90 = STF3_P080_019,
+		I_60000_90 = STF3_P080_020,
+		I_75000_90 = STF3_P080_021,
+		I_100000_90 = STF3_P080_022,
+		I_125000_90 = STF3_P080_023,
+		I_150000_90 = STF3_P080_024,
+		I_150001_90 = STF3_P080_025,
+		state = Geo_STATE,
+		county = Geo_COUNTY,
+		tract = Geo_TRACT,
+		FIPS = Geo_FIPS
+	)
+
 # LTDB data source - https://s4.ad.brown.edu/projects/diversity/Researcher/LTBDDload/DataList.aspx
 
 ltdb_90 <- 
 	left_join(
-		readRDS('~/git/displacement-typologies/data/inputs/LTDB_Std_1990_fullcount.rds') %>% glimpse()
+		readRDS('~/git/displacement-typologies/data/inputs/LTDB_Std_1990_fullcount.rds') %>% 
 		select(
-			FIPS = tractid, 
+			FIPS = TRTID10, 
 			POP90,
-			white90 = nhwht90,
+			NHWHT90,
 			MRENT90,
-			ohu90,
-			rent90, 
-			own90, 
+			OHU90,
+			RENT90, 
+			OWN90, 
 			MHMVAL90), 
 		readRDS('~/git/displacement-typologies/data/inputs/ltdb_std_1990_sample.rds') %>% 
 		select(
 			state:tract, 
-			FIPS = tractid,
-			hh90,
+			FIPS = TRTID10,
+			HH90,
 			AG25UP90,
 			COL90,
 			HINC90
@@ -64,9 +113,10 @@ ltdb_90 <-
 # Income breakdowns are missing from the LTDB so we turn to the 
 # NHGIS to supplement  - https://www.nhgis.org
 nhgis_90 <- 
-	readRDS('~/git/displacement-typologies/data/inputs/nhgis_hhincome_1990.rds') %>% 
+	readRDS('~/git/displacement-typologies/data/inputs/nhgis_hhincome_1990.rds') %>% filter(TRACTA == '577501')
+	group_by(TRACTA) %>% count() %>% unique() %>% data.frame()
 	mutate(
-		FIPS = paste0(STATEA, COUNTYA, TRACTA)
+		FIPS = paste0(STATEA, COUNTYA, str_pad(TRACTA, 5, pad = 0))) %>% glimpse()
 		# FIPS = str_sub(GISJOIN, 2, 12), 
 		# state = as.numeric(str_sub(FIPS, 1, 2)), 
 		# county = as.numeric(COUNTYA), 
@@ -99,7 +149,13 @@ nhgis_90 <-
 	'I_125000_90' = 'E4T023', # $100,000 to $124,999
 	'I_150000_90' = 'E4T024', # $125,000 to $149,999
 	'I_150001_90' = 'E4T025' # $150,000 or more
-)
+	) 
+
+
+xwalk_90_10 <- 
+	read_csv('~/git/displacement-typologies/data/inputs/crosswalk_1990_2010.csv') %>% 
+	filter(trtid90 == starts_with('06003705')) %>% glimpse()
+
 
 # Merge data
 census_90 <- left_join(nhgis_90, ltdb_90, by = 'FIPS')
