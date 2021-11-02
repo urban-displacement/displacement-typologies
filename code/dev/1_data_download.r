@@ -23,9 +23,20 @@ census_api_key('4c26aa6ebbaef54a55d3903212eabbb506ade381') #enter your own key
 # Study Area Definition
 # --------------------------------------------------------------------------
 
-### CHANGE AS NEEDED ###
+### CHANGE AS NEEDED -- use abbreviated state name ###
+
+####
+# NOTE: If you are working with cities that are within a 100 miles
+# of another state, go a ahead and add bordering states to your `states` 
+# funtion below. Example: Memphis is on the Tennessee and Arkansas border, 
+# in which case you would use `states <- c('TN', 'AR')`
+####
+
 states <- c("CA")
-counties <- c("Santa Cruz", "Monterey", "San Luis Obispo", "Santa Barbara", "Ventura")
+
+# get state fips codes
+data(fips_codes)
+state_fips <- fips_codes %>% filter(state %in% states) %>% pull(state_code) %>% unique()
 
 # ==========================================================================
 # Download yearly data
@@ -82,169 +93,56 @@ census_90 <-
 		county = Geo_COUNTY,
 		tract = Geo_TRACT,
 		FIPS = Geo_FIPS
-	)
-
-# LTDB data source - https://s4.ad.brown.edu/projects/diversity/Researcher/LTBDDload/DataList.aspx
-
-ltdb_90 <- 
-	left_join(
-		readRDS('~/git/displacement-typologies/data/inputs/LTDB_Std_1990_fullcount.rds') %>% 
-		select(
-			FIPS = TRTID10, 
-			POP90,
-			NHWHT90,
-			MRENT90,
-			OHU90,
-			RENT90, 
-			OWN90, 
-			MHMVAL90), 
-		readRDS('~/git/displacement-typologies/data/inputs/ltdb_std_1990_sample.rds') %>% 
-		select(
-			state:tract, 
-			FIPS = TRTID10,
-			HH90,
-			AG25UP90,
-			COL90,
-			HINC90
-		)
-	)
-
-
-# Income breakdowns are missing from the LTDB so we turn to the 
-# NHGIS to supplement  - https://www.nhgis.org
-nhgis_90 <- 
-	readRDS('~/git/displacement-typologies/data/inputs/nhgis_hhincome_1990.rds') %>% filter(TRACTA == '577501')
-	group_by(TRACTA) %>% count() %>% unique() %>% data.frame()
-	mutate(
-		FIPS = paste0(STATEA, COUNTYA, str_pad(TRACTA, 5, pad = 0))) %>% glimpse()
-		# FIPS = str_sub(GISJOIN, 2, 12), 
-		# state = as.numeric(str_sub(FIPS, 1, 2)), 
-		# county = as.numeric(COUNTYA), 
-		# tract = as.numeric(TRACTA)
 	) %>% 
-	select(
-	FIPS, 
-	'I_5000_90' = 'E4T001', # Less than $5,000
-	'I_10000_90' = 'E4T002', # $5,000 to $9,999
-	'I_12500_90' = 'E4T003', # $10,000 to $12,499
-	'I_15000_90' = 'E4T004', # $12,500 to $14,999
-	'I_17500_90' = 'E4T005', # $15,000 to $17,499
-	'I_20000_90' = 'E4T006', # $17,500 to $19,999
-	'I_22500_90' = 'E4T007', # $20,000 to $22,499
-	'I_25000_90' = 'E4T008', # $22,500 to $24,999
-	'I_27500_90' = 'E4T009', # $25,000 to $27,499
-	'I_30000_90' = 'E4T010', # $27,500 to $29,999
-	'I_32500_90' = 'E4T011', # $30,000 to $32,499
-	'I_35000_90' = 'E4T012', # $32,500 to $34,999
-	'I_37500_90' = 'E4T013', # $35,000 to $37,499
-	'I_40000_90' = 'E4T014', # $37,500 to $39,999
-	'I_42500_90' = 'E4T015', # $40,000 to $42,499
-	'I_45000_90' = 'E4T016', # $42,500 to $44,999
-	'I_47500_90' = 'E4T017', # $45,000 to $47,499
-	'I_50000_90' = 'E4T018', # $47,500 to $49,999
-	'I_55000_90' = 'E4T019', # $50,000 to $54,999
-	'I_60000_90' = 'E4T020', # $55,000 to $59,999
-	'I_75000_90' = 'E4T021', # $60,000 to $74,999
-	'I_100000_90' = 'E4T022', # $75,000 to $99,999
-	'I_125000_90' = 'E4T023', # $100,000 to $124,999
-	'I_150000_90' = 'E4T024', # $125,000 to $149,999
-	'I_150001_90' = 'E4T025' # $150,000 or more
-	) 
-
-
-xwalk_90_10 <- 
-	read_csv('~/git/displacement-typologies/data/inputs/crosswalk_1990_2010.csv') %>% 
-	filter(trtid90 == starts_with('06003705')) %>% glimpse()
-
-
-# Merge data
-census_90 <- left_join(nhgis_90, ltdb_90, by = 'FIPS')
-
-# 	'state' = 'Geo_STATE',
-# 	'county' = 'Geo_COUNTY',
-# 	'tract' = 'Geo_TRACT',
-# 	'FIPS' = 'Geo_FIPS'
-# )
+	filter(state == state_fips)
 
 #
 # 2000 Census Variables
 # --------------------------------------------------------------------------
 
-# SF1 variables
-dec_vars_00_sf1 <- c(
-	'pop_00' = 'P004001',
-	'white_00' = 'P004005',
-	'hu_00' = 'H004001',
-	'ohu_00' = 'H004002',
-	'rhu_00' = 'H004003'#,
-	# 'state' = 'Geo_STATE',
-	# 'county' = 'Geo_COUNTY',
-	# 'tract' = 'Geo_TRACT',
-	# 'FIPS' = 'Geo_FIPS'
-)
-
-# SF3 variables
-dec_vars_00_sf3 <- c(
-	'total_25_00' = 'P037001',
-	'male_25_col_bd_00' = 'P037015',
-	'male_25_col_md_00' = 'P037016',
-	'male_25_col_psd_00' = 'P037017',
-	'male_25_col_phd_00' = 'P037018',
-	'female_25_col_bd_00' = 'P037032',
-	'female_25_col_md_00' = 'P037033',
-	'female_25_col_psd_00' = 'P037034',
-	'female_25_col_phd_00' = 'P037035',
-	'mhval_00' = 'H085001',
-	'mrent_00' = 'H063001',
-	'hh_00' = 'P052001',
-	'hinc_00' = 'P053001',
-	'I_10000_00' = 'P052002',
-	'I_15000_00' = 'P052003',
-	'I_20000_00' = 'P052004',
-	'I_25000_00' = 'P052005',
-	'I_30000_00' = 'P052006',
-	'I_35000_00' = 'P052007',
-	'I_40000_00' = 'P052008',
-	'I_45000_00' = 'P052009',
-	'I_50000_00' = 'P052010',
-	'I_60000_00' = 'P052011',
-	'I_75000_00' = 'P052012',
-	'I_100000_00' = 'P052013',
-	'I_125000_00' = 'P052014',
-	'I_150000_00' = 'P052015',
-	'I_200000_00' = 'P052016',
-	'I_201000_00' = 'P052017' # ,
-	 # 'state' = 'Geo_STATE',
-	 # 'county' = 'Geo_COUNTY',
-	 # 'tract' = 'Geo_TRACT',
-	 # 'FIPS' = 'Geo_FIPS'
-)
-
-# download SF1
-census_00_sf1 <- 
-	get_decennial(
-		geography = 'tract', 
-		state = states, 
-		variables = dec_vars_00_sf1, 
-		year = 2000, 
-		geometry = FALSE, 
-		output = 'wide'
-	)
-
-# download sf3
-census_00_sf3 <- 
-	get_decennial(
-		geography = 'tract', 
-		state = states, 
-		variables = dec_vars_00_sf3, 
-		year = 2000, 
-		geometry = FALSE, 
-		output = 'wide'
-	)
-
-# Merge SF1 and SF3 variables
 census_00 <- 
-	left_join(census_00_sf1, census_00_sf3) 
+	read_csv('~/git/displacement-typologies/data/inputs/US_00_sf1_sf3.csv') %>% 
+	select(
+		pop_00 = SF1_P004001,
+		white_00 = SF1_P004005,
+		hu_00 = SF1_H004001,
+		ohu_00 = SF1_H004002,
+		rhu_00 = SF1_H004003,
+		total_25_00 = SF3_P037001,
+		male_25_col_bd_00 = SF3_P037015,
+		male_25_col_md_00 = SF3_P037016,
+		male_25_col_psd_00 = SF3_P037017,
+		male_25_col_phd_00 = SF3_P037018,
+		female_25_col_bd_00 = SF3_P037032,
+		female_25_col_md_00 = SF3_P037033,
+		female_25_col_psd_00 = SF3_P037034,
+		female_25_col_phd_00 = SF3_P037035,
+		mhval_00 = SF3_H085001,
+		mrent_00 = SF3_H063001,
+		hh_00 = SF3_P052001,
+		hinc_00 = SF3_P053001,
+		I_10000_00 = SF3_P052002,
+		I_15000_00 = SF3_P052003,
+		I_20000_00 = SF3_P052004,
+		I_25000_00 = SF3_P052005,
+		I_30000_00 = SF3_P052006,
+		I_35000_00 = SF3_P052007,
+		I_40000_00 = SF3_P052008,
+		I_45000_00 = SF3_P052009,
+		I_50000_00 = SF3_P052010,
+		I_60000_00 = SF3_P052011,
+		I_75000_00 = SF3_P052012,
+		I_100000_00 = SF3_P052013,
+		I_125000_00 = SF3_P052014,
+		I_150000_00 = SF3_P052015,
+		I_200000_00 = SF3_P052016,
+		I_201000_00 = SF3_P052017,
+		state = Geo_STATE,
+		county = Geo_COUNTY,
+		tract = Geo_TRACT,
+		FIPS = Geo_FIPS
+	) %>% 
+	filter(state == state_fips)
 
 #
 # < 2012 acs variables
@@ -385,7 +283,6 @@ acs_vars <-
 		'I_201000' = 'B19001_017E'	
 	)
 
-
 # Download recent years ACS
 # Note: this line of code was developed for the most recent year of data. 
 # To change the year, add
@@ -394,7 +291,8 @@ census <-
 		geography = 'tract', 
 		state = states, 
 		variables = acs_vars, 
-		output = 'wide'
+		output = 'wide', 
+		# year = NULL # uncomment and change if you need another year
 	) %>% 
 	select(-starts_with('B')) %>% 
 	left_join(census_12)
@@ -403,6 +301,6 @@ census <-
 # Save variables
 # ==========================================================================
 
-saveRDS(census, paste0('~/git/displacement-typologies/data/outputs/downloads/census_', states, '.rds'))
-saveRDS(census_00, paste0('~/git/displacement-typologies/data/outputs/downloads/census_00_', states, '.rds'))
-saveRDS(census_90, paste0('~/git/displacement-typologies/data/outputs/downloads/census_90_', states, '.rds'))
+saveRDS(census, paste0('~/git/displacement-typologies/data/outputs/downloads/census_', states[1], '.rds'))
+saveRDS(census_00, paste0('~/git/displacement-typologies/data/outputs/downloads/census_00_', states[1], '.rds'))
+saveRDS(census_90, paste0('~/git/displacement-typologies/data/outputs/downloads/census_90_', states[1], '.rds'))
