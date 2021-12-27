@@ -197,7 +197,7 @@ census_00_filtered = filter_FIPS(census_00_xwalked)
 shp_folder = input_path+'shp/'+city_name.replace(" ", "")+'/'
 data_1990 = census_90_filtered
 data_2000 = census_00_filtered
-acs_data = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_summ_2018.csv', index_col = 0)
+acs_data = pd.read_csv(output_path+'downloads/'+city_name.replace(" ", "")+'census_summ_2019.csv', index_col = 0)
 acs_data = acs_data.drop(columns = ['county_y', 'state_y', 'tract_y'])
 acs_data = acs_data.rename(columns = {'county_x': 'county',
                                     'state_x': 'state',
@@ -206,8 +206,10 @@ acs_data = acs_data.rename(columns = {'county_x': 'county',
 # Bring in PUMS data
 # --------------------------------------------------------------------------
 
-pums_r = pd.read_csv(input_path+'nhgis0002_ds233_20175_2017_tract.csv', encoding = "ISO-8859-1")
-pums_o = pd.read_csv(input_path+'nhgis0002_ds234_20175_2017_tract.csv', encoding = "ISO-8859-1")
+#pums_r = pd.read_csv(input_path+'nhgis0002_ _tract.csv', encoding = "ISO-8859-1")
+#pums_o = pd.read_csv(input_path+'nhgis0002_ds234_20175_2017_tract.csv', encoding = "ISO-8859-1")
+pums_r = pd.read_csv(input_path+'nhgis0008_ds244_20195_tract.csv', encoding = "ISO-8859-1")
+pums_o = pd.read_csv(input_path+'nhgis0008_ds245_20195_tract.csv', encoding = "ISO-8859-1")
 pums = pums_r.merge(pums_o, on = 'GISJOIN')
 pums = pums.rename(columns = {'YEAR_x':'YEAR',
                                'STATE_x':'STATE',
@@ -279,7 +281,7 @@ if city_name == 'Chicago':
     state_init = ['IL']
     FIPS = ['031', '043', '089', '093', '097', '111', '197']
     rail_agency = ['CTA']
-    zone = '16T'
+    zone = '16'
 elif city_name == 'Atlanta':
     state = '13'
     state_init = ['GA']
@@ -315,19 +317,19 @@ elif city_name == 'Seattle':
     state_init = ['WA']
     FIPS = ['033', '053', '061']
     rail_agency = ['City of Seattle', 'Sound Transit', 'Washington State Ferries', 'King County Marine Division']
-    zone = '10T'
+    zone = '10N'
 elif city_name == 'Cleveland':
     state = '39'
     state_init = ['OH']
     FIPS = ['035', '055', '085', '093', '103']
     rail_agency = ['GCRTA']
-    zone = '17T'
+    zone = '17N'
 elif city_name == 'Boston':
     state = ['25', '33']
     state_init = ['MA', 'NH']
     FIPS = {'25': ['009', '017', '021', '023', '025'], '33': ['015', '017']}
     rail_agency = ['MBTA', 'Amtrak', 'Salem Ferry', 'Boston Harbor Islands Ferries']
-    zone = '19T'
+    zone = '19N'
 else:
     print ('There is no information for the selected city')
 
@@ -343,9 +345,11 @@ census = acs_data.merge(data_2000, on = 'FIPS', how = 'outer').merge(data_1990, 
 ## CPI indexing values
 ## This is based on the yearly CPI average
 ## Add in new CPI based on current year: https://www.bls.gov/data/inflation_calculator.htm
-CPI_89_18 = 2.08
-CPI_99_18 = 1.53
-CPI_12_18 = 1.11
+##### [Alex] NOTE: Original version compared January to November (BLS default)
+##### New approach uses December for both
+CPI_89_19 = 2.04#2.08
+CPI_99_19 = 1.53#1.53
+CPI_12_19 = 1.12#1.11
 
 ## This is used for the Zillow data, where january values are compared
 CPI_0115_0119 = 1.077
@@ -353,18 +357,18 @@ CPI_0115_0119 = 1.077
 # Income Interpolation
 # --------------------------------------------------------------------------
 
-census['hinc_18'][census['hinc_18']<0]=np.nan
+census['hinc_19'][census['hinc_19']<0]=np.nan
 census['hinc_00'][census['hinc_00']<0]=np.nan
 census['hinc_90'][census['hinc_90']<0]=np.nan
 
 ## Calculate regional medians (note that these are not indexed)
-rm_hinc_18 = np.nanmedian(census['hinc_18'])
+rm_hinc_19 = np.nanmedian(census['hinc_19'])
 rm_hinc_00 = np.nanmedian(census['hinc_00'])
 rm_hinc_90 = np.nanmedian(census['hinc_90'])
-rm_iinc_18 = np.nanmedian(census['iinc_18'])
+rm_iinc_19 = np.nanmedian(census['iinc_19'])
 rm_iinc_12 = np.nanmedian(census['iinc_12'])
 
-print(rm_hinc_18, rm_hinc_00, rm_hinc_90, rm_iinc_18, rm_iinc_12)
+print(rm_hinc_19, rm_hinc_00, rm_hinc_90, rm_iinc_19, rm_iinc_12)
 
 ## Income Interpolation Function
 ## This function interpolates population counts using income buckets provided by the Census
@@ -406,8 +410,8 @@ def income_interpolation (census, year, cutoff, mhinc, tot_var, var_suffix, out)
     census = census.merge (df[['FIPS', income]], on = 'FIPS')
     return census
 
-census = income_interpolation (census, '18', 0.8, rm_hinc_18, 'hh_18', 'I', 'inc')
-census = income_interpolation (census, '18', 1.2, rm_hinc_18, 'hh_18', 'I', 'inc')
+census = income_interpolation (census, '19', 0.8, rm_hinc_19, 'hh_19', 'I', 'inc')
+census = income_interpolation (census, '19', 1.2, rm_hinc_19, 'hh_19', 'I', 'inc')
 census = income_interpolation (census, '00', 0.8, rm_hinc_00, 'hh_00', 'I', 'inc')
 census = income_interpolation (census, '00', 1.2, rm_hinc_00, 'hh_00', 'I', 'inc')
 census = income_interpolation (census, '90', 0.8, rm_hinc_90, 'hh_00', 'I', 'inc')
@@ -477,21 +481,21 @@ def income_categories (df, year, mhinc, hinc):
     df.loc[df['hinc_'+year]==0, 'inc_cat_medhhinc_'+year] = np.nan
     return census
 
-census = income_categories(census, '18', rm_hinc_18, 'hinc_18')
+census = income_categories(census, '19', rm_hinc_19, 'hinc_19')
 census = income_categories(census, '00', rm_hinc_00, 'hinc_00')
 
 census.groupby('inc_cat_medhhinc_00').count()['FIPS']
 
-census.groupby('inc_cat_medhhinc_18').count()['FIPS']
+census.groupby('inc_cat_medhhinc_19').count()['FIPS']
 
 ## Percentage & total low-income households - under 80% AMI
 census ['per_all_li_90'] = census['inc80_90']
 census ['per_all_li_00'] = census['inc80_00']
-census ['per_all_li_18'] = census['inc80_18']
+census ['per_all_li_19'] = census['inc80_19']
 
 census['all_li_count_90'] = census['per_all_li_90']*census['hh_90']
 census['all_li_count_00'] = census['per_all_li_00']*census['hh_00']
-census['all_li_count_18'] = census['per_all_li_18']*census['hh_18']
+census['all_li_count_19'] = census['per_all_li_19']*census['hh_19']
 
 len(census)
 
@@ -499,21 +503,21 @@ len(census)
 # Rent, Median income, Home Value Data
 # ==========================================================================
 
-census['real_mhval_90'] = census['mhval_90']*CPI_89_18
-census['real_mrent_90'] = census['mrent_90']*CPI_89_18
-census['real_hinc_90'] = census['hinc_90']*CPI_89_18
+census['real_mhval_90'] = census['mhval_90']*CPI_89_19
+census['real_mrent_90'] = census['mrent_90']*CPI_89_19
+census['real_hinc_90'] = census['hinc_90']*CPI_89_19
 
-census['real_mhval_00'] = census['mhval_00']*CPI_99_18
-census['real_mrent_00'] = census['mrent_00']*CPI_99_18
-census['real_hinc_00'] = census['hinc_00']*CPI_99_18
+census['real_mhval_00'] = census['mhval_00']*CPI_99_19
+census['real_mrent_00'] = census['mrent_00']*CPI_99_19
+census['real_hinc_00'] = census['hinc_00']*CPI_99_19
 
-census['real_mhval_12'] = census['mhval_12']*CPI_12_18
-census['real_mrent_12'] = census['mrent_12']*CPI_12_18
-# census['real_hinc_12'] = census['hinc_12']*CPI_12_18 # this isn't calculated yet (2020.03.29)
+census['real_mhval_12'] = census['mhval_12']*CPI_12_19
+census['real_mrent_12'] = census['mrent_12']*CPI_12_19
+# census['real_hinc_12'] = census['hinc_12']*CPI_12_19 # this isn't calculated yet (2020.03.29)
 
-census['real_mhval_18'] = census['mhval_18']
-census['real_mrent_18'] = census['mrent_18']
-census['real_hinc_18'] = census['hinc_18']
+census['real_mhval_19'] = census['mhval_19']
+census['real_mrent_19'] = census['mrent_19']
+census['real_hinc_19'] = census['hinc_19']
 
 # ==========================================================================
 # Demographic Data
@@ -530,8 +534,8 @@ df['per_nonwhite_90'] = 1 - df['white_90']/df['pop_90']
 ## 2000
 df['per_nonwhite_00'] = 1 - df['white_00']/df['pop_00']
 
-## 2018
-df['per_nonwhite_18'] = 1 - df['white_18']/df['pop_18']
+## 2019
+df['per_nonwhite_19'] = 1 - df['white_19']/df['pop_19']
 
 # % of owner and renter-occupied housing units
 # --------------------------------------------------------------------------
@@ -543,9 +547,9 @@ df['per_rent_90'] = df['rhu_90']/df['hu_90']
 ## 2000
 df['per_rent_00'] = df['rhu_00']/df['hu_00']
 
-## 2018
-df['hu_18'] = df['ohu_18']+df['rhu_18']
-df['per_rent_18'] = df['rhu_18']/df['hu_18']
+## 2019
+df['hu_19'] = df['ohu_19']+df['rhu_19']
+df['per_rent_19'] = df['rhu_19']/df['hu_19']
 
 # % of college educated
 # --------------------------------------------------------------------------
@@ -571,16 +575,16 @@ df['female_25_col_00'] = (df['female_25_col_bd_00']+
 df['total_25_col_00'] = df['male_25_col_00']+df['female_25_col_00']
 df['per_col_00'] = df['total_25_col_00']/df['total_25_00']
 
-## 2018
-df['per_col_18'] = (df['total_25_col_bd_18']+
-                    df['total_25_col_md_18']+
-                    df['total_25_col_pd_18']+
-                    df['total_25_col_phd_18'])/df['total_25_18']
+## 2019
+df['per_col_19'] = (df['total_25_col_bd_19']+
+                    df['total_25_col_md_19']+
+                    df['total_25_col_pd_19']+
+                    df['total_25_col_phd_19'])/df['total_25_19']
 
 # Housing units built
 # --------------------------------------------------------------------------
 
-df['per_units_pre50_18'] = (df['units_40_49_built_18']+df['units_39_early_built_18'])/df['tot_units_built_18']
+df['per_units_pre50_19'] = (df['units_40_49_built_19']+df['units_39_early_built_19'])/df['tot_units_built_19']
 
 ## Percent of people who have moved who are low-income
 # This function interpolates in mover population counts using income buckets provided by the Census
@@ -636,7 +640,7 @@ def income_interpolation_movein (census, year, cutoff, rm_iinc):
     census = census.merge (df[['FIPS'] + col_list], on = 'FIPS')
     return census
 
-census = income_interpolation_movein (census, '18', 0.8, rm_iinc_18)
+census = income_interpolation_movein (census, '19', 0.8, rm_iinc_19)
 census = income_interpolation_movein (census, '12', 0.8, rm_iinc_12)
 
 len(census)
@@ -664,115 +668,115 @@ pums['FIPS'] = ((pums['STATEA'].astype(str).str.zfill(2))+
                 (pums['COUNTYA'].astype(str).str.zfill(3))+
                 (pums['TRACTA'].astype(str).str.zfill(6)))
 
-pums = pums.rename(columns = {"AH5QE002":"rhu_18_wcash",
-                                "AH5QE003":"R_100_18",
-                                "AH5QE004":"R_150_18",
-                                "AH5QE005":"R_200_18",
-                                "AH5QE006":"R_250_18",
-                                "AH5QE007":"R_300_18",
-                                "AH5QE008":"R_350_18",
-                                "AH5QE009":"R_400_18",
-                                "AH5QE010":"R_450_18",
-                                "AH5QE011":"R_500_18",
-                                "AH5QE012":"R_550_18",
-                                "AH5QE013":"R_600_18",
-                                "AH5QE014":"R_650_18",
-                                "AH5QE015":"R_700_18",
-                                "AH5QE016":"R_750_18",
-                                "AH5QE017":"R_800_18",
-                                "AH5QE018":"R_900_18",
-                                "AH5QE019":"R_1000_18",
-                                "AH5QE020":"R_1250_18",
-                                "AH5QE021":"R_1500_18",
-                                "AH5QE022":"R_2000_18",
-                                "AH5QE023":"R_2500_18",
-                                "AH5QE024":"R_3000_18",
-                                "AH5QE025":"R_3500_18",
-                                "AH5QE026":"R_3600_18",
-                                "AH5QE027":"rhu_18_wocash",
-                                "AIMUE001":"ohu_tot_18",
-                                "AIMUE002":"O_200_18",
-                                "AIMUE003":"O_300_18",
-                                "AIMUE004":"O_400_18",
-                                "AIMUE005":"O_500_18",
-                                "AIMUE006":"O_600_18",
-                                "AIMUE007":"O_700_18",
-                                "AIMUE008":"O_800_18",
-                                "AIMUE009":"O_900_18",
-                                "AIMUE010":"O_1000_18",
-                                "AIMUE011":"O_1250_18",
-                                "AIMUE012":"O_1500_18",
-                                "AIMUE013":"O_2000_18",
-                                "AIMUE014":"O_2500_18",
-                                "AIMUE015":"O_3000_18",
-                                "AIMUE016":"O_3500_18",
-                                "AIMUE017":"O_4000_18",
-                                "AIMUE018":"O_4100_18"})
+pums = pums.rename(columns = {"AL04E002":"rhu_19_wcash", # Replaced AH5Q with AL04
+                                "AL04E003":"R_100_19",
+                                "AL04E004":"R_150_19",
+                                "AL04E005":"R_200_19",
+                                "AL04E006":"R_250_19",
+                                "AL04E007":"R_300_19",
+                                "AL04E008":"R_350_19",
+                                "AL04E009":"R_400_19",
+                                "AL04E010":"R_450_19",
+                                "AL04E011":"R_500_19",
+                                "AL04E012":"R_550_19",
+                                "AL04E013":"R_600_19",
+                                "AL04E014":"R_650_19",
+                                "AL04E015":"R_700_19",
+                                "AL04E016":"R_750_19",
+                                "AL04E017":"R_800_19",
+                                "AL04E018":"R_900_19",
+                                "AL04E019":"R_1000_19",
+                                "AL04E020":"R_1250_19",
+                                "AL04E021":"R_1500_19",
+                                "AL04E022":"R_2000_19",
+                                "AL04E023":"R_2500_19",
+                                "AL04E024":"R_3000_19",
+                                "AL04E025":"R_3500_19",
+                                "AL04E026":"R_3600_19",
+                                "AL04E027":"rhu_19_wocash",
+                                "AMI0E001":"ohu_tot_19", # Replaced AIMU with AMI0
+                                "AMI0E002":"O_200_19",
+                                "AMI0E003":"O_300_19",
+                                "AMI0E004":"O_400_19",
+                                "AMI0E005":"O_500_19",
+                                "AMI0E006":"O_600_19",
+                                "AMI0E007":"O_700_19",
+                                "AMI0E008":"O_800_19",
+                                "AMI0E009":"O_900_19",
+                                "AMI0E010":"O_1000_19",
+                                "AMI0E011":"O_1250_19",
+                                "AMI0E012":"O_1500_19",
+                                "AMI0E013":"O_2000_19",
+                                "AMI0E014":"O_2500_19",
+                                "AMI0E015":"O_3000_19",
+                                "AMI0E016":"O_3500_19",
+                                "AMI0E017":"O_4000_19",
+                                "AMI0E018":"O_4100_19"})
 
-aff_18 = rm_hinc_18*0.3/12
-pums = income_interpolation (pums, '18', 0.6, aff_18, 'rhu_18_wcash', 'R', 'rent')
-pums = income_interpolation (pums, '18', 1.2, aff_18, 'rhu_18_wcash', 'R', 'rent')
+aff_19 = rm_hinc_19*0.3/12
+pums = income_interpolation (pums, '19', 0.6, aff_19, 'rhu_19_wcash', 'R', 'rent')
+pums = income_interpolation (pums, '19', 1.2, aff_19, 'rhu_19_wcash', 'R', 'rent')
 
-pums = income_interpolation (pums, '18', 0.6, aff_18, 'ohu_tot_18', 'O', 'own')
-pums = income_interpolation (pums, '18', 1.2, aff_18, 'ohu_tot_18', 'O', 'own')
+pums = income_interpolation (pums, '19', 0.6, aff_19, 'ohu_tot_19', 'O', 'own')
+pums = income_interpolation (pums, '19', 1.2, aff_19, 'ohu_tot_19', 'O', 'own')
 
 pums['FIPS'] = pums['FIPS'].astype(float).astype('int64')
-pums = pums.merge(census[['FIPS', 'mmhcosts_18']], on = 'FIPS')
+pums = pums.merge(census[['FIPS', 'mmhcosts_19']], on = 'FIPS')
 
-pums['rlow_18'] = pums['rent60_18']*pums['rhu_18_wcash']+pums['rhu_18_wocash'] ## includes no cash rent
-pums['rmod_18'] = pums['rent120_18']*pums['rhu_18_wcash']-pums['rent60_18']*pums['rhu_18_wcash']
-pums['rhigh_18'] = pums['rhu_18_wcash']-pums['rent120_18']*pums['rhu_18_wcash']
+pums['rlow_19'] = pums['rent60_19']*pums['rhu_19_wcash']+pums['rhu_19_wocash'] ## includes no cash rent
+pums['rmod_19'] = pums['rent120_19']*pums['rhu_19_wcash']-pums['rent60_19']*pums['rhu_19_wcash']
+pums['rhigh_19'] = pums['rhu_19_wcash']-pums['rent120_19']*pums['rhu_19_wcash']
 
-pums['olow_18'] = pums['own60_18']*pums['ohu_tot_18']
-pums['omod_18'] = pums['own120_18']*pums['ohu_tot_18'] - pums['own60_18']*pums['ohu_tot_18']
-pums['ohigh_18'] = pums['ohu_tot_18'] - pums['own120_18']*pums['ohu_tot_18']
+pums['olow_19'] = pums['own60_19']*pums['ohu_tot_19']
+pums['omod_19'] = pums['own120_19']*pums['ohu_tot_19'] - pums['own60_19']*pums['ohu_tot_19']
+pums['ohigh_19'] = pums['ohu_tot_19'] - pums['own120_19']*pums['ohu_tot_19']
 
-pums['hu_tot_18'] = pums['rhu_18_wcash']+pums['rhu_18_wocash']+pums['ohu_tot_18']
+pums['hu_tot_19'] = pums['rhu_19_wcash']+pums['rhu_19_wocash']+pums['ohu_tot_19']
 
-pums['low_tot_18'] = pums['rlow_18']+pums['olow_18']
-pums['mod_tot_18'] = pums['rmod_18']+pums['omod_18']
-pums['high_tot_18'] = pums['rhigh_18']+pums['ohigh_18']
+pums['low_tot_19'] = pums['rlow_19']+pums['olow_19']
+pums['mod_tot_19'] = pums['rmod_19']+pums['omod_19']
+pums['high_tot_19'] = pums['rhigh_19']+pums['ohigh_19']
 
-pums['pct_low_18'] = pums['low_tot_18']/pums['hu_tot_18']
-pums['pct_mod_18'] = pums['mod_tot_18']/pums['hu_tot_18']
-pums['pct_high_18'] = pums['high_tot_18']/pums['hu_tot_18']
+pums['pct_low_19'] = pums['low_tot_19']/pums['hu_tot_19']
+pums['pct_mod_19'] = pums['mod_tot_19']/pums['hu_tot_19']
+pums['pct_high_19'] = pums['high_tot_19']/pums['hu_tot_19']
 
 # Classifying tracts by housing afforablde by income
 # --------------------------------------------------------------------------
 
 ## Low income
-pums['predominantly_LI'] = np.where((pums['pct_low_18']>=0.55)&
-                                       (pums['pct_mod_18']<0.45)&
-                                       (pums['pct_high_18']<0.45),1,0)
+pums['predominantly_LI'] = np.where((pums['pct_low_19']>=0.55)&
+                                       (pums['pct_mod_19']<0.45)&
+                                       (pums['pct_high_19']<0.45),1,0)
 
 ## High income
-pums['predominantly_HI'] = np.where((pums['pct_low_18']<0.45)&
-                                       (pums['pct_mod_18']<0.45)&
-                                       (pums['pct_high_18']>=0.55),1,0)
+pums['predominantly_HI'] = np.where((pums['pct_low_19']<0.45)&
+                                       (pums['pct_mod_19']<0.45)&
+                                       (pums['pct_high_19']>=0.55),1,0)
 
 ## Moderate income
-pums['predominantly_MI'] = np.where((pums['pct_low_18']<0.45)&
-                                       (pums['pct_mod_18']>=0.55)&
-                                       (pums['pct_high_18']<0.45),1,0)
+pums['predominantly_MI'] = np.where((pums['pct_low_19']<0.45)&
+                                       (pums['pct_mod_19']>=0.55)&
+                                       (pums['pct_high_19']<0.45),1,0)
 
 ## Mixed-Low income
 pums['mixed_low'] = np.where((pums['predominantly_LI']==0)&
                               (pums['predominantly_MI']==0)&
                               (pums['predominantly_HI']==0)&
-                              (pums['mmhcosts_18']<aff_18*0.6),1,0)
+                              (pums['mmhcosts_19']<aff_19*0.6),1,0)
 
 ## Mixed-Moderate income
 pums['mixed_mod'] = np.where((pums['predominantly_LI']==0)&
                               (pums['predominantly_MI']==0)&
                               (pums['predominantly_HI']==0)&
-                              (pums['mmhcosts_18']>=aff_18*0.6)&
-                              (pums['mmhcosts_18']<aff_18*1.2),1,0)
+                              (pums['mmhcosts_19']>=aff_19*0.6)&
+                              (pums['mmhcosts_19']<aff_19*1.2),1,0)
 
 ## Mixed-High income
 pums['mixed_high'] = np.where((pums['predominantly_LI']==0)&
                               (pums['predominantly_MI']==0)&
                               (pums['predominantly_HI']==0)&
-                              (pums['mmhcosts_18']>=aff_18*1.2),1,0)
+                              (pums['mmhcosts_19']>=aff_19*1.2),1,0)
 
 pums['lmh_flag_encoded'] = 0
 pums.loc[pums['predominantly_LI']==1, 'lmh_flag_encoded'] = 1
@@ -800,25 +804,25 @@ len(census)
 # Setting 'Market Types'
 # ==========================================================================
 
-census['pctch_real_mhval_00_18'] = (census['real_mhval_18']-census['real_mhval_00'])/census['real_mhval_00']
-census['pctch_real_mrent_12_18'] = (census['real_mrent_18']-census['real_mrent_12'])/census['real_mrent_12']
-rm_pctch_real_mhval_00_18_increase=np.nanmedian(census['pctch_real_mhval_00_18'][census['pctch_real_mhval_00_18']>0.05])
-rm_pctch_real_mrent_12_18_increase=np.nanmedian(census['pctch_real_mrent_12_18'][census['pctch_real_mrent_12_18']>0.05])
-census['rent_decrease'] = np.where((census['pctch_real_mrent_12_18']<=-0.05), 1, 0)
-census['rent_marginal'] = np.where((census['pctch_real_mrent_12_18']>-0.05)&
-                                          (census['pctch_real_mrent_12_18']<0.05), 1, 0)
-census['rent_increase'] = np.where((census['pctch_real_mrent_12_18']>=0.05)&
-                                          (census['pctch_real_mrent_12_18']<rm_pctch_real_mrent_12_18_increase), 1, 0)
-census['rent_rapid_increase'] = np.where((census['pctch_real_mrent_12_18']>=0.05)&
-                                          (census['pctch_real_mrent_12_18']>=rm_pctch_real_mrent_12_18_increase), 1, 0)
+census['pctch_real_mhval_00_19'] = (census['real_mhval_19']-census['real_mhval_00'])/census['real_mhval_00']
+census['pctch_real_mrent_12_19'] = (census['real_mrent_19']-census['real_mrent_12'])/census['real_mrent_12']
+rm_pctch_real_mhval_00_19_increase=np.nanmedian(census['pctch_real_mhval_00_19'][census['pctch_real_mhval_00_19']>0.05])
+rm_pctch_real_mrent_12_19_increase=np.nanmedian(census['pctch_real_mrent_12_19'][census['pctch_real_mrent_12_19']>0.05])
+census['rent_decrease'] = np.where((census['pctch_real_mrent_12_19']<=-0.05), 1, 0)
+census['rent_marginal'] = np.where((census['pctch_real_mrent_12_19']>-0.05)&
+                                          (census['pctch_real_mrent_12_19']<0.05), 1, 0)
+census['rent_increase'] = np.where((census['pctch_real_mrent_12_19']>=0.05)&
+                                          (census['pctch_real_mrent_12_19']<rm_pctch_real_mrent_12_19_increase), 1, 0)
+census['rent_rapid_increase'] = np.where((census['pctch_real_mrent_12_19']>=0.05)&
+                                          (census['pctch_real_mrent_12_19']>=rm_pctch_real_mrent_12_19_increase), 1, 0)
 
-census['house_decrease'] = np.where((census['pctch_real_mhval_00_18']<=-0.05), 1, 0)
-census['house_marginal'] = np.where((census['pctch_real_mhval_00_18']>-0.05)&
-                                          (census['pctch_real_mhval_00_18']<0.05), 1, 0)
-census['house_increase'] = np.where((census['pctch_real_mhval_00_18']>=0.05)&
-                                          (census['pctch_real_mhval_00_18']<rm_pctch_real_mhval_00_18_increase), 1, 0)
-census['house_rapid_increase'] = np.where((census['pctch_real_mhval_00_18']>=0.05)&
-                                          (census['pctch_real_mhval_00_18']>=rm_pctch_real_mhval_00_18_increase), 1, 0)
+census['house_decrease'] = np.where((census['pctch_real_mhval_00_19']<=-0.05), 1, 0)
+census['house_marginal'] = np.where((census['pctch_real_mhval_00_19']>-0.05)&
+                                          (census['pctch_real_mhval_00_19']<0.05), 1, 0)
+census['house_increase'] = np.where((census['pctch_real_mhval_00_19']>=0.05)&
+                                          (census['pctch_real_mhval_00_19']<rm_pctch_real_mhval_00_19_increase), 1, 0)
+census['house_rapid_increase'] = np.where((census['pctch_real_mhval_00_19']>=0.05)&
+                                          (census['pctch_real_mhval_00_19']>=rm_pctch_real_mhval_00_19_increase), 1, 0)
 
 census['tot_decrease'] = np.where((census['rent_decrease']==1)|(census['house_decrease']==1), 1, 0)
 census['tot_marginal'] = np.where((census['rent_marginal']==1)|(census['house_marginal']==1), 1, 0)
@@ -868,10 +872,10 @@ zillow_xwalk = pd.read_csv(input_path+'TRACT_ZIP_032015.csv')
 # --------------------------------------------------------------------------
 
 ## Compute change over time
-zillow['ch_zillow_12_18'] = zillow['2018-01'] - zillow['2012-01']*CPI_12_18
-zillow['per_ch_zillow_12_18'] = zillow['ch_zillow_12_18']/zillow['2012-01']
+zillow['ch_zillow_12_19'] = zillow['2019-01'] - zillow['2012-01']*CPI_12_19
+zillow['per_ch_zillow_12_19'] = zillow['ch_zillow_12_19']/zillow['2012-01']
 zillow = zillow[zillow['State'].isin(state_init)].reset_index(drop = True)
-zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_18', 'per_ch_zillow_12_18']], left_on = 'ZIP', right_on = 'RegionName', how = "outer")
+zillow = zillow_xwalk[['TRACT', 'ZIP', 'RES_RATIO']].merge(zillow[['RegionName', 'ch_zillow_12_19', 'per_ch_zillow_12_19']], left_on = 'ZIP', right_on = 'RegionName', how = "outer")
 zillow = zillow.rename(columns = {'TRACT':'FIPS'})
 
 # Filter only data of interest
@@ -881,26 +885,26 @@ zillow = filter_ZILLOW(zillow, FIPS)
 zillow = zillow.sort_values(by = ['FIPS', 'RES_RATIO'], ascending = False).groupby('FIPS').first().reset_index(drop = False)
 
 ## Compute 90th percentile change in region
-percentile_90 = zillow['per_ch_zillow_12_18'].quantile(q = 0.9)
+percentile_90 = zillow['per_ch_zillow_12_19'].quantile(q = 0.9)
 print(percentile_90)
 
 # Create Flags
 # --------------------------------------------------------------------------
 
 ## Change over 50% of change in region
-zillow['ab_50pct_ch'] = np.where(zillow['per_ch_zillow_12_18']>0.5, 1, 0)
+zillow['ab_50pct_ch'] = np.where(zillow['per_ch_zillow_12_19']>0.5, 1, 0)
 
 ## Change over 90th percentile change
-zillow['ab_90percentile_ch'] = np.where(zillow['per_ch_zillow_12_18']>percentile_90, 1, 0)
-census_zillow = census.merge(zillow[['FIPS', 'per_ch_zillow_12_18', 'ab_50pct_ch', 'ab_90percentile_ch']], on = 'FIPS')
+zillow['ab_90percentile_ch'] = np.where(zillow['per_ch_zillow_12_19']>percentile_90, 1, 0)
+census_zillow = census.merge(zillow[['FIPS', 'per_ch_zillow_12_19', 'ab_50pct_ch', 'ab_90percentile_ch']], on = 'FIPS')
 census_zillow.head()
 census_zillow.info()
 census.info()
 
 ## Create 90th percentile for rent -
-# census['rent_percentile_90'] = census['pctch_real_mrent_12_18'].quantile(q = 0.9)
-census_zillow['rent_50pct_ch'] = np.where(census_zillow['pctch_real_mrent_12_18']>=0.5, 1, 0)
-census_zillow['rent_90percentile_ch'] = np.where(census_zillow['pctch_real_mrent_12_18']>=0.9, 1, 0)
+# census['rent_percentile_90'] = census['pctch_real_mrent_12_19'].quantile(q = 0.9)
+census_zillow['rent_50pct_ch'] = np.where(census_zillow['pctch_real_mrent_12_19']>=0.5, 1, 0)
+census_zillow['rent_90percentile_ch'] = np.where(census_zillow['pctch_real_mrent_12_19']>=0.9, 1, 0)
 
 # ==========================================================================
 # Calculate Regional Medians
@@ -911,33 +915,33 @@ census_zillow['rent_90percentile_ch'] = np.where(census_zillow['pctch_real_mrent
 
 rm_per_all_li_90 = np.nanmedian(census_zillow['per_all_li_90'])
 rm_per_all_li_00 = np.nanmedian(census_zillow['per_all_li_00'])
-rm_per_all_li_18 = np.nanmedian(census_zillow['per_all_li_18'])
+rm_per_all_li_19 = np.nanmedian(census_zillow['per_all_li_19'])
 rm_per_nonwhite_90 = np.nanmedian(census_zillow['per_nonwhite_90'])
 rm_per_nonwhite_00 = np.nanmedian(census_zillow['per_nonwhite_00'])
-rm_per_nonwhite_18 = np.nanmedian(census_zillow['per_nonwhite_18'])
+rm_per_nonwhite_19 = np.nanmedian(census_zillow['per_nonwhite_19'])
 rm_per_col_90 = np.nanmedian(census_zillow['per_col_90'])
 rm_per_col_00 = np.nanmedian(census_zillow['per_col_00'])
-rm_per_col_18 = np.nanmedian(census_zillow['per_col_18'])
+rm_per_col_19 = np.nanmedian(census_zillow['per_col_19'])
 rm_per_rent_90= np.nanmedian(census_zillow['per_rent_90'])
 rm_per_rent_00= np.nanmedian(census_zillow['per_rent_00'])
-rm_per_rent_18= np.nanmedian(census_zillow['per_rent_18'])
+rm_per_rent_19= np.nanmedian(census_zillow['per_rent_19'])
 rm_real_mrent_90 = np.nanmedian(census_zillow['real_mrent_90'])
 rm_real_mrent_00 = np.nanmedian(census_zillow['real_mrent_00'])
 rm_real_mrent_12 = np.nanmedian(census_zillow['real_mrent_12'])
-rm_real_mrent_18 = np.nanmedian(census_zillow['real_mrent_18'])
+rm_real_mrent_19 = np.nanmedian(census_zillow['real_mrent_19'])
 rm_real_mhval_90 = np.nanmedian(census_zillow['real_mhval_90'])
 rm_real_mhval_00 = np.nanmedian(census_zillow['real_mhval_00'])
-rm_real_mhval_18 = np.nanmedian(census_zillow['real_mhval_18'])
+rm_real_mhval_19 = np.nanmedian(census_zillow['real_mhval_19'])
 rm_real_hinc_90 = np.nanmedian(census_zillow['real_hinc_90'])
 rm_real_hinc_00 = np.nanmedian(census_zillow['real_hinc_00'])
-rm_real_hinc_18 = np.nanmedian(census_zillow['real_hinc_18'])
-rm_per_units_pre50_18 = np.nanmedian(census_zillow['per_units_pre50_18'])
-rm_per_ch_zillow_12_18 = np.nanmedian(census_zillow['per_ch_zillow_12_18'])
-rm_pctch_real_mrent_12_18 = np.nanmedian(census_zillow['pctch_real_mrent_12_18'])
+rm_real_hinc_19 = np.nanmedian(census_zillow['real_hinc_19'])
+rm_per_units_pre50_19 = np.nanmedian(census_zillow['per_units_pre50_19'])
+rm_per_ch_zillow_12_19 = np.nanmedian(census_zillow['per_ch_zillow_12_19'])
+rm_pctch_real_mrent_12_19 = np.nanmedian(census_zillow['pctch_real_mrent_12_19'])
 
 ## Above regional median change home value and rent
-census_zillow['hv_abrm_ch'] = np.where(census_zillow['per_ch_zillow_12_18'] > rm_per_ch_zillow_12_18, 1, 0)
-census_zillow['rent_abrm_ch'] = np.where(census_zillow['pctch_real_mrent_12_18'] > rm_pctch_real_mrent_12_18, 1, 0)
+census_zillow['hv_abrm_ch'] = np.where(census_zillow['per_ch_zillow_12_19'] > rm_per_ch_zillow_12_19, 1, 0)
+census_zillow['rent_abrm_ch'] = np.where(census_zillow['pctch_real_mrent_12_19'] > rm_pctch_real_mrent_12_19, 1, 0)
 
 ## Percent changes
 
@@ -945,32 +949,32 @@ census_zillow['pctch_real_mhval_90_00'] = (census_zillow['real_mhval_00']-census
 census_zillow['pctch_real_mrent_90_00'] = (census_zillow['real_mrent_00']-census_zillow['real_mrent_90'])/census_zillow['real_mrent_90']
 census_zillow['pctch_real_hinc_90_00'] = (census_zillow['real_hinc_00']-census_zillow['real_hinc_90'])/census_zillow['real_hinc_90']
 
-census_zillow['pctch_real_mhval_00_18'] = (census_zillow['real_mhval_18']-census_zillow['real_mhval_00'])/census_zillow['real_mhval_00']
-census_zillow['pctch_real_mrent_00_18'] = (census_zillow['real_mrent_18']-census_zillow['real_mrent_00'])/census_zillow['real_mrent_00']
-census_zillow['pctch_real_mrent_12_18'] = (census_zillow['real_mrent_18']-census_zillow['real_mrent_12'])/census_zillow['real_mrent_12']
-census_zillow['pctch_real_hinc_00_18'] = (census_zillow['real_hinc_18']-census_zillow['real_hinc_00'])/census_zillow['real_hinc_00']
+census_zillow['pctch_real_mhval_00_19'] = (census_zillow['real_mhval_19']-census_zillow['real_mhval_00'])/census_zillow['real_mhval_00']
+census_zillow['pctch_real_mrent_00_19'] = (census_zillow['real_mrent_19']-census_zillow['real_mrent_00'])/census_zillow['real_mrent_00']
+census_zillow['pctch_real_mrent_12_19'] = (census_zillow['real_mrent_19']-census_zillow['real_mrent_12'])/census_zillow['real_mrent_12']
+census_zillow['pctch_real_hinc_00_19'] = (census_zillow['real_hinc_19']-census_zillow['real_hinc_00'])/census_zillow['real_hinc_00']
 
 ## Regional Medians
 
 pctch_rm_real_mhval_90_00 = (rm_real_mhval_00-rm_real_mhval_90)/rm_real_mhval_90
 pctch_rm_real_mrent_90_00 = (rm_real_mrent_00-rm_real_mrent_90)/rm_real_mrent_90
-pctch_rm_real_mhval_00_18 = (rm_real_mhval_18-rm_real_mhval_00)/rm_real_mhval_00
-pctch_rm_real_mrent_00_18 = (rm_real_mrent_18-rm_real_mrent_00)/rm_real_mrent_00
-pctch_rm_real_mrent_12_18 = (rm_real_mrent_18-rm_real_mrent_12)/rm_real_mrent_12
+pctch_rm_real_mhval_00_19 = (rm_real_mhval_19-rm_real_mhval_00)/rm_real_mhval_00
+pctch_rm_real_mrent_00_19 = (rm_real_mrent_19-rm_real_mrent_00)/rm_real_mrent_00
+pctch_rm_real_mrent_12_19 = (rm_real_mrent_19-rm_real_mrent_12)/rm_real_mrent_12
 pctch_rm_real_hinc_90_00 = (rm_real_hinc_00-rm_real_hinc_90)/rm_real_hinc_90
-pctch_rm_real_hinc_00_18 = (rm_real_hinc_18-rm_real_hinc_00)/rm_real_hinc_00
+pctch_rm_real_hinc_00_19 = (rm_real_hinc_19-rm_real_hinc_00)/rm_real_hinc_00
 
 ## Absolute changes
 
 census_zillow['ch_all_li_count_90_00'] = census_zillow['all_li_count_00']-census_zillow['all_li_count_90']
-census_zillow['ch_all_li_count_00_18'] = census_zillow['all_li_count_18']-census_zillow['all_li_count_00']
+census_zillow['ch_all_li_count_00_19'] = census_zillow['all_li_count_19']-census_zillow['all_li_count_00']
 census_zillow['ch_per_col_90_00'] = census_zillow['per_col_00']-census_zillow['per_col_90']
-census_zillow['ch_per_col_00_18'] = census_zillow['per_col_18']-census_zillow['per_col_00']
-census_zillow['ch_per_limove_12_18'] = census_zillow['per_limove_18'] - census_zillow['per_limove_12']
+census_zillow['ch_per_col_00_19'] = census_zillow['per_col_19']-census_zillow['per_col_00']
+census_zillow['ch_per_limove_12_19'] = census_zillow['per_limove_19'] - census_zillow['per_limove_12']
 
 ## Regional Medians
 ch_rm_per_col_90_00 = rm_per_col_00-rm_per_col_90
-ch_rm_per_col_00_18 = rm_per_col_18-rm_per_col_00
+ch_rm_per_col_00_19 = rm_per_col_19-rm_per_col_00
 
 # Calculate flags
 # --------------------------------------------------------------------------
@@ -979,35 +983,35 @@ df = census_zillow
 df['pop00flag'] = np.where(df['pop_00']>500, 1, 0)
 df['aboverm_per_all_li_90'] = np.where(df['per_all_li_90']>=rm_per_all_li_90, 1, 0)
 df['aboverm_per_all_li_00'] = np.where(df['per_all_li_00']>=rm_per_all_li_00, 1, 0)
-df['aboverm_per_all_li_18'] = np.where(df['per_all_li_18']>=rm_per_all_li_18, 1, 0)
-df['aboverm_per_nonwhite_18'] = np.where(df['per_nonwhite_18']>=rm_per_nonwhite_18, 1, 0)
+df['aboverm_per_all_li_19'] = np.where(df['per_all_li_19']>=rm_per_all_li_19, 1, 0)
+df['aboverm_per_nonwhite_19'] = np.where(df['per_nonwhite_19']>=rm_per_nonwhite_19, 1, 0)
 df['aboverm_per_nonwhite_90'] = np.where(df['per_nonwhite_90']>=rm_per_nonwhite_90, 1, 0)
 df['aboverm_per_nonwhite_00'] = np.where(df['per_nonwhite_00']>=rm_per_nonwhite_00, 1, 0)
 df['aboverm_per_rent_90'] = np.where(df['per_rent_90']>=rm_per_rent_90, 1, 0)
 df['aboverm_per_rent_00'] = np.where(df['per_rent_00']>=rm_per_rent_00, 1, 0)
-df['aboverm_per_rent_18'] = np.where(df['per_rent_18']>=rm_per_rent_18, 1, 0)
+df['aboverm_per_rent_19'] = np.where(df['per_rent_19']>=rm_per_rent_19, 1, 0)
 df['aboverm_per_col_90'] = np.where(df['per_col_90']>=rm_per_col_90, 1, 0)
 df['aboverm_per_col_00'] = np.where(df['per_col_00']>=rm_per_col_00, 1, 0)
-df['aboverm_per_col_18'] = np.where(df['per_col_18']>=rm_per_col_18, 1, 0)
+df['aboverm_per_col_19'] = np.where(df['per_col_19']>=rm_per_col_19, 1, 0)
 df['aboverm_real_mrent_90'] = np.where(df['real_mrent_90']>=rm_real_mrent_90, 1, 0)
 df['aboverm_real_mrent_00'] = np.where(df['real_mrent_00']>=rm_real_mrent_00, 1, 0)
 df['aboverm_real_mrent_12'] = np.where(df['real_mrent_12']>=rm_real_mrent_12, 1, 0)
-df['aboverm_real_mrent_18'] = np.where(df['real_mrent_18']>=rm_real_mrent_18, 1, 0)
+df['aboverm_real_mrent_19'] = np.where(df['real_mrent_19']>=rm_real_mrent_19, 1, 0)
 df['aboverm_real_mhval_90'] = np.where(df['real_mhval_90']>=rm_real_mhval_90, 1, 0)
 df['aboverm_real_mhval_00'] = np.where(df['real_mhval_00']>=rm_real_mhval_00, 1, 0)
-df['aboverm_real_mhval_18'] = np.where(df['real_mhval_18']>=rm_real_mhval_18, 1, 0)
-df['aboverm_pctch_real_mhval_00_18'] = np.where(df['pctch_real_mhval_00_18']>=pctch_rm_real_mhval_00_18, 1, 0)
-df['aboverm_pctch_real_mrent_00_18'] = np.where(df['pctch_real_mrent_00_18']>=pctch_rm_real_mrent_00_18, 1, 0)
-df['aboverm_pctch_real_mrent_12_18'] = np.where(df['pctch_real_mrent_12_18']>=pctch_rm_real_mrent_12_18, 1, 0)
+df['aboverm_real_mhval_19'] = np.where(df['real_mhval_19']>=rm_real_mhval_19, 1, 0)
+df['aboverm_pctch_real_mhval_00_19'] = np.where(df['pctch_real_mhval_00_19']>=pctch_rm_real_mhval_00_19, 1, 0)
+df['aboverm_pctch_real_mrent_00_19'] = np.where(df['pctch_real_mrent_00_19']>=pctch_rm_real_mrent_00_19, 1, 0)
+df['aboverm_pctch_real_mrent_12_19'] = np.where(df['pctch_real_mrent_12_19']>=pctch_rm_real_mrent_12_19, 1, 0)
 df['aboverm_pctch_real_mhval_90_00'] = np.where(df['pctch_real_mhval_90_00']>=pctch_rm_real_mhval_90_00, 1, 0)
 df['aboverm_pctch_real_mrent_90_00'] = np.where(df['pctch_real_mrent_90_00']>=pctch_rm_real_mrent_90_00, 1, 0)
 df['lostli_00'] = np.where(df['ch_all_li_count_90_00']<0, 1, 0)
-df['lostli_18'] = np.where(df['ch_all_li_count_00_18']<0, 1, 0)
+df['lostli_19'] = np.where(df['ch_all_li_count_00_19']<0, 1, 0)
 df['aboverm_pctch_real_hinc_90_00'] = np.where(df['pctch_real_hinc_90_00']>pctch_rm_real_hinc_90_00, 1, 0)
-df['aboverm_pctch_real_hinc_00_18'] = np.where(df['pctch_real_hinc_00_18']>pctch_rm_real_hinc_00_18, 1, 0)
+df['aboverm_pctch_real_hinc_00_19'] = np.where(df['pctch_real_hinc_00_19']>pctch_rm_real_hinc_00_19, 1, 0)
 df['aboverm_ch_per_col_90_00'] = np.where(df['ch_per_col_90_00']>ch_rm_per_col_90_00, 1, 0)
-df['aboverm_ch_per_col_00_18'] = np.where(df['ch_per_col_00_18']>ch_rm_per_col_00_18, 1, 0)
-df['aboverm_per_units_pre50_18'] = np.where(df['per_units_pre50_18']>rm_per_units_pre50_18, 1, 0)
+df['aboverm_ch_per_col_00_19'] = np.where(df['ch_per_col_00_19']>ch_rm_per_col_00_19, 1, 0)
+df['aboverm_per_units_pre50_19'] = np.where(df['per_units_pre50_19']>rm_per_units_pre50_19, 1, 0)
 
 # Shapefiles
 # --------------------------------------------------------------------------
@@ -1041,7 +1045,7 @@ rail.crs = {'init' :'epsg:4269'}
 
 ## creates UTM projection
 ## zone is defined under define city specific variables
-projection = '+proj=utm +zone='+zone+', +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
+projection = '+proj=utm +zone=' + zone + ' +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
 
 ## project to UTM coordinate system
 rail_proj = rail.to_crs(projection)
@@ -1106,5 +1110,5 @@ census_zillow.query("FIPS == 13121011100")
 # Export Data
 # ==========================================================================
 
-census_zillow.to_csv(output_path+'databases/'+city_name.replace(" ", "")+'_database_2018.csv')
+census_zillow.to_csv(output_path+'databases/'+city_name.replace(" ", "")+'_database_2019.csv')
 # pq.write_table(output_path+'downloads/'+city_name.replace(" ", "")+'_database.parquet')
