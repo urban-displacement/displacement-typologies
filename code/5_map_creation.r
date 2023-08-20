@@ -526,7 +526,7 @@ red <-
             ), 
         popup = # What to include in the popup 
           str_c(
-              'Redline Grade: ', Grade
+              "1930's Redline Grade: ", Grade
           )
     ) 
 
