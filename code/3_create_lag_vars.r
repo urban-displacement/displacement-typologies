@@ -243,7 +243,7 @@ lag <-
 puma <-
     get_acs(
         geography = "public use microdata area", 
-        variable = "B05006_001", 
+        variable = "B01003_001", 
         year = 2018, 
         # wide = TRUE, 
         geometry=TRUE, 
