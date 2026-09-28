@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NYC Gentrification and Displacement</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<!-- Your data: the GeoJSON saved as a .js file that starts with  const geojsonData =  -->
+<script src="NewYorkCity_udp_files/NewYorkCity_udp_2019_data.js"></script>
+
+<style>
+  html, body { height: 100%; margin: 0; }
+  #map { height: 100%; width: 100%; background: white; }
+ 
+  /* Polygons respond to hover only: no hand cursor, no click outline */
+  .leaflet-polygons-pane .leaflet-interactive { cursor: grab; outline: none; }
+  .leaflet-dragging .leaflet-polygons-pane .leaflet-interactive { cursor: grabbing; }
+ 
+  /* Legend */
+  .info.legend {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    color: #555;
+    max-width: 260px;
+  }
+  .info.legend strong { display: block; margin-bottom: 6px; color: #333; }
+  .info.legend .row { display: flex; align-items: flex-start; margin-bottom: 4px; }
+  .info.legend i {
+    flex: 0 0 18px; height: 18px;
+    margin-right: 8px; opacity: 0.8;
+  }
+ 
+</style>
+</head>
+<body>
+<div id="map"></div>
+ 
+<script>
+/* ================= SETTINGS ================= */
+ 
+const FIELD        = "right_typology_new_1_28_19";
+const LEGEND_TITLE = "Displacement Typology";
+ 
+// Category → color. Legend shows them in this order.
+const CATEGORIES = {
+  "LI - Not Losing Low-Income Households":              "#d7d5e6",
+  "LI - At Risk of Gentrification":                     "#a694c6",
+  "LI - Ongoing Gentrification":                        "#7c69a1",
+  "LI - Ongoing Displacement of Low-Income Households": "#26596c",
+  "MHI - Advanced Gentrification":                      "#f1d07e",
+  "MHI - Stable Exclusion":                             "#f2b269",
+  "MHI - Ongoing Exclusion":                            "#c75723",
+  "VHI - Super Gentrification or Exclusion":            "#69110a",
+  "No Data":                                            "#c2c2c2"
+};
+const FALLBACK_COLOR = "#c2c2c2";   // for any value not listed above
+const FILL_OPACITY    = 0.8;       // all categories
+const MISSING_OPACITY = 0.4;       // No Data (blank, "Missing Data", or any unlisted value)
+ 
+const NYC_CENTER = [40.7128, -73.95];
+const NYC_ZOOM   = 8;
+ 
+// Carto basemap; add "?key=YOUR_KEY" after .png if your provider needs it
+const TILE_URL = "https://{s}.basemaps.cartocdn.com/{variant}/{z}/{x}/{y}{r}.png?key=cb1_3mpf_1_99143496acc981d6b0073bb0";
+ 
+/* ============================================ */
+ 
+const map = L.map("map").setView(NYC_CENTER, NYC_ZOOM);
+ 
+// Base tiles, then polygons, then place labels on top
+map.createPane("polygons").style.zIndex = 410;
+map.createPane("maplabels").style.zIndex = 420;
+map.getPane("maplabels").style.pointerEvents = "none";
+ 
+const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+L.tileLayer(TILE_URL, { variant: "light_nolabels", subdomains: "abcd", maxZoom: 20, attribution }).addTo(map);
+L.tileLayer(TILE_URL, { variant: "light_only_labels", subdomains: "abcd", maxZoom: 20, pane: "maplabels" }).addTo(map);
+ 
+function colorFor(value) {
+  return CATEGORIES[value] || FALLBACK_COLOR;
+}
+
+function isMissing(value) {
+  return !value || value === "No Data" || !CATEGORIES[value];
+}
+ 
+function drawMap(data) {
+  const layer = L.geoJSON(data, {
+    pane: "polygons",
+    style: f => {
+      const v = f.properties[FIELD];
+      const c = colorFor(v);
+      return { color: c, fillColor: c, weight: 0.7, opacity: 0.6,
+               fillOpacity: isMissing(v) ? MISSING_OPACITY : FILL_OPACITY };
+    },
+    onEachFeature: (f, lyr) => {
+      const value = f.properties[FIELD];
+      lyr.bindTooltip(isMissing(value) ? "No Data" : value, { sticky: true });
+      lyr.on("mouseover", e => {
+        e.target.setStyle({ color: "#ff4a4a", weight: 5 });
+        e.target.bringToFront();
+      });
+      lyr.on("mouseout", e => layer.resetStyle(e.target));
+    }
+  }).addTo(map);
+ 
+  const legend = L.control({ position: "topright" });
+  legend.onAdd = () => {
+    const div = L.DomUtil.create("div", "info legend");
+    div.innerHTML = `<strong>${LEGEND_TITLE}</strong>` +
+      Object.entries(CATEGORIES)
+        .map(([label, c]) => `<div class="row"><i style="background:${c};opacity:${label === "No Data" ? MISSING_OPACITY : FILL_OPACITY}"></i><span>${label}</span></div>`)
+        .join("");
+    return div;
+  };
+  legend.addTo(map);
+}
+ 
+/* ---- Draw the map ---- */
+if (typeof geojsonData === "undefined") {
+  alert("Couldn't find the map data. Check that the .js file is in NewYorkCity_udp_files and starts with: const geojsonData =");
+} else {
+  drawMap(geojsonData);
+}
+</script>
+</body>
+</html>

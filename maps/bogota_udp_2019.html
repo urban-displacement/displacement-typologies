@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bogotá Typology</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<!-- Your data: the GeoJSON saved as a .js file that starts with  const geojsonData =  -->
+<script src="bogota_udp_files/bogota_udp_2019_data.js"></script>
+
+<style>
+  html, body { height: 100%; margin: 0; }
+  #map { height: 100%; width: 100%; background: white; }
+
+  /* Polygons respond to hover only: no hand cursor, no click outline */
+  .leaflet-polygons-pane .leaflet-interactive { cursor: grab; outline: none; }
+  .leaflet-dragging .leaflet-polygons-pane .leaflet-interactive { cursor: grabbing; }
+
+  /* Legend */
+  .info.legend {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    color: #555;
+    max-width: 260px;
+  }
+  .info.legend strong { display: block; margin-bottom: 6px; color: #333; }
+  .info.legend .row { display: flex; align-items: flex-start; margin-bottom: 4px; }
+  .info.legend .sub { margin: 8px 0 4px; color: #333; font-size: 13px; }
+  .info.legend i {
+    flex: 0 0 18px; height: 18px;
+    margin-right: 8px; opacity: 0.5;
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<!-- Holds the stripe patterns used by combined categories -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="patterns"></defs></svg>
+
+<script>
+/* ================= SETTINGS ================= */
+
+const FIELD        = "typology";
+const LEGEND_TITLE = "Typology";
+
+// Single categories → color. Legend shows them in this order,
+// and combined categories ("A + B") are striped with these colors.
+const CATEGORIES = {
+  "Vulnerability":  "rgb(179, 218, 206)",
+  "Gentrification": "rgb(159, 147, 189)",
+  "Displacement":   "rgb(83, 192, 169)",
+  "Exclusion":      "rgb(252, 137, 110)"
+};
+const MISSING_COLOR = "#c2c2c2";   // blank or unrecognized values
+const STRIPE_WIDTH   = 4;          // width of each stripe, in pixels
+const STRIPE_OPACITY = 0.9;        // striped areas
+const FILL_OPACITY   = 0.9;        // solid areas
+const MISSING_OPACITY = 0.4;       // No Data areas
+
+const BOGOTA_CENTER = [4.65, -74.10];
+const BOGOTA_ZOOM   = 12;
+
+// Carto basemap
+const TILE_URL = "https://{s}.basemaps.cartocdn.com/{variant}/{z}/{x}/{y}{r}.png?key=cb1_3mpf_1_99143496acc981d6b0073bb0";
+
+/* ============================================ */
+
+const map = L.map("map").setView(BOGOTA_CENTER, BOGOTA_ZOOM);
+
+// Base tiles, then polygons, then place labels on top
+map.createPane("polygons").style.zIndex = 410;
+map.createPane("maplabels").style.zIndex = 420;
+map.getPane("maplabels").style.pointerEvents = "none";
+
+const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+L.tileLayer(TILE_URL, { variant: "light_nolabels", subdomains: "abcd", maxZoom: 20, attribution }).addTo(map);
+L.tileLayer(TILE_URL, { variant: "light_only_labels", subdomains: "abcd", maxZoom: 20, pane: "maplabels" }).addTo(map);
+
+/* ---- Reading values: single, combined, or missing ---- */
+
+const ORDER = Object.keys(CATEGORIES);
+// Match names regardless of capitalization or extra spaces
+const lookup = {};
+ORDER.forEach(name => { lookup[name.toLowerCase()] = name; });
+
+// Returns e.g. ["Gentrification"], ["Gentrification", "Displacement", "Vulnerability"], or null
+// Any number of different categories can be combined with "+".
+const unrecognized = new Set();
+function parseValue(raw) {
+  if (raw === null || raw === undefined || String(raw).trim() === "") return null;
+  const parts = String(raw).split("+").map(s => lookup[s.trim().toLowerCase()]);
+  if (parts.some(p => !p) || new Set(parts).size !== parts.length) {
+    unrecognized.add(String(raw));                        // unknown name or repeat
+    return null;
+  }
+  return parts;
+}
+
+/* ---- Stripe patterns, made on demand for each combination ---- */
+
+const defs = document.getElementById("patterns");
+const made = new Set();
+
+// One band per category, repeating: A, B (, C ...)
+function patternFor(parts) {
+  const id = "stripe-" + parts.join("-").toLowerCase();
+  if (!made.has(id)) {
+    const w = STRIPE_WIDTH, total = w * parts.length;
+    const bands = parts.map((p, i) =>
+      `<rect x="${i * w}" width="${w}" height="${total}" fill="${CATEGORIES[p]}"/>`).join("");
+    defs.insertAdjacentHTML("beforeend", `
+      <pattern id="${id}" width="${total}" height="${total}"
+               patternUnits="userSpaceOnUse" patternTransform="rotate(45)">${bands}</pattern>`);
+    made.add(id);
+  }
+  return `url(#${id})`;
+}
+
+function styleFor(parts) {
+  if (!parts)            return { color: MISSING_COLOR, fillColor: MISSING_COLOR };
+  if (parts.length === 1) return { color: CATEGORIES[parts[0]], fillColor: CATEGORIES[parts[0]] };
+  return { color: CATEGORIES[parts[0]], fillColor: patternFor(parts) };
+}
+
+// Same stripes for the legend swatches, drawn with CSS
+function stripeCSS(parts) {
+  const w = 2;
+  const stops = parts.map((p, i) => `${CATEGORIES[p]} ${i * w}px ${(i + 1) * w}px`).join(", ");
+  return `repeating-linear-gradient(45deg, ${stops})`;
+}
+
+/* ---- Map ---- */
+
+function drawMap(data) {
+  const combosFound = new Map();   // "A + B" label → [A, B]
+  let hasMissing = false;
+
+  const layer = L.geoJSON(data, {
+    pane: "polygons",
+    style: f => {
+      const parts = parseValue(f.properties[FIELD]);
+      if (!parts) hasMissing = true;
+      else if (parts.length > 1) combosFound.set(parts.join(" + "), parts);
+      const striped = parts && parts.length > 1;
+      return { ...styleFor(parts), weight: 0.7, opacity: 0.6,
+               fillOpacity: !parts ? MISSING_OPACITY : striped ? STRIPE_OPACITY : FILL_OPACITY };
+    },
+    onEachFeature: (f, lyr) => {
+      const parts = parseValue(f.properties[FIELD]);
+      lyr.bindTooltip(parts ? parts.join(" + ") : "No Data", { sticky: true });
+      lyr.on("mouseover", e => {
+        e.target.setStyle({ color: "#ff4a4a", weight: 5 });
+        e.target.bringToFront();
+      });
+      lyr.on("mouseout", e => layer.resetStyle(e.target));
+    }
+  }).addTo(map);
+
+  // Legend: the four categories, then any combinations that appear in the data
+  const legend = L.control({ position: "topright" });
+  legend.onAdd = () => {
+    const div = L.DomUtil.create("div", "info legend");
+    let html = `<strong>${LEGEND_TITLE}</strong>`;
+    ORDER.forEach(name => {
+      html += `<div class="row"><i style="background:${CATEGORIES[name]};opacity:${FILL_OPACITY}"></i><span>${name}</span></div>`;
+    });
+    if (combosFound.size) {
+      html += `<div class="sub">Combined</div>`;
+      [...combosFound.entries()]
+        .sort((x, y) => x[0].localeCompare(y[0]))
+        .forEach(([label, parts]) => {
+          html += `<div class="row"><i style="background:${stripeCSS(parts)};opacity:${STRIPE_OPACITY}"></i><span>${label}</span></div>`;
+        });
+    }
+    if (hasMissing) {
+      html += `<div class="row" style="margin-top:8px"><i style="background:${MISSING_COLOR};opacity:${MISSING_OPACITY}"></i><span>No Data</span></div>`;
+    }
+    div.innerHTML = html;
+    return div;
+  };
+  legend.addTo(map);
+
+  // To see exactly which values became No Data, open the browser console (F12)
+  if (unrecognized.size) console.warn("Values shown as No Data:", [...unrecognized]);
+}
+
+/* ---- Draw the map ---- */
+if (typeof geojsonData === "undefined") {
+  alert("Couldn't find the map data. Check that the .js file is at bogota_udp_files/bogota_udp_2019_data.js and starts with: const geojsonData =");
+} else {
+  drawMap(geojsonData);
+}
+</script>
+</body>
+</html>
